@@ -1,0 +1,6 @@
+# Meta-Agent Nova dependencies
+openai>=1.0.0
+langchain
+crewai
+docker
+python-dotenv
