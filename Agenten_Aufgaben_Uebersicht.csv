@@ -1,0 +1,23 @@
+Agenten-Name,Aufgabe,Status
+Nova (Chef-Agentin),DGX OS überprüfen und Netzwerk einrichten,Offen
+Nova (Chef-Agentin),Docker und Kubernetes-Cluster installieren,Offen
+Nova (Chef-Agentin),VPN & Fernzugriff (WireGuard/OpenVPN) aktivieren,Offen
+Nova (Chef-Agentin),Security & Datenschutz-Checks durchführen,Offen
+Nova (Chef-Agentin),Backup- & Recovery-System aufsetzen,Offen
+Orion (KI-Software-Spezialist),NVIDIA NeMo Framework installieren,Offen
+Orion (KI-Software-Spezialist),"LLM-Auswahl treffen und installieren (z.B. Llama 3, Mixtral)",Offen
+Orion (KI-Software-Spezialist),Finetuning & Anpassung des LLM für Sophia,Offen
+Orion (KI-Software-Spezialist),LangChain installieren und integrieren,Offen
+Lumina (Datenbank & Speicherexperte),MongoDB & PostgreSQL installieren und konfigurieren,Offen
+Lumina (Datenbank & Speicherexperte),"Einrichtung Sophia-Wissensdatenbank (VectorDB: Pinecone, FAISS)",Offen
+Echo (Avatar & Interaktionsdesigner),"NVIDIA ACE (Riva, Audio2Face, NeMo) installieren",Offen
+Echo (Avatar & Interaktionsdesigner),"Avatar-Pipeline erstellen & Avatar animieren (Omniverse, Audio2Face, Riva)",Offen
+Echo (Avatar & Interaktionsdesigner),Integration Sophia-Avatar mit MS Teams,Offen
+Chronos (Workflow & Automatisierungsspezialist),n8n Workflow Automation installieren und konfigurieren,Offen
+Chronos (Workflow & Automatisierungsspezialist),Entwicklung von Chain-Pipelines & Agentenworkflows (LangChain/n8n),Offen
+Chronos (Workflow & Automatisierungsspezialist),Aktivierung automatischer Selbstverbesserung (Data Flywheel),Offen
+Chronos (Workflow & Automatisierungsspezialist),CI/CD Pipeline mit GitHub Enterprise und Kubernetes einrichten,Offen
+Aura (Monitoring & Dashboard-Entwicklerin),Grafana installieren und initialisieren,Offen
+Aura (Monitoring & Dashboard-Entwicklerin),Sophia-Dashboard (LUX-Dashboard) entwickeln und integrieren,Offen
+Aura (Monitoring & Dashboard-Entwicklerin),Energie- & Ressourceneffizienz-Optimierung aktivieren,Offen
+Aura (Monitoring & Dashboard-Entwicklerin),Emotionales & Stimmungs-Feedback visualisieren,Offen
