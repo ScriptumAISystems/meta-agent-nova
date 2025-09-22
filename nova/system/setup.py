@@ -16,13 +16,15 @@ def prepare_environment() -> None:
     print("Preparing environment... (stub)")
 
 
-def install_packages(packages: list[str]) -> None:
+def install_packages(packages: list[str] = None) -> None:
     """
     Install the given list of packages.
 
     Args:
-        packages: List of package names to install.
+        packages: List of package names to install. If None, installs default packages.
     """
+    if packages is None:
+        packages = ["docker", "python3", "git"]  # Default packages
     package_list = ", ".join(packages)
     print(f"Installing packages: {package_list} (stub)")
 
