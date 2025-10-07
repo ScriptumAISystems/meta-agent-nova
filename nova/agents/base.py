@@ -174,6 +174,7 @@ class BaseAgent:
             for message in self.communication_hub.messages_for(self.agent_type)
             if message.subject.startswith("agent-start::")
             or message.subject.startswith("orchestration-start")
+            or message.subject.startswith("phase-start::")
         ]
         for message in instructions:
             monitoring_logging.log_info(

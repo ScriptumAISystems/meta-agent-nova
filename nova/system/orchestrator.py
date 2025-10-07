@@ -11,6 +11,7 @@ from ..agents.registry import get_agent_class, list_agent_types
 from ..blueprints.generator import create_blueprint
 from ..blueprints.models import AgentBlueprint
 from ..system.communication import AgentMessage, CommunicationHub
+from ..system.mission import ExecutionPhase, ExecutionPlan, build_default_plan
 from ..monitoring.alerts import notify_info, notify_warning
 from ..monitoring.logging import log_error, log_info
 
@@ -22,6 +23,7 @@ class OrchestrationReport:
     agent_reports: List[AgentRunReport]
     communication_log: List[AgentMessage]
     execution_mode: str = "sequential"
+    execution_plan: ExecutionPlan | None = None
 
     @property
     def success(self) -> bool:
@@ -33,6 +35,9 @@ class OrchestrationReport:
             "agents": [report.to_dict() for report in self.agent_reports],
             "messages": [message.to_dict() for message in self.communication_log],
             "execution_mode": self.execution_mode,
+            "execution_plan": self.execution_plan.to_dict()
+            if self.execution_plan
+            else None,
         }
 
     def to_markdown(self) -> str:
@@ -44,8 +49,16 @@ class OrchestrationReport:
             f"* Overall status: {'success' if self.success else 'issues detected'}",
             f"* Execution mode: {self.execution_mode}",
             "",
-            "## Agent Runs",
         ]
+        if self.execution_plan and self.execution_plan.phases:
+            lines.append("## Execution Plan")
+            for phase in self.execution_plan.phases:
+                lines.append(f"- **{phase.name}**: {phase.goal}")
+                lines.append("  - Agents: " + ", ".join(phase.agents))
+            lines.append("")
+        lines.extend(
+            "## Agent Runs",
+        )
         for report in self.agent_reports:
             lines.append(report.to_markdown())
             lines.append("")
@@ -71,6 +84,7 @@ class Orchestrator:
         communication_hub: CommunicationHub | None = None,
         execution_mode: str = "sequential",
         max_workers: int | None = None,
+        execution_plan: ExecutionPlan | None = None,
     ):
         available_agents = list_agent_types()
         if agent_types:
@@ -90,6 +104,9 @@ class Orchestrator:
         self.execution_mode = execution_mode
         self.max_workers = max_workers
         self._blueprint_cache: dict[str, AgentBlueprint] = {}
+        base_plan = execution_plan or build_default_plan()
+        self.execution_plan = base_plan.filtered(self.agent_types)
+        self.agent_types = list(self.execution_plan.iter_agents())
 
     def _get_blueprint(self, agent_type: str) -> AgentBlueprint:
         blueprint = self._blueprint_cache.get(agent_type)
@@ -97,6 +114,32 @@ class Orchestrator:
             blueprint = create_blueprint(agent_type)
             self._blueprint_cache[agent_type] = blueprint
         return blueprint
+
+    def _announce_phase_start(self, phase: ExecutionPhase) -> None:
+        if not phase.agents:
+            return
+        self.communication_hub.broadcast(
+            sender="orchestrator",
+            subject=f"phase-start::{phase.name}",
+            body=phase.goal,
+            metadata={"agents": list(phase.agents)},
+        )
+        for agent_type in phase.agents:
+            blueprint = self._get_blueprint(agent_type)
+            dependencies = self.execution_plan.dependencies_for(agent_type)
+            self.communication_hub.send(
+                sender="orchestrator",
+                subject=f"agent-start::{agent_type}",
+                body=(
+                    f"Agent {agent_type} requested to begin execution during phase {phase.name}."
+                ),
+                recipients=(agent_type,),
+                metadata={
+                    "tasks": len(blueprint.tasks),
+                    "phase": phase.name,
+                    "depends_on": list(dependencies),
+                },
+            )
 
     def _run_agent(self, agent_type: str) -> AgentRunReport | None:
         agent_cls = get_agent_class(agent_type)
@@ -125,26 +168,27 @@ class Orchestrator:
         )
         return report
 
-    def _sequential_execution(self) -> List[AgentRunReport]:
+    def _sequential_execution(self, agent_sequence: Iterable[str]) -> List[AgentRunReport]:
         reports: List[AgentRunReport] = []
-        for agent_type in self.agent_types:
+        for agent_type in agent_sequence:
             report = self._run_agent(agent_type)
             if report is not None:
                 reports.append(report)
         return reports
 
-    def _parallel_execution(self) -> List[AgentRunReport]:
+    def _parallel_execution(self, agent_sequence: Iterable[str]) -> List[AgentRunReport]:
         reports: List[AgentRunReport] = []
-        if not self.agent_types:
+        agent_list = list(agent_sequence)
+        if not agent_list:
             return reports
-        workers = self.max_workers or len(self.agent_types)
+        workers = self.max_workers or len(agent_list)
         with ThreadPoolExecutor(max_workers=workers) as executor:
-            futures = {executor.submit(self._run_agent, agent): agent for agent in self.agent_types}
+            futures = {executor.submit(self._run_agent, agent): agent for agent in agent_list}
             for future in as_completed(futures):
                 report = future.result()
                 if report is not None:
                     reports.append(report)
-        reports.sort(key=lambda item: self.agent_types.index(item.agent_type))
+        reports.sort(key=lambda item: agent_list.index(item.agent_type))
         return reports
 
     def execute(self) -> OrchestrationReport:
@@ -161,27 +205,41 @@ class Orchestrator:
             sender="orchestrator",
             subject="orchestration-start",
             body="Orchestration cycle initialised.",
-            metadata={"agents": list(self.agent_types), "mode": mode},
+            metadata={
+                "agents": list(self.agent_types),
+                "mode": mode,
+                "plan": self.execution_plan.to_dict()
+                if self.execution_plan
+                else None,
+            },
         )
-        for agent_type in self.agent_types:
-            blueprint = self._get_blueprint(agent_type)
-            self.communication_hub.send(
-                sender="orchestrator",
-                subject=f"agent-start::{agent_type}",
-                body=f"Agent {agent_type} requested to begin execution.",
-                recipients=(agent_type,),
-                metadata={"tasks": len(blueprint.tasks)},
+        reports: List[AgentRunReport] = []
+        phases = self.execution_plan.phases if self.execution_plan else ()
+        plan_for_report: ExecutionPlan | None = self.execution_plan
+        if not phases and self.agent_types:
+            phases = (
+                ExecutionPhase(
+                    name="ad-hoc",
+                    goal="Default execution phase for unplanned agents.",
+                    agents=tuple(self.agent_types),
+                ),
             )
+            plan_for_report = ExecutionPlan(phases)
 
-        if mode == "parallel":
-            reports = self._parallel_execution()
-        else:
-            reports = self._sequential_execution()
+        for phase in phases:
+            if not phase.agents:
+                continue
+            self._announce_phase_start(phase)
+            if mode == "parallel":
+                reports.extend(self._parallel_execution(phase.agents))
+            else:
+                reports.extend(self._sequential_execution(phase.agents))
 
         orchestration_report = OrchestrationReport(
             agent_reports=reports,
             communication_log=list(self.communication_hub.messages),
             execution_mode=mode,
+            execution_plan=plan_for_report,
         )
         if orchestration_report.success:
             notify_info("All agents completed successfully.")

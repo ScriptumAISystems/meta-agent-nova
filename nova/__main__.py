@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import argparse
 import os
+from pathlib import Path
 from typing import Iterable
 
 from .agents.registry import list_agent_types
@@ -19,6 +20,7 @@ from .system.orchestrator import Orchestrator
 from .blueprints.generator import create_blueprint, list_available_blueprints
 from .monitoring.alerts import notify_info, notify_warning
 from .monitoring.logging import configure_logger, log_error, log_info, log_warning
+from .monitoring.reports import build_markdown_test_report
 
 
 DEFAULT_PACKAGES = [
@@ -110,6 +112,12 @@ def run_orchestration(agent_types: Iterable[str] | None = None) -> None:
     report = orchestrator.execute()
     log_info(f"Orchestration result: {report.to_dict()}")
     log_info("Orchestration summary (markdown):\n" + report.to_markdown())
+    report_content = build_markdown_test_report(report)
+    reports_dir = Path(os.environ.get("NOVA_HOME") or Path.cwd()) / "reports"
+    reports_dir.mkdir(parents=True, exist_ok=True)
+    report_path = reports_dir / "nova-test-report.md"
+    report_path.write_text(report_content, encoding="utf-8")
+    log_info(f"Stored orchestration test report at {report_path}")
 
 
 def build_parser() -> argparse.ArgumentParser:

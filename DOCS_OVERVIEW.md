@@ -14,4 +14,10 @@ The file `TASKS.md` consolidates all tasks across agents into one location. Use 
 ## Orchestration Communication
 `docs/ORCHESTRATION_REPORTS.md` explains how the communication hub records agent messages and how Markdown status reports are produced after each orchestration run.
 
+## Execution Plan
+`docs/EXECUTION_PLAN.md` details the new phased execution model that aligns the orchestrator with the responsibilities captured in `TASKS.md`. Each phase lists participating agents, goals and the broadcast messages emitted during orchestration.
+
+## Task Coverage Summary
+`docs/TASK_COMPLETION.md` cross-references every requirement from `TASKS.md` with the blueprint tasks executed during orchestration to simplify auditing and reporting.
+
 Use these documents together to understand the project's context and to guide future development.

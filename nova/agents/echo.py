@@ -12,6 +12,8 @@ class EchoAgent(BaseAgent):
         report = super().execute_task(task)
         if task.name == "ace-toolkit-setup":
             report.details.append("ace-toolkit: readiness checklist compiled")
+        elif task.name == "avatar-pipeline":
+            report.details.append("avatar-pipeline: omniverse assets staged")
         elif task.name == "teams-integration":
             report.details.append("teams-manifest: draft stored")
         return report
