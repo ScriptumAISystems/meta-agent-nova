@@ -11,6 +11,7 @@ Nova's mission is to accelerate software delivery while improving reproducibilit
 - **Initial Setup**: Perform system checks for CPU, GPU and network, install required packages (Python, Docker, etc.), configure firewall and users.
 - **Agent Blueprints**: Autogenerate 20–30 modular agent templates with predefined roles (planner, coder, tester, ops, etc.) and assign skills.
 - **Orchestration & Monitoring**: Launch agent processes, run test simulations, monitor resource usage and automatically recover from errors.
+- **Coordinated Communication**: Built-in communication hub captures inter-agent messages and produces Markdown status reports after every orchestration run.
 - **Modularity & Portability**: All scripts and configurations are modular so the system can be migrated from a local machine to the Spark cluster.
 - **User Interfaces**: Simple command-line interface (CLI) with optional web dashboard for status and control.
 - **Logging**: Comprehensive logging and optional cloud backup of logs and configuration.

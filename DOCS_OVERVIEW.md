@@ -11,4 +11,7 @@ This document summarises the tasks for each agent role — Nova, Orion, Lumina,
 ## Tasks List
 The file `TASKS.md` consolidates all tasks across agents into one location. Use this list to track progress and plan the implementation of Nova and its sub‑agents.
 
+## Orchestration Communication
+`docs/ORCHESTRATION_REPORTS.md` explains how the communication hub records agent messages and how Markdown status reports are produced after each orchestration run.
+
 Use these documents together to understand the project's context and to guide future development.
