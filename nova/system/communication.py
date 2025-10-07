@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
+from threading import RLock
 from typing import Any, Iterable, Tuple
 
 
@@ -31,6 +32,7 @@ class CommunicationHub:
 
     def __init__(self) -> None:
         self._messages: list[AgentMessage] = []
+        self._lock = RLock()
 
     @staticmethod
     def _normalise_recipients(recipients: Iterable[str] | None) -> Tuple[str, ...]:
@@ -41,7 +43,8 @@ class CommunicationHub:
     def publish(self, message: AgentMessage) -> AgentMessage:
         """Store ``message`` in the log and return it."""
 
-        self._messages.append(message)
+        with self._lock:
+            self._messages.append(message)
         return message
 
     def send(
@@ -86,29 +89,33 @@ class CommunicationHub:
     def messages(self) -> Tuple[AgentMessage, ...]:
         """Return the recorded messages as an immutable tuple."""
 
-        return tuple(self._messages)
+        with self._lock:
+            return tuple(self._messages)
 
     def messages_for(self, recipient: str) -> list[AgentMessage]:
         """Return all messages addressed to ``recipient`` or broadcast to ``all``."""
 
         recipient_key = recipient.strip().lower()
-        return [
-            message
-            for message in self._messages
-            if "all" in message.recipients or recipient_key in message.recipients
-        ]
+        with self._lock:
+            return [
+                message
+                for message in self._messages
+                if "all" in message.recipients or recipient_key in message.recipients
+            ]
 
     def latest(self) -> AgentMessage | None:
         """Return the newest message in the log if available."""
 
-        if not self._messages:
-            return None
-        return self._messages[-1]
+        with self._lock:
+            if not self._messages:
+                return None
+            return self._messages[-1]
 
     def clear(self) -> None:
         """Remove all stored messages."""
 
-        self._messages.clear()
+        with self._lock:
+            self._messages.clear()
 
 
 __all__ = ["AgentMessage", "CommunicationHub"]

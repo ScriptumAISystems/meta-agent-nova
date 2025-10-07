@@ -9,6 +9,7 @@ and :mod:`nova.monitoring`.
 from __future__ import annotations
 
 import argparse
+import os
 from typing import Iterable
 
 from .agents.registry import list_agent_types
@@ -104,7 +105,8 @@ def run_orchestration(agent_types: Iterable[str] | None = None) -> None:
     """Execute orchestrated agent workflows."""
 
     configure_logger()
-    orchestrator = Orchestrator(agent_types)
+    execution_mode = os.environ.get("NOVA_EXECUTION_MODE", "sequential")
+    orchestrator = Orchestrator(agent_types, execution_mode=execution_mode)
     report = orchestrator.execute()
     log_info(f"Orchestration result: {report.to_dict()}")
     log_info("Orchestration summary (markdown):\n" + report.to_markdown())

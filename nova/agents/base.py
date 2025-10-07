@@ -39,6 +39,7 @@ class AgentRunReport:
     agent_type: str
     blueprint: AgentBlueprint
     task_reports: List[TaskExecutionReport]
+    pre_run_messages: List[AgentMessage] = field(default_factory=list)
 
     @property
     def success(self) -> bool:
@@ -49,6 +50,7 @@ class AgentRunReport:
             "agent_type": self.agent_type,
             "success": self.success,
             "tasks": [report.to_dict() for report in self.task_reports],
+            "pre_run_messages": [message.to_dict() for message in self.pre_run_messages],
         }
 
     def to_markdown(self) -> str:
@@ -56,6 +58,14 @@ class AgentRunReport:
             f"### Agent `{self.agent_type}`",
             f"* Status: {'success' if self.success else 'issues detected'}",
         ]
+        if self.pre_run_messages:
+            lines.append("* Incoming instructions:")
+            for message in self.pre_run_messages:
+                lines.append(
+                    "  - "
+                    + message.subject
+                    + (f" ({message.body})" if message.body else "")
+                )
         if not self.task_reports:
             lines.append("* No tasks executed.")
         for task_report in self.task_reports:
@@ -90,10 +100,16 @@ class BaseAgent:
             f"Starting execution for agent '{self.agent_type}' with {len(self.blueprint.tasks)} tasks."
         )
         reports: List[TaskExecutionReport] = []
+        pre_run_messages = self._collect_instructions()
         for task in self.blueprint.tasks:
             report = self.execute_task(task)
             reports.append(report)
-        return AgentRunReport(agent_type=self.agent_type, blueprint=self.blueprint, task_reports=reports)
+        return AgentRunReport(
+            agent_type=self.agent_type,
+            blueprint=self.blueprint,
+            task_reports=reports,
+            pre_run_messages=pre_run_messages,
+        )
 
     # The base implementation is intentionally simple yet fully traceable.  Subclasses
     # may override this method to inject additional side effects or validation.
@@ -147,6 +163,23 @@ class BaseAgent:
             "Communication emitted: " + str(message.to_dict())
         )
         return message
+
+    def _collect_instructions(self) -> List[AgentMessage]:
+        """Fetch messages addressed to this agent before task execution."""
+
+        if self.communication_hub is None:
+            return []
+        instructions = [
+            message
+            for message in self.communication_hub.messages_for(self.agent_type)
+            if message.subject.startswith("agent-start::")
+            or message.subject.startswith("orchestration-start")
+        ]
+        for message in instructions:
+            monitoring_logging.log_info(
+                "Instruction received: " + str(message.to_dict())
+            )
+        return instructions
 
 
 __all__ = [

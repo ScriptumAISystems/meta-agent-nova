@@ -20,3 +20,9 @@ def test_cli_setup_and_orchestrate(tmp_path, monkeypatch):
     assert (tmp_path / "configs" / "settings.json").exists()
 
     __main__.main(["orchestrate"])
+
+
+def test_cli_orchestrate_parallel(tmp_path, monkeypatch):
+    monkeypatch.setenv("NOVA_HOME", str(tmp_path))
+    monkeypatch.setenv("NOVA_EXECUTION_MODE", "parallel")
+    __main__.main(["orchestrate"])
