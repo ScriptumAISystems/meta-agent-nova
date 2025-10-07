@@ -29,6 +29,26 @@ def _build_monitoring_blueprint() -> AgentBlueprint:
                 ],
             ),
             AgentTaskSpec(
+                name="lux-dashboard",
+                goal="Deliver the Sophia LUX observability dashboard.",
+                steps=[
+                    "Design dashboard layout aligned with executive KPIs.",
+                    "Bind data sources for operational and sentiment telemetry.",
+                    "Export reusable dashboard JSON templates for reuse.",
+                ],
+                outputs=["LUX dashboard package"],
+            ),
+            AgentTaskSpec(
+                name="efficiency-optimisation",
+                goal="Optimise energy and resource usage across the platform.",
+                steps=[
+                    "Analyse recent utilisation metrics for inefficiencies.",
+                    "Propose tuning adjustments for compute and storage tiers.",
+                    "Summarise projected savings and implementation roadmap.",
+                ],
+                outputs=["Efficiency optimisation report"],
+            ),
+            AgentTaskSpec(
                 name="emotional-feedback-visualisation",
                 goal="Expose user sentiment telemetry on the monitoring stack.",
                 steps=[
@@ -73,6 +93,26 @@ def _build_workflow_blueprint() -> AgentBlueprint:
                     "Kubernetes deployment templates",
                 ],
             ),
+            AgentTaskSpec(
+                name="agent-pipelines",
+                goal="Implement LangChain and n8n pipelines for autonomous agents.",
+                steps=[
+                    "Map hand-offs between LangChain chains and Nova agents.",
+                    "Generate n8n workflow exports for key automations.",
+                    "Document monitoring hooks for each automation trigger.",
+                ],
+                outputs=["Automation pipeline exports"],
+            ),
+            AgentTaskSpec(
+                name="data-flywheel",
+                goal="Activate continuous improvement loops for training data.",
+                steps=[
+                    "Define data ingestion cadence and validation steps.",
+                    "Describe feedback incorporation into retraining schedule.",
+                    "Publish governance checklist for automated rollouts.",
+                ],
+                outputs=["Data flywheel activation brief"],
+            ),
         ],
     )
 
@@ -91,6 +131,16 @@ def _build_avatar_blueprint() -> AgentBlueprint:
                     "Produce a readiness checklist for deployment teams.",
                 ],
                 outputs=["ACE readiness checklist"],
+            ),
+            AgentTaskSpec(
+                name="avatar-pipeline",
+                goal="Establish the Omniverse and Audio2Face animation pipeline.",
+                steps=[
+                    "Generate Omniverse project scaffolding for avatar assets.",
+                    "Connect Audio2Face blend shapes with Riva speech services.",
+                    "Package deployment instructions for real-time rendering teams.",
+                ],
+                outputs=["Avatar pipeline deployment pack"],
             ),
             AgentTaskSpec(
                 name="teams-integration",
@@ -130,6 +180,26 @@ def _build_modelops_blueprint() -> AgentBlueprint:
                     "List evaluation metrics for acceptance.",
                 ],
                 outputs=["Finetuning playbook"],
+            ),
+            AgentTaskSpec(
+                name="llm-selection",
+                goal="Recommend the most suitable base LLM for Sophia.",
+                steps=[
+                    "Compare candidate LLM architectures against project KPIs.",
+                    "Capture hardware utilisation and licensing considerations.",
+                    "Record rollout decision including fallback models.",
+                ],
+                outputs=["LLM selection dossier"],
+            ),
+            AgentTaskSpec(
+                name="langchain-integration",
+                goal="Design the LangChain orchestration layer for agent hand-offs.",
+                steps=[
+                    "Identify required toolkits and callback handlers.",
+                    "Draft LangChain agent graph for Nova ecosystem workflows.",
+                    "Document deployment steps for production alignment.",
+                ],
+                outputs=["LangChain integration guide"],
             ),
         ],
     )

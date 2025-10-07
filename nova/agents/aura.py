@@ -14,6 +14,10 @@ class AuraAgent(BaseAgent):
         report = super().execute_task(task)
         if task.name == "install-grafana":
             report.details.append("grafana-configured: dashboards registered")
+        elif task.name == "lux-dashboard":
+            report.details.append("lux-dashboard: executive views published")
+        elif task.name == "efficiency-optimisation":
+            report.details.append("efficiency: optimisation recommendations issued")
         elif task.name == "emotional-feedback-visualisation":
             report.details.append("sentiment-report: generated weekly digest")
         return report

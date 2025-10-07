@@ -1,10 +1,14 @@
 # Orchestration Communication & Reporting
 
-The Nova orchestrator now exposes a communication hub that records every
+The Nova orchestrator exposes a communication hub that records every
 message exchanged between agents and the orchestration engine. Each agent
 publishes a status message when a task is completed. The orchestrator
 also publishes lifecycle notifications before and after each agent run,
-ensuring that pre-run instructions are visible to the agents.
+ensuring that pre-run instructions are visible to the agents. Beginning
+with the execution-plan upgrade, phases such as *foundation*,
+*model-operations* and *observability* emit dedicated ``phase-start``
+messages so that dependent agents (for example Chronos waiting for Orion)
+receive structured context before their tasks are executed.
 
 All recorded messages are persisted in an in-memory log that becomes part
 of the orchestration report. A Markdown summary can be generated via
@@ -20,13 +24,16 @@ Key capabilities:
 - Filter the communication log for specific recipients, allowing agents
   such as monitoring or workflow services to pull only relevant updates.
 - Produce Markdown summaries that can be copied into documentation or
-  shared with stakeholders after each orchestration run.
+  shared with stakeholders after each orchestration run. The CLI now also
+  persists these reports under ``$NOVA_HOME/reports/nova-test-report.md``.
 - Run agents sequentially or in parallel by passing ``execution_mode`` to
   the orchestrator. Parallel mode uses a thread pool while maintaining
   deterministic ordering in the resulting reports.
 - Generate ready-to-share QA/test documentation via
   :func:`nova.monitoring.reports.build_markdown_test_report`, which wraps
-  the orchestration report in a stakeholder-friendly format.
+  the orchestration report in a stakeholder-friendly format. The output
+  includes the execution plan, listing the agents grouped by phase and
+  their orchestration goals for clear traceability.
 
 This mechanism provides the foundation for richer coordination between
 Nova, Lumina, Orion, Echo, Chronos and Aura while keeping the system fully

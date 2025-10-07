@@ -17,6 +17,12 @@ def build_markdown_test_report(
     lines.append(f"* Overall status: {'success' if report.success else 'issues detected'}")
     lines.append(f"* Execution mode: {report.execution_mode}")
     lines.append("")
+    if report.execution_plan and report.execution_plan.phases:
+        lines.append("## Execution Plan")
+        for phase in report.execution_plan.phases:
+            lines.append(f"- **{phase.name}**: {phase.goal}")
+            lines.append("  - Agents: " + ", ".join(phase.agents))
+        lines.append("")
     lines.append("## Agent Outcomes")
     if not report.agent_reports:
         lines.append("- No agents executed.")

@@ -14,6 +14,10 @@ class ChronosAgent(BaseAgent):
             report.details.append("workflow-runner: compose manifest produced")
         elif task.name == "continuous-delivery":
             report.details.append("ci-cd: deployment artefacts registered")
+        elif task.name == "agent-pipelines":
+            report.details.append("automation: langchain and n8n flows exported")
+        elif task.name == "data-flywheel":
+            report.details.append("data-flywheel: continuous improvement loop defined")
         return report
 
 

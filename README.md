@@ -11,6 +11,7 @@ Nova's mission is to accelerate software delivery while improving reproducibilit
 - **Initial Setup**: Perform system checks for CPU, GPU and network, install required packages (Python, Docker, etc.), configure firewall and users.
 - **Agent Blueprints**: Autogenerate 20–30 modular agent templates with predefined roles (planner, coder, tester, ops, etc.) and assign skills.
 - **Orchestration & Monitoring**: Launch agent processes, run test simulations, monitor resource usage and automatically recover from errors. Runs can be executed sequentially or in parallel, depending on workload needs.
+- **Execution Plan & Phase Coordination**: The orchestrator groups Nova, Orion, Lumina, Chronos, Echo and Aura into deterministic phases. Each phase emits broadcast instructions and dependency metadata (see `docs/EXECUTION_PLAN.md`).
 - **Coordinated Communication**: Built-in communication hub captures inter-agent messages and produces Markdown status reports after every orchestration run.
 - **Automated Test Reporting**: Generate distribution-ready QA summaries via ``nova.monitoring.reports.build_markdown_test_report`` to keep stakeholders informed.
 - **Data Services Playbooks**: Ready-made deployment plans for MongoDB, PostgreSQL and vector stores live in ``docs/LUMINA_PLANS.md``.
