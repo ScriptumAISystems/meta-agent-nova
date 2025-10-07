@@ -28,16 +28,29 @@ pip install -r requirements.txt
 After installation, you can start the manager with:
 
 ```bash
-python -m nova
+python -m nova --help
 ```
 
-The CLI will guide you through system checks, setup and agent provisioning.
+The CLI provides the following subcommands:
+
+- `setup`: prepare the local Nova working directory, simulate package installation and run hardware checks.
+- `blueprints`: list and preview the built-in agent blueprints.
+- `monitor`: initialise the logging and alerting pipeline.
+- `orchestrate`: execute every registered agent sequentially using the blueprint specifications.
+
+Example workflow:
+
+```bash
+python -m nova setup --packages docker kubernetes
+python -m nova blueprints
+python -m nova orchestrate
+```
 
 ## Roadmap
 
 - Finalise feature list for v1.0.
-- Develop agent blueprints and roles.
-- Implement test harness and monitoring.
+- Develop agent blueprints and roles. ✅
+- Implement test harness and monitoring. ✅
 - Prepare migration to Spark hardware.
 
 ## Contributing

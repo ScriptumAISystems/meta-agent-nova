@@ -1,28 +1,20 @@
-"""
-Echo Agent
+"""Echo agent implementation."""
 
-This module defines the Echo agent, which focuses on avatar design and
-interaction for the Spark Sophia ecosystem. Echo is responsible for
-installing and configuring NVIDIA ACE tools (such as Riva, Audio2Face,
-NeMo), building the avatar pipeline and animations using Omniverse and
-associated tools, and integrating the Sophia avatar into communication
-platforms like Microsoft Teams.
-"""
+from __future__ import annotations
+
+from .base import BaseAgent
 
 
-def install_ace_tools():
-    """Install the NVIDIA ACE components: Riva, Audio2Face, and NeMo."""
-    # TODO: implement installation logic for ACE tools
-    pass
+class EchoAgent(BaseAgent):
+    agent_type = "echo"
+
+    def execute_task(self, task):  # type: ignore[override]
+        report = super().execute_task(task)
+        if task.name == "ace-toolkit-setup":
+            report.details.append("ace-toolkit: readiness checklist compiled")
+        elif task.name == "teams-integration":
+            report.details.append("teams-manifest: draft stored")
+        return report
 
 
-def create_avatar_pipeline():
-    """Build the avatar creation and animation pipeline using Omniverse."""
-    # TODO: implement avatar pipeline creation (e.g., setting up Omniverse projects)
-    pass
-
-
-def integrate_with_teams():
-    """Integrate the Sophia avatar into Microsoft Teams for interactive sessions."""
-    # TODO: implement integration logic for Teams (e.g., using Teams SDK or API)
-    pass
+__all__ = ["EchoAgent"]

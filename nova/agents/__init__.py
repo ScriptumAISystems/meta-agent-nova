@@ -1,5 +1,13 @@
-"""
-Agents subpackage.
+"""Agent implementations for Nova."""
 
-This package contains modules for each specialized agent role, such as Orion (LLM specialist), Lumina (database expert), Echo (avatar designer), Chronos (workflow automation specialist), and Aura (monitoring developer).
-"""
+from .aura import AuraAgent
+from .chronos import ChronosAgent
+from .echo import EchoAgent
+from .orion import OrionAgent
+
+__all__ = [
+    "AuraAgent",
+    "ChronosAgent",
+    "EchoAgent",
+    "OrionAgent",
+]
