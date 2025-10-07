@@ -16,11 +16,21 @@ from typing import Iterable
 from .agents.registry import list_agent_types
 from .system.checks import check_cpu, check_gpu, check_network
 from .system.setup import configure_os, install_packages, prepare_environment
+from .system.security import run_security_audit
 from .system.orchestrator import Orchestrator
 from .blueprints.generator import create_blueprint, list_available_blueprints
 from .monitoring.alerts import notify_info, notify_warning
 from .monitoring.logging import configure_logger, log_error, log_info, log_warning
 from .monitoring.reports import build_markdown_test_report
+
+
+def _parse_toggle(value: str | None) -> bool | None:
+    if value is None:
+        return None
+    lowered = value.lower()
+    if lowered not in {"enabled", "disabled"}:
+        raise ValueError(f"Unsupported toggle value: {value}")
+    return lowered == "enabled"
 
 
 DEFAULT_PACKAGES = [
@@ -103,6 +113,29 @@ def run_monitor() -> None:
     notify_info("No active alerts.")
 
 
+def run_audit(
+    *, firewall: str | None = None, antivirus: str | None = None, policies: str | None = None
+) -> None:
+    """Execute the security audit workflow and log findings."""
+
+    configure_logger()
+    log_info("Starting security audit")
+    report = run_security_audit(
+        firewall_enabled=_parse_toggle(firewall),
+        antivirus_enabled=_parse_toggle(antivirus),
+        policies_enforced=_parse_toggle(policies),
+    )
+    for control in report.controls:
+        log_info(f"[{control.status}] {control.name}: {control.details}")
+    if report.passed:
+        notify_info("Security audit passed with all controls in a healthy state.")
+    else:
+        for finding in report.findings:
+            notify_warning(finding)
+        notify_warning("Security audit detected issues that require attention.")
+    log_info("Security audit summary (markdown):\n" + report.to_markdown())
+
+
 def run_orchestration(agent_types: Iterable[str] | None = None) -> None:
     """Execute orchestrated agent workflows."""
 
@@ -147,6 +180,19 @@ def build_parser() -> argparse.ArgumentParser:
         "monitor", help="Start monitoring services"
     )
 
+    audit_parser = subparsers.add_parser(
+        "audit", help="Run the Nova security audit"
+    )
+    audit_parser.add_argument(
+        "--firewall", choices=("enabled", "disabled"), help="Override firewall status for the audit."
+    )
+    audit_parser.add_argument(
+        "--antivirus", choices=("enabled", "disabled"), help="Override anti-virus status for the audit."
+    )
+    audit_parser.add_argument(
+        "--policies", choices=("enabled", "disabled"), help="Override OPA policy status for the audit."
+    )
+
     orchestrate_parser = subparsers.add_parser(
         "orchestrate", help="Run the registered agents sequentially"
     )
@@ -173,6 +219,8 @@ def main(argv: list[str] | None = None) -> None:
         run_blueprints()
     elif args.command == "monitor":
         run_monitor()
+    elif args.command == "audit":
+        run_audit(firewall=args.firewall, antivirus=args.antivirus, policies=args.policies)
     elif args.command == "orchestrate":
         run_orchestration(args.agents)
     else:  # pragma: no cover - defensive default

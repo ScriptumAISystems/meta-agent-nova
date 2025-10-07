@@ -25,6 +25,16 @@ def test_cli_setup_and_orchestrate(tmp_path, monkeypatch):
     assert report_path.read_text().startswith("# Nova Integration Test Report")
 
 
+def test_cli_audit(monkeypatch):
+    warnings: list[str] = []
+    infos: list[str] = []
+    monkeypatch.setattr(__main__, "notify_warning", lambda message: warnings.append(message))
+    monkeypatch.setattr(__main__, "notify_info", lambda message: infos.append(message))
+    __main__.main(["audit", "--firewall", "enabled", "--antivirus", "enabled", "--policies", "disabled"])
+    assert warnings, "audit should raise warnings when a control is disabled"
+    assert not infos, "audit should not report success when warnings are issued"
+
+
 def test_cli_orchestrate_parallel(tmp_path, monkeypatch):
     monkeypatch.setenv("NOVA_HOME", str(tmp_path))
     monkeypatch.setenv("NOVA_EXECUTION_MODE", "parallel")
