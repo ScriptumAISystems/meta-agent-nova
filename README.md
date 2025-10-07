@@ -55,6 +55,9 @@ python -m nova orchestrate
 - Develop agent blueprints and roles. ✅
 - Implement test harness and monitoring. ✅
 - Prepare migration to Spark hardware.
+- Schedule early integration and security reviews for each milestone to minimise rework. ⏳
+- Extend roadmap milestones with a "Definition of Done" per agent role to keep progress measurable. ⏳
+- Refine automated testing and monitoring pipelines in parallel to maintain endgame stability. ⏳
 
 ## Contributing
 
