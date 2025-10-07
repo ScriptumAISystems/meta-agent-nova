@@ -8,12 +8,14 @@ from .base import BaseAgent
 from .aura import AuraAgent
 from .chronos import ChronosAgent
 from .echo import EchoAgent
+from .lumina import LuminaAgent
+from .nova import NovaAgent
 from .orion import OrionAgent
 
 
 _REGISTRY: Dict[str, Type[BaseAgent]] = {
     agent.agent_type: agent
-    for agent in (AuraAgent, ChronosAgent, EchoAgent, OrionAgent)
+    for agent in (AuraAgent, ChronosAgent, EchoAgent, LuminaAgent, NovaAgent, OrionAgent)
 }
 
 

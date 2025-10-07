@@ -135,10 +135,100 @@ def _build_modelops_blueprint() -> AgentBlueprint:
     )
 
 
+def _build_infrastructure_blueprint() -> AgentBlueprint:
+    return build_blueprint(
+        agent_type="nova",
+        description="Chief agent coordinating core infrastructure readiness tasks.",
+        tasks=[
+            AgentTaskSpec(
+                name="infrastructure-audit",
+                goal="Validate DGX/Spark Sophia hardware and operating system state.",
+                steps=[
+                    "Collect CPU, GPU and network adapter inventory details.",
+                    "Verify driver versions against approved compatibility matrix.",
+                    "Capture operating system tuning applied to the DGX nodes.",
+                ],
+                outputs=["Infrastructure readiness report"],
+            ),
+            AgentTaskSpec(
+                name="container-platform",
+                goal="Prepare container and orchestration tooling for deployment teams.",
+                steps=[
+                    "Check Docker installation prerequisites and runtime configuration.",
+                    "Generate Kubernetes bootstrap manifests for the control plane.",
+                    "Document post-install validation commands for operators.",
+                ],
+                outputs=["Container platform activation guide"],
+            ),
+            AgentTaskSpec(
+                name="secure-remote-access",
+                goal="Enable VPN and remote access pathways using WireGuard or OpenVPN.",
+                steps=[
+                    "Draft WireGuard and OpenVPN configuration templates.",
+                    "Outline firewall adjustments required for remote connectivity.",
+                    "Distribute credential rotation policy for remote operators.",
+                ],
+                outputs=["Remote access configuration pack"],
+            ),
+            AgentTaskSpec(
+                name="security-audit",
+                goal="Conduct security and privacy audits across the platform.",
+                steps=[
+                    "Assess firewall posture and document exposed services.",
+                    "List anti-virus and OPA policy enforcement checkpoints.",
+                    "Compile remediation recommendations for identified gaps.",
+                ],
+                outputs=["Security and privacy audit findings"],
+            ),
+            AgentTaskSpec(
+                name="backup-recovery",
+                goal="Outline data and model backup as well as recovery strategies.",
+                steps=[
+                    "Identify critical datasets and models requiring protection.",
+                    "Define backup schedules and storage retention targets.",
+                    "Publish recovery runbook including validation drills.",
+                ],
+                outputs=["Backup and recovery playbook"],
+            ),
+        ],
+    )
+
+
+def _build_data_blueprint() -> AgentBlueprint:
+    return build_blueprint(
+        agent_type="lumina",
+        description="Database and storage expert ensuring resilient data services.",
+        tasks=[
+            AgentTaskSpec(
+                name="relational-databases",
+                goal="Provision MongoDB and PostgreSQL instances for the platform.",
+                steps=[
+                    "Prepare configuration defaults for MongoDB and PostgreSQL clusters.",
+                    "Outline deployment procedures for development and production tiers.",
+                    "Record health check commands for both database engines.",
+                ],
+                outputs=["Database configuration bundle"],
+            ),
+            AgentTaskSpec(
+                name="vector-knowledge-base",
+                goal="Set up the vector store backing Sophia's knowledge base.",
+                steps=[
+                    "Compare Pinecone and FAISS deployment considerations.",
+                    "Design indexing pipeline for embeddings ingestion.",
+                    "Document query patterns and latency expectations.",
+                ],
+                outputs=["Vector store deployment guide"],
+            ),
+        ],
+    )
+
+
 _BLUEPRINT_BUILDERS: Dict[str, Callable[[], AgentBlueprint]] = {
     "aura": _build_monitoring_blueprint,
     "chronos": _build_workflow_blueprint,
     "echo": _build_avatar_blueprint,
+    "lumina": _build_data_blueprint,
+    "nova": _build_infrastructure_blueprint,
     "orion": _build_modelops_blueprint,
 }
 
