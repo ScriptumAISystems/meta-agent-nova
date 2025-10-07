@@ -10,8 +10,10 @@ Nova's mission is to accelerate software delivery while improving reproducibilit
 
 - **Initial Setup**: Perform system checks for CPU, GPU and network, install required packages (Python, Docker, etc.), configure firewall and users.
 - **Agent Blueprints**: Autogenerate 20–30 modular agent templates with predefined roles (planner, coder, tester, ops, etc.) and assign skills.
-- **Orchestration & Monitoring**: Launch agent processes, run test simulations, monitor resource usage and automatically recover from errors.
+- **Orchestration & Monitoring**: Launch agent processes, run test simulations, monitor resource usage and automatically recover from errors. Runs can be executed sequentially or in parallel, depending on workload needs.
 - **Coordinated Communication**: Built-in communication hub captures inter-agent messages and produces Markdown status reports after every orchestration run.
+- **Automated Test Reporting**: Generate distribution-ready QA summaries via ``nova.monitoring.reports.build_markdown_test_report`` to keep stakeholders informed.
+- **Data Services Playbooks**: Ready-made deployment plans for MongoDB, PostgreSQL and vector stores live in ``docs/LUMINA_PLANS.md``.
 - **Modularity & Portability**: All scripts and configurations are modular so the system can be migrated from a local machine to the Spark cluster.
 - **User Interfaces**: Simple command-line interface (CLI) with optional web dashboard for status and control.
 - **Logging**: Comprehensive logging and optional cloud backup of logs and configuration.
@@ -37,7 +39,7 @@ The CLI provides the following subcommands:
 - `setup`: prepare the local Nova working directory, simulate package installation and run hardware checks.
 - `blueprints`: list and preview the built-in agent blueprints.
 - `monitor`: initialise the logging and alerting pipeline.
-- `orchestrate`: execute every registered agent sequentially using the blueprint specifications.
+- `orchestrate`: execute every registered agent sequentially using the blueprint specifications. Provide ``--agents`` to limit the set and use ``NOVA_EXECUTION_MODE=parallel`` (or the programmatic API) for concurrent execution.
 
 Example workflow:
 
