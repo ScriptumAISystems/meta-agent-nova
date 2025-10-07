@@ -11,8 +11,10 @@ from __future__ import annotations
 import argparse
 from typing import Iterable
 
+from .agents.registry import list_agent_types
 from .system.checks import check_cpu, check_gpu, check_network
 from .system.setup import configure_os, install_packages, prepare_environment
+from .system.orchestrator import Orchestrator
 from .blueprints.generator import create_blueprint, list_available_blueprints
 from .monitoring.alerts import notify_info, notify_warning
 from .monitoring.logging import configure_logger, log_error, log_info, log_warning
@@ -36,13 +38,17 @@ def run_setup(packages: Iterable[str] | None = None) -> None:
     log_info("Starting system setup")
 
     try:
-        prepare_environment()
+        environment_report = prepare_environment()
         package_list = list(packages) if packages is not None else DEFAULT_PACKAGES
-        install_packages(package_list)
-        configure_os()
+        installation_report = install_packages(package_list)
+        os_report = configure_os()
     except Exception as exc:  # pragma: no cover - defensive logging
         log_error(f"System setup failed: {exc}")
         raise
+
+    log_info(f"Environment report: {environment_report.to_dict()}")
+    log_info(f"Installation report: {installation_report.to_dict()}")
+    log_info(f"OS configuration: {os_report.to_dict()}")
 
     cpu_status = check_cpu()
     gpu_status = check_gpu()
@@ -82,7 +88,7 @@ def run_blueprints() -> None:
 
     for agent_type in sorted(blueprints):
         blueprint = create_blueprint(agent_type)
-        log_info(f"Generated blueprint for {agent_type}: {blueprint}")
+        log_info(f"Generated blueprint for {agent_type}: {blueprint.to_dict()}")
 
 
 def run_monitor() -> None:
@@ -92,6 +98,15 @@ def run_monitor() -> None:
     log_info("Monitoring services initialised.")
     notify_warning("Monitoring is running in stub mode.")
     notify_info("No active alerts.")
+
+
+def run_orchestration(agent_types: Iterable[str] | None = None) -> None:
+    """Execute orchestrated agent workflows."""
+
+    configure_logger()
+    orchestrator = Orchestrator(agent_types)
+    report = orchestrator.execute()
+    log_info(f"Orchestration result: {report.to_dict()}")
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -121,6 +136,17 @@ def build_parser() -> argparse.ArgumentParser:
         "monitor", help="Start monitoring services"
     )
 
+    orchestrate_parser = subparsers.add_parser(
+        "orchestrate", help="Run the registered agents sequentially"
+    )
+    orchestrate_parser.add_argument(
+        "--agents",
+        nargs="*",
+        metavar="AGENT",
+        choices=list_agent_types(),
+        help="Subset of agents to orchestrate (defaults to all registered agents).",
+    )
+
     return parser
 
 
@@ -136,6 +162,8 @@ def main(argv: list[str] | None = None) -> None:
         run_blueprints()
     elif args.command == "monitor":
         run_monitor()
+    elif args.command == "orchestrate":
+        run_orchestration(args.agents)
     else:  # pragma: no cover - defensive default
         parser.error(f"Unknown command: {args.command}")
 
