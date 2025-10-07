@@ -3,10 +3,11 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import List
+from typing import List, Sequence
 
 from ..blueprints.models import AgentBlueprint, AgentTaskSpec
 from ..monitoring import logging as monitoring_logging
+from ..system.communication import AgentMessage, CommunicationHub
 
 
 class AgentExecutionError(RuntimeError):
@@ -50,18 +51,39 @@ class AgentRunReport:
             "tasks": [report.to_dict() for report in self.task_reports],
         }
 
+    def to_markdown(self) -> str:
+        lines = [
+            f"### Agent `{self.agent_type}`",
+            f"* Status: {'success' if self.success else 'issues detected'}",
+        ]
+        if not self.task_reports:
+            lines.append("* No tasks executed.")
+        for task_report in self.task_reports:
+            lines.append(f"- **{task_report.task.name}** → {task_report.status}")
+            if task_report.warnings:
+                lines.append(
+                    "  - Warnings: " + ", ".join(task_report.warnings)
+                )
+        return "\n".join(lines)
+
 
 class BaseAgent:
     """Base implementation shared by the specialised Nova agents."""
 
     agent_type: str = "agent"
 
-    def __init__(self, blueprint: AgentBlueprint):
+    def __init__(
+        self,
+        blueprint: AgentBlueprint,
+        *,
+        communication_hub: CommunicationHub | None = None,
+    ):
         if blueprint.agent_type != self.agent_type:
             raise ValueError(
                 f"Blueprint agent type '{blueprint.agent_type}' does not match {self.agent_type}."
             )
         self.blueprint = blueprint
+        self.communication_hub = communication_hub
 
     def execute(self) -> AgentRunReport:
         monitoring_logging.log_info(
@@ -85,8 +107,46 @@ class BaseAgent:
             warnings = ["Task has no defined steps."]
         else:
             warnings = []
+        status = "completed"
+        message = self.emit_message(
+            subject=f"task-completed::{task.name}",
+            body=f"Task '{task.name}' completed with status {status}.",
+            recipients=("orchestrator",),
+            metadata={
+                "task": task.name,
+                "goal": task.goal,
+                "outputs": list(task.outputs),
+                "warnings": list(warnings),
+            },
+        )
+        if message is not None:
+            details.append(f"message-sent: {message.subject}")
         monitoring_logging.log_info(f"Finished task '{task.name}'.")
-        return TaskExecutionReport(task=task, status="completed", details=details, warnings=warnings)
+        return TaskExecutionReport(task=task, status=status, details=details, warnings=warnings)
+
+    def emit_message(
+        self,
+        *,
+        subject: str,
+        body: str,
+        recipients: Sequence[str] | None = None,
+        metadata: dict[str, object] | None = None,
+    ) -> AgentMessage | None:
+        """Publish a message to the communication hub if one is configured."""
+
+        if self.communication_hub is None:
+            return None
+        message = self.communication_hub.send(
+            sender=self.agent_type,
+            subject=subject,
+            body=body,
+            recipients=recipients,
+            metadata=dict(metadata or {}),
+        )
+        monitoring_logging.log_info(
+            "Communication emitted: " + str(message.to_dict())
+        )
+        return message
 
 
 __all__ = [

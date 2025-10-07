@@ -107,6 +107,7 @@ def run_orchestration(agent_types: Iterable[str] | None = None) -> None:
     orchestrator = Orchestrator(agent_types)
     report = orchestrator.execute()
     log_info(f"Orchestration result: {report.to_dict()}")
+    log_info("Orchestration summary (markdown):\n" + report.to_markdown())
 
 
 def build_parser() -> argparse.ArgumentParser:
