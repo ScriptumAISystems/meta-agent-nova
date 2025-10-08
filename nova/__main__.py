@@ -199,7 +199,7 @@ def run_tasks(
         log_info(line)
 
 
-def run_roadmap(csv_path: Path | None = None) -> None:
+def run_roadmap(csv_path: Path | None = None, phases: Iterable[str] | None = None) -> None:
     """Render the execution roadmap with step-by-step guidance."""
 
     configure_logger()
@@ -212,7 +212,7 @@ def run_roadmap(csv_path: Path | None = None) -> None:
         log_error(f"Task overview file not found: {exc}")
         raise
 
-    roadmap = build_phase_roadmap(tasks)
+    roadmap = build_phase_roadmap(tasks, phase_filters=phases)
     for line in roadmap.splitlines():
         log_info(line)
 
@@ -303,6 +303,12 @@ def build_parser() -> argparse.ArgumentParser:
         metavar="PATH",
         help="Optional path to an alternative task overview CSV file.",
     )
+    roadmap_parser.add_argument(
+        "--phase",
+        nargs="*",
+        metavar="PHASE",
+        help="Limit the roadmap to the specified phases (e.g. foundation).",
+    )
 
     return parser
 
@@ -331,7 +337,7 @@ def main(argv: list[str] | None = None) -> None:
             as_checklist=args.checklist,
         )
     elif args.command == "roadmap":
-        run_roadmap(csv_path=args.csv)
+        run_roadmap(csv_path=args.csv, phases=args.phase)
     else:  # pragma: no cover - defensive default
         parser.error(f"Unknown command: {args.command}")
 

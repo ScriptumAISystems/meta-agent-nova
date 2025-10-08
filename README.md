@@ -44,7 +44,7 @@ The CLI provides the following subcommands:
 - `monitor`: initialise the logging and alerting pipeline.
 - `orchestrate`: execute every registered agent sequentially using the blueprint specifications. Provide ``--agents`` to limit the set and use ``NOVA_EXECUTION_MODE=parallel`` (or the programmatic API) for concurrent execution.
 - `tasks`: inspect agent assignments or render them as a checklist with ``--checklist``.
-- `roadmap`: create a phase-orientated progress report that highlights the remaining steps for each specialist.
+- `roadmap`: create a phase-orientated progress report that highlights the remaining steps for each specialist. Pass `--phase foundation observability` to focus on specific phases.
 
 Example workflow:
 

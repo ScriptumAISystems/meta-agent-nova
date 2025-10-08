@@ -73,12 +73,35 @@ def _render_phase_section(phase: ExecutionPhase, tasks: Sequence[AgentTask]) -> 
     return section
 
 
+def _normalise_phase_name(name: str) -> str:
+    """Return a case-insensitive key for matching phase names."""
+
+    return name.strip().lower().replace(" ", "-")
+
+
 def build_phase_roadmap(
-    tasks: Sequence[AgentTask], plan: ExecutionPlan | None = None
+    tasks: Sequence[AgentTask],
+    plan: ExecutionPlan | None = None,
+    *,
+    phase_filters: Iterable[str] | None = None,
 ) -> str:
     """Render a Markdown roadmap outlining the remaining steps per phase."""
 
     effective_plan = plan or build_default_plan()
+
+    filter_names = [name.strip() for name in phase_filters or [] if name and name.strip()]
+    normalised_filters = {
+        _normalise_phase_name(name) for name in filter_names
+    } or None
+
+    if normalised_filters is None:
+        selected_phases = effective_plan.phases
+    else:
+        selected_phases = tuple(
+            phase
+            for phase in effective_plan.phases
+            if _normalise_phase_name(phase.name) in normalised_filters
+        )
 
     total_tasks = len(tasks)
     completed_tasks = sum(1 for task in tasks if is_task_complete(task.status))
@@ -92,11 +115,21 @@ def build_phase_roadmap(
         "",
     ]
 
+    if filter_names:
+        lines.append("*Gefiltert nach Phasen:* " + ", ".join(filter_names))
+        lines.append("")
+
     if not effective_plan.phases:
         lines.append("Keine Phasen definiert.")
         return "\n".join(lines).strip()
 
-    for phase in effective_plan.phases:
+    if normalised_filters is not None and not selected_phases:
+        lines.append(
+            "*Hinweis:* Keine der angeforderten Phasen wurden im Ausführungsplan gefunden."
+        )
+        return "\n".join(lines).strip()
+
+    for phase in selected_phases:
         lines.extend(_render_phase_section(phase, tasks))
 
     return "\n".join(lines).rstrip()
