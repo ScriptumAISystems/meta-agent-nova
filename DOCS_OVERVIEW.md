@@ -14,6 +14,9 @@ The file `TASKS.md` consolidates all tasks across agents into one location. Use 
 ## v1.0 Feature Catalogue
 `docs/v1_feature_list.md` captures the scoped feature set, owners and acceptance criteria for the v1.0 release. It serves as the reference when updating the roadmap and validating Definition-of-Done per agent role.
 
+## Spark Hardware Migration Plan
+`docs/SPARK_MIGRATION_PLAN.md` lists the checklists required to move Nova and its specialist agents from local validation to the Spark hardware clusters, covering environment readiness, security, deployment automation, data migration, observability and rollback.
+
 ## Orchestration Communication
 `docs/ORCHESTRATION_REPORTS.md` explains how the communication hub records agent messages and how Markdown status reports are produced after each orchestration run.
 
