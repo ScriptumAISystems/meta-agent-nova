@@ -283,15 +283,16 @@ def build_global_step_plan(
 
     tasks_by_agent: dict[str, list[AgentTask]] = {}
     metadata: dict[str, tuple[str, str | None]] = {}
+    agent_order: list[str] = []
     for task in tasks:
-        tasks_by_agent.setdefault(task.agent_identifier, []).append(task)
+        if task.agent_identifier not in tasks_by_agent:
+            tasks_by_agent[task.agent_identifier] = []
+            agent_order.append(task.agent_identifier)
+        tasks_by_agent[task.agent_identifier].append(task)
         metadata.setdefault(
             task.agent_identifier,
             (task.agent_display_name, task.agent_role),
         )
-
-    for agent_tasks in tasks_by_agent.values():
-        agent_tasks.sort(key=lambda task: task.description.lower())
 
     step = 1
     seen_agents: set[str] = set()
@@ -328,7 +329,7 @@ def build_global_step_plan(
             seen_agents.add(agent_id)
 
     remaining_agents: list[str] = []
-    for agent_id in sorted(tasks_by_agent):
+    for agent_id in agent_order:
         if agent_id in seen_agents:
             continue
         if agent_id in selected_phase_agent_ids:
