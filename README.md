@@ -48,6 +48,7 @@ The CLI provides the following subcommands:
 - `roadmap`: create a phase-orientated progress report that highlights the remaining steps for each specialist. Pass `--phase foundation observability` to focus on specific phases.
 - `step-plan`: render an ordered Schritt-für-Schritt-Plan über alle offenen Aufgaben; combine with `--phase` to narrow the focus.
 - `progress`: generate an aggregated Fortschrittsbericht with per-agent snapshots and the next pending steps (optionally cap the previews with `--limit`; by default all open To-dos are shown; focus on specific specialists via `--agent`).
+- `summary`: produce a kompakte Roadmap-Zusammenfassung mit Phasenfortschritt und den wichtigsten nächsten Aufgaben je Agent (limitierbar über `--limit`).
 
 Example workflow:
 

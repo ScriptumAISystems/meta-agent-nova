@@ -33,6 +33,7 @@ from .monitoring.dashboards import (
 from .monitoring.logging import configure_logger, log_error, log_info, log_warning
 from .monitoring.reports import build_markdown_test_report
 from .system.roadmap import (
+    build_executive_summary,
     build_global_step_plan,
     build_next_steps_summary,
     build_phase_roadmap,
@@ -289,6 +290,28 @@ def run_next_steps(
         log_info(line)
 
 
+def run_summary(
+    csv_path: Path | None = None,
+    *,
+    limit_per_agent: int = 1,
+) -> None:
+    """Render a compact roadmap summary across phases and agents."""
+
+    configure_logger()
+    resolved_path = resolve_task_csv_path(csv_path)
+    log_info(f"Loading agent tasks from {resolved_path}")
+
+    try:
+        tasks = load_agent_tasks(resolved_path)
+    except FileNotFoundError as exc:
+        log_error(f"Task overview file not found: {exc}")
+        raise
+
+    summary = build_executive_summary(tasks, limit_per_agent=limit_per_agent)
+    for line in summary.splitlines():
+        log_info(line)
+
+
 def run_step_plan(
     csv_path: Path | None = None,
     phases: Iterable[str] | None = None,
@@ -491,6 +514,24 @@ def build_parser() -> argparse.ArgumentParser:
         help="Number of steps to show per agent (use 0 for unlimited).",
     )
 
+    summary_parser = subparsers.add_parser(
+        "summary",
+        help="Display a compact roadmap summary with phase progress",
+    )
+    summary_parser.add_argument(
+        "--csv",
+        type=Path,
+        metavar="PATH",
+        help="Optional path to an alternative task overview CSV file.",
+    )
+    summary_parser.add_argument(
+        "--limit",
+        type=int,
+        metavar="N",
+        default=1,
+        help="Number of pending tasks to show per agent (use 0 for unlimited).",
+    )
+
     step_plan_parser = subparsers.add_parser(
         "step-plan",
         help="Display the complete step-by-step execution plan",
@@ -573,6 +614,8 @@ def main(argv: list[str] | None = None) -> None:
         run_roadmap(csv_path=args.csv, phases=args.phase)
     elif args.command == "next-steps":
         run_next_steps(csv_path=args.csv, limit_per_agent=args.limit)
+    elif args.command == "summary":
+        run_summary(csv_path=args.csv, limit_per_agent=args.limit)
     elif args.command == "step-plan":
         run_step_plan(csv_path=args.csv, phases=args.phase)
     elif args.command == "progress":
