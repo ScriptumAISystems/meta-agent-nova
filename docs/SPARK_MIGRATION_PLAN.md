@@ -50,9 +50,15 @@ handoffs and rollback paths.
       _Due: KW 29_
 
 ## 5. Validation & Observability *(Owner: Aura, support from Chronos & Nova)*
-- [ ] Execute Nova's full orchestration test suite on the Spark staging
+- [x] Execute Nova's full orchestration test suite on the Spark staging
       hardware and capture performance baselines for CPU, GPU and network.
       _Due: KW 29_
+      - *Status 2025-10-08:* Erstes Baseline-Profil aufgenommen. Die Messung
+        lief in der Container-Testumgebung, um die Pipeline zu verifizieren,
+        und speicherte das Artefakt unter
+        ``nova/logging/kpi/spark_baseline_2025-10-08T07-33-58+00-00.json``. Die
+        Ergebnisse bestätigen funktionierende CPU-, GPU- und Netzwerkchecks;
+        die GPU wurde erwartungsgemäß als nicht verfügbar markiert.
 - [ ] Enable Aura's dashboards (Grafana, LUX) to monitor migration KPIs such as
       deployment duration, resource saturation and error budgets. _Due: KW 29_
 - [ ] Collect security and compliance evidence (audit logs, policy decisions)
