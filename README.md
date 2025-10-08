@@ -54,9 +54,10 @@ python -m nova orchestrate
 
 ## Task Queue & Microservices
 
-- `nova.task_queue`: gRPC microservice backed by SQLite persistence. It supports reliable enqueue/dequeue semantics, worker acknowledgements, health heartbeats and structured metadata.
+- `nova.task_queue`: gRPC microservice backed by pluggable persistence (SQLite default, Redis for distributed deployments). It supports reliable enqueue/dequeue semantics, worker acknowledgements, health heartbeats and structured metadata.
 - Components can communicate through the generated gRPC stub (`TaskQueueStub`) and can run inside Kubernetes or standalone containers.
-- Unit tests (`tests/test_task_queue.py`) demonstrate the end-to-end lifecycle to help onboard new contributors quickly.
+- Unit tests (`tests/test_task_queue.py`, `tests/test_task_queue_redis.py`) demonstrate the end-to-end lifecycle across both persistence backends to help onboard new contributors quickly.
+- Production deployments should install the optional `redis` Python package when targeting a managed Redis instance; local tests can rely on the built-in in-memory stub.
 
 ## Policy Engine & Authorization
 
