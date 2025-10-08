@@ -56,6 +56,27 @@ def test_build_markdown_with_empty_tasks():
     assert tasks.build_markdown_task_overview([]).endswith("Keine Aufgaben gefunden.")
 
 
+def test_build_stepwise_task_checklist_formats_entries():
+    entries = [
+        tasks.AgentTask("nova", "Nova (Chef-Agentin)", "Chef-Agentin", "Audit", "Offen"),
+        tasks.AgentTask(
+            "nova",
+            "Nova (Chef-Agentin)",
+            "Chef-Agentin",
+            "Backup",
+            "Abgeschlossen",
+        ),
+        tasks.AgentTask("orion", "Orion (KI-Software-Spezialist)", None, "LLM", "In Arbeit"),
+    ]
+
+    checklist = tasks.build_stepwise_task_checklist(entries)
+    assert checklist.startswith("# Nova Agent Task Checklist")
+    assert "- Gesamtanzahl Schritte: 3" in checklist
+    assert "1. [ ] Audit (Status: Offen)" in checklist
+    assert "2. [x] Backup (Status: Abgeschlossen)" in checklist
+    assert "3. [ ] LLM (Status: In Arbeit)" in checklist
+
+
 def test_load_agent_tasks_missing_file(tmp_path):
     with pytest.raises(FileNotFoundError):
         tasks.load_agent_tasks(tmp_path / "missing.csv")

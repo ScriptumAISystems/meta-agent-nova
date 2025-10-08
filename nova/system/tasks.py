@@ -29,6 +29,13 @@ class AgentTask:
 
 _DEFAULT_TASK_CSV = Path(__file__).resolve().parents[2] / "Agenten_Aufgaben_Uebersicht.csv"
 
+_COMPLETED_STATUSES = {
+    "abgeschlossen",
+    "completed",
+    "done",
+    "fertig",
+}
+
 
 def resolve_task_csv_path(csv_path: Path | str | None = None) -> Path:
     """Return the effective CSV path, considering overrides."""
@@ -147,6 +154,34 @@ def build_markdown_task_overview(tasks: Sequence[AgentTask]) -> str:
     return "\n".join(lines)
 
 
+def build_stepwise_task_checklist(tasks: Sequence[AgentTask]) -> str:
+    """Return a numbered, step-by-step checklist for ``tasks``."""
+
+    if not tasks:
+        return "# Nova Agent Task Checklist\n\nKeine Aufgaben gefunden."
+
+    grouped = group_tasks_by_agent(tasks)
+    lines: list[str] = ["# Nova Agent Task Checklist", "", f"- Gesamtanzahl Schritte: {len(tasks)}", ""]
+    step = 1
+
+    grouped_items = list(grouped.items())
+    for index, (display_name, agent_tasks) in enumerate(grouped_items):
+        lines.append(f"## {display_name}")
+        role = agent_tasks[0].agent_role
+        if role:
+            lines.append(f"*Rolle:* {role}")
+        for task in agent_tasks:
+            checkbox = "x" if task.status.strip().lower() in _COMPLETED_STATUSES else " "
+            lines.append(
+                f"{step}. [{checkbox}] {task.description} (Status: {task.status})"
+            )
+            step += 1
+        if index < len(grouped_items) - 1:
+            lines.append("")
+
+    return "\n".join(lines)
+
+
 def normalise_agent_identifier(identifier: str) -> str:
     """Normalise arbitrary agent identifier strings."""
 
@@ -161,4 +196,5 @@ __all__ = [
     "load_agent_tasks",
     "normalise_agent_identifier",
     "resolve_task_csv_path",
+    "build_stepwise_task_checklist",
 ]

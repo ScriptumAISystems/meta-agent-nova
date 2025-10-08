@@ -24,6 +24,7 @@ from .monitoring.logging import configure_logger, log_error, log_info, log_warni
 from .monitoring.reports import build_markdown_test_report
 from .system.tasks import (
     build_markdown_task_overview,
+    build_stepwise_task_checklist,
     filter_tasks as filter_agent_tasks,
     load_agent_tasks,
     normalise_agent_identifier,
@@ -164,6 +165,8 @@ def run_tasks(
     agent_filters: Iterable[str] | None = None,
     status: str | None = None,
     csv_path: Path | None = None,
+    *,
+    as_checklist: bool = False,
 ) -> None:
     """Load the task overview and log a grouped summary."""
 
@@ -187,7 +190,10 @@ def run_tasks(
         log_warning("No tasks matched the provided filters.")
         return
 
-    overview = build_markdown_task_overview(filtered_tasks)
+    if as_checklist:
+        overview = build_stepwise_task_checklist(filtered_tasks)
+    else:
+        overview = build_markdown_task_overview(filtered_tasks)
     for line in overview.splitlines():
         log_info(line)
 
@@ -263,6 +269,11 @@ def build_parser() -> argparse.ArgumentParser:
         metavar="PATH",
         help="Optional path to an alternative task overview CSV file.",
     )
+    tasks_parser.add_argument(
+        "--checklist",
+        action="store_true",
+        help="Render the task overview as a step-by-step checklist.",
+    )
 
     return parser
 
@@ -284,7 +295,12 @@ def main(argv: list[str] | None = None) -> None:
     elif args.command == "orchestrate":
         run_orchestration(args.agents)
     elif args.command == "tasks":
-        run_tasks(agent_filters=args.agent, status=args.status, csv_path=args.csv)
+        run_tasks(
+            agent_filters=args.agent,
+            status=args.status,
+            csv_path=args.csv,
+            as_checklist=args.checklist,
+        )
     else:  # pragma: no cover - defensive default
         parser.error(f"Unknown command: {args.command}")
 
