@@ -22,11 +22,15 @@ class TaskQueueService(TaskQueueServicer):
         *,
         kpi_tracker: Optional[KPITracker] = None,
         audit_logger: Optional[AuditLogger] = None,
+        visibility_timeout_ms: int = 300_000,
+        max_attempts: int = 5,
     ) -> None:
         self._repository = repository
         self._logger = get_logger(__name__)
         self._kpi = kpi_tracker or KPITracker(namespace="task_queue")
         self._audit = audit_logger or AuditLogger(AuditStore(":memory:"))
+        self._visibility_timeout_ms = visibility_timeout_ms
+        self._max_attempts = max_attempts
 
     def Enqueue(self, request: proto.EnqueueRequest, context: grpc.ServicerContext) -> proto.EnqueueResponse:  # noqa: N802
         metadata = _metadata_to_dict(request.metadata)
@@ -40,6 +44,34 @@ class TaskQueueService(TaskQueueServicer):
         return _record_to_proto(record)
 
     def Dequeue(self, request: proto.DequeueRequest, context: grpc.ServicerContext) -> proto.DequeueResponse:  # noqa: N802
+        requeued, failed = self._repository.recover_overdue_tasks(
+            self._visibility_timeout_ms,
+            max_attempts=self._max_attempts,
+        )
+        if requeued:
+            self._kpi.increment("tasks_retried", len(requeued))
+            for record in requeued:
+                self._logger.warning(
+                    "Requeued stale task",
+                    extra={"task_id": record.id, "attempts": record.attempts},
+                )
+                self._audit.record_event(
+                    "task_requeued",
+                    subject="queue",
+                    details={"task_id": record.id, "attempts": str(record.attempts)},
+                )
+        if failed:
+            self._kpi.increment("tasks_failed_timeout", len(failed))
+            for record in failed:
+                self._logger.error(
+                    "Task marked as failed after exceeding attempts",
+                    extra={"task_id": record.id, "attempts": record.attempts},
+                )
+                self._audit.record_event(
+                    "task_failed_timeout",
+                    subject=record.worker_id or "unknown",
+                    details={"task_id": record.id, "attempts": str(record.attempts)},
+                )
         record = self._repository.dequeue(request.worker_id)
         response = proto.DequeueResponse()
         if record is None:
@@ -137,6 +169,7 @@ def _record_to_proto(record: TaskRecord) -> proto.EnqueueResponse:
         task_message.result = record.result
     if record.worker_id is not None:
         task_message.worker_id = record.worker_id
+    task_message.attempts = record.attempts
     for key, value in record.metadata.items():
         entry = task_message.metadata.add()
         entry.key = key
