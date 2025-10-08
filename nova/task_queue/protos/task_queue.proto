@@ -1,0 +1,64 @@
+syntax = "proto3";
+
+package nova.taskqueue;
+
+message TaskMetadataEntry {
+  string key = 1;
+  string value = 2;
+}
+
+message Task {
+  string id = 1;
+  string type = 2;
+  string payload = 3;
+  repeated TaskMetadataEntry metadata = 4;
+  string status = 5;
+  int64 created_at = 6;
+  int64 updated_at = 7;
+  string result = 8;
+  string worker_id = 9;
+}
+
+message EnqueueRequest {
+  string type = 1;
+  string payload = 2;
+  repeated TaskMetadataEntry metadata = 3;
+}
+
+message EnqueueResponse {
+  Task task = 1;
+}
+
+message DequeueRequest {
+  string worker_id = 1;
+}
+
+message DequeueResponse {
+  bool has_task = 1;
+  Task task = 2;
+}
+
+message AckRequest {
+  string task_id = 1;
+  bool success = 2;
+  string result = 3;
+}
+
+message AckResponse {
+  Task task = 1;
+}
+
+message ListTasksRequest {
+  string status = 1;
+}
+
+message ListTasksResponse {
+  repeated Task tasks = 1;
+}
+
+service TaskQueue {
+  rpc Enqueue(EnqueueRequest) returns (EnqueueResponse);
+  rpc Dequeue(DequeueRequest) returns (DequeueResponse);
+  rpc Ack(AckRequest) returns (AckResponse);
+  rpc ListTasks(ListTasksRequest) returns (ListTasksResponse);
+}

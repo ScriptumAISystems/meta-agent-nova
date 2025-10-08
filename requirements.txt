@@ -4,3 +4,4 @@ langchain
 crewai
 docker
 python-dotenv
+grpcio>=1.58.0
