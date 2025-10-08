@@ -11,6 +11,9 @@ This document summarises the tasks for each agent role — Nova, Orion, Lumina,
 ## Tasks List
 The file `TASKS.md` consolidates all tasks across agents into one location. Use this list to track progress and plan the implementation of Nova and its sub‑agents.
 
+## v1.0 Feature Catalogue
+`docs/v1_feature_list.md` captures the scoped feature set, owners and acceptance criteria for the v1.0 release. It serves as the reference when updating the roadmap and validating Definition-of-Done per agent role.
+
 ## Orchestration Communication
 `docs/ORCHESTRATION_REPORTS.md` explains how the communication hub records agent messages and how Markdown status reports are produced after each orchestration run.
 
