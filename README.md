@@ -87,7 +87,7 @@ python -m nova roadmap
 - Implement test harness and monitoring. ✅
 - Prepare migration to Spark hardware. 🚧 (See `docs/SPARK_MIGRATION_PLAN.md`.)
 - Schedule early integration and security reviews for each milestone to minimise rework. ⏳
-- Extend roadmap milestones with a "Definition of Done" per agent role to keep progress measurable. ⏳
+- Extend roadmap milestones with a "Definition of Done" per agent role to keep progress measurable. ✅ (See `docs/DEFINITION_OF_DONE.md`.)
 - Refine automated testing and monitoring pipelines in parallel to maintain endgame stability. ⏳
 
 ## Contributing

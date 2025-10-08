@@ -34,7 +34,7 @@ Dieses Dokument beantwortet die Frage "Wie machen wir jetzt weiter?" und bietet 
 - **Energie- und Stimmungsmetriken:** Sammle Anforderungen und definiere KPIs für Effizienz und Stimmungsfeedback.
 
 ## 7. Organisations- und Governance-Arbeit
-- **Roadmap verfeinern:** Aktualisiere `README.md` bzw. ein neues Roadmap-Dokument mit Milestones, Definition of Done und Verantwortlichen.
+- **Roadmap verfeinern:** Pflege `README.md` und `docs/DEFINITION_OF_DONE.md`, synchronisiere Milestones, Definition of Done und Verantwortlichkeiten.
 - **Teststrategie festlegen:** Lege fest, welche automatisierten Tests pro Modul Pflicht sind (Unit-, Integration- und Systemtests).
 - **Audit-Trail definieren:** Nutze `nova/security` und `nova/monitoring`, um Berichtsprozesse festzuhalten.
 
