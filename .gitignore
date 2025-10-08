@@ -1,0 +1,25 @@
+# Python artifacts
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Test and coverage outputs
+.pytest_cache/
+htmlcov/
+.coverage
+coverage.xml
+
+# Virtual environments
+.env/
+.venv/
+venv/
+ENV/
+
+# Project-specific runtime directories
+.nova/
+reports/
+
+# OS/editor
+.DS_Store
+.idea/
+.vscode/
