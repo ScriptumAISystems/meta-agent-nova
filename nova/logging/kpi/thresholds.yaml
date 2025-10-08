@@ -1,0 +1,24 @@
+{
+  "counters": {
+    "task_queue.failures": {
+      "warning": 5,
+      "critical": 10
+    },
+    "orchestrator.restarts": {
+      "warning": 1,
+      "critical": 3
+    }
+  },
+  "metrics": {
+    "task_queue.latency_ms": {
+      "field": "p95",
+      "warning": 250,
+      "critical": 400
+    },
+    "orchestrator.error_rate": {
+      "field": "mean",
+      "warning": 0.05,
+      "critical": 0.1
+    }
+  }
+}

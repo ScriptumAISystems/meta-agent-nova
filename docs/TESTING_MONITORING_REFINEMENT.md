@@ -33,9 +33,9 @@ It extends the existing harness in `tests/` and the monitoring utilities under `
   - [ ] Generate a LUX dashboard slice for compliance evidence (audit trail coverage, policy drift).
   - [ ] Link dashboards to review schedule in `docs/INTEGRATION_SECURITY_REVIEWS.md`.
 - [ ] **Alerting Automation**
-  - [ ] Define KPI thresholds inside `nova/logging/kpi/thresholds.yaml`.
-  - [ ] Wire KPI breaches to PagerDuty/webhook integration script under `nova/monitoring/alerts.py`.
-  - [ ] Simulate alert run via `python -m nova.monitoring.alerts --dry-run` and attach output to the orchestration journal.
+  - [x] Define KPI thresholds inside `nova/logging/kpi/thresholds.yaml`.
+  - [x] Wire KPI breaches to PagerDuty/webhook integration script under `nova/monitoring/alerts.py`.
+  - [x] Simulate alert run via `python -m nova.monitoring.alerts --dry-run` and attach output to the orchestration journal (dry run mode now emits structured payload logs for inclusion).
 
 ## 4. Metrics & Reporting
 

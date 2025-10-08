@@ -7,7 +7,7 @@ from collections import defaultdict
 from dataclasses import dataclass, field
 from typing import Dict, List, MutableMapping
 
-from .config import get_logger
+from ..config import get_logger
 
 
 @dataclass
