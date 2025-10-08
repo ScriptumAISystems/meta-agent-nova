@@ -85,7 +85,7 @@ python -m nova roadmap
 - Finalise feature list for v1.0. ✅ (See `docs/v1_feature_list.md`.)
 - Develop agent blueprints and roles. ✅
 - Implement test harness and monitoring. ✅
-- Prepare migration to Spark hardware.
+- Prepare migration to Spark hardware. 🚧 (See `docs/SPARK_MIGRATION_PLAN.md`.)
 - Schedule early integration and security reviews for each milestone to minimise rework. ⏳
 - Extend roadmap milestones with a "Definition of Done" per agent role to keep progress measurable. ⏳
 - Refine automated testing and monitoring pipelines in parallel to maintain endgame stability. ⏳
