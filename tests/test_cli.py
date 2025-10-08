@@ -10,6 +10,7 @@ from nova import __main__
         ["monitor"],
         ["next-steps"],
         ["step-plan"],
+        ["progress"],
     ],
 )
 def test_cli_commands(argv):
@@ -156,3 +157,24 @@ def test_cli_step_plan_command(tmp_path, monkeypatch, caplog):
     assert "2. [ ] System prüfen (Status: Offen)" in caplog.text
     assert "LLM vorbereiten" in caplog.text
     assert "Abstimmung" in caplog.text
+
+
+def test_cli_progress_command(tmp_path, monkeypatch, caplog):
+    csv_path = tmp_path / "tasks.csv"
+    csv_path.write_text(
+        "Agenten-Name,Aufgabe,Status\n"
+        "Nova (Chef-Agentin),System prüfen,Offen\n"
+        "Nova (Chef-Agentin),Backup,Abgeschlossen\n"
+        "Orion (KI-Software-Spezialist),LLM vorbereiten,Offen\n"
+        "Orion (KI-Software-Spezialist),Feintuning planen,Offen\n",
+        encoding="utf-8",
+    )
+    monkeypatch.setenv("NOVA_TASK_CSV", str(csv_path))
+
+    caplog.set_level("INFO", logger="nova.monitoring")
+    __main__.main(["progress", "--limit", "1"])
+
+    assert "Nova Fortschrittsbericht" in caplog.text
+    assert "- Gesamtaufgaben: 4" in caplog.text
+    assert "### Nächste Schritte" in caplog.text
+    assert "- …" in caplog.text
