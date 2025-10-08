@@ -6,15 +6,15 @@ Basierend auf dem Abschnitt **Roadmap** in der `README.md` sind aktuell 5 von 7 
 
 ## Aktueller CLI-Snapshot (`python -m nova progress`)
 
-Der jüngste CLI-Lauf zeigt, dass die operativen Aufgaben in `Agenten_Aufgaben_Uebersicht.csv` noch nicht gestartet wurden. Das bedeutet, dass trotz des dokumentierten Roadmap-Fortschritts weiterhin alle 22 Einträge offen sind.
+Der jüngste CLI-Lauf zeigt nach dem ausgeführten `python -m nova setup`-Durchlauf den ersten erledigten Foundation-Schritt in `Agenten_Aufgaben_Uebersicht.csv`. Damit sind aktuell 21 von 22 Einträgen offen.
 
 - Gesamtaufgaben: 22
-- Abgeschlossen: 0
-- Fortschritt: 0 %
+- Abgeschlossen: 1
+- Fortschritt: 5 %
 
 ### Offene Schritte je Agent (gekürzt)
 
-- **Nova (Chef-Agentin):** 5 Aufgaben offen – Fokus auf Infrastruktur, Security und Backup.
+- **Nova (Chef-Agentin):** 4 Aufgaben offen – erste Infrastrukturprüfung erledigt, Fokus jetzt auf Container, Sicherheit und Backup.
 - **Orion (KI-Software-Spezialist):** 4 Aufgaben offen – LLM-Auswahl, NeMo-Installation und LangChain-Integration.
 - **Lumina (Datenbank & Speicherexperte):** 2 Aufgaben offen – Datenbanken und Wissensbasis aufsetzen.
 - **Echo (Avatar & Interaktionsdesigner):** 3 Aufgaben offen – ACE-Stack, Avatar-Pipeline und Teams-Anbindung.
@@ -51,10 +51,10 @@ Trotzdem stehen nach dem Roadmap-Abschluss noch Betriebsschritte an:
 
 Um den operativen Fortschritt zu aktivieren, empfiehlt sich die Foundation-Phase (Nova) als erster Block. Die folgenden fünf Aufgaben stammen direkt aus dem Schritt-für-Schritt-Plan (`python -m nova step-plan --phase foundation`):
 
-1. DGX-Betriebssystem prüfen und Netzwerk einrichten.
-2. Docker- und Kubernetes-Cluster installieren.
-3. VPN/Fernzugriff via WireGuard oder OpenVPN aktivieren.
-4. Security- und Datenschutz-Checks ausführen.
-5. Backup- und Recovery-Systeme aufsetzen.
+1. ✅ DGX-Betriebssystem prüfen und Netzwerk einrichten (`python -m nova setup --packages docker kubernetes wireguard`).
+2. ⬜ Docker- und Kubernetes-Cluster installieren.
+3. ⬜ VPN/Fernzugriff via WireGuard oder OpenVPN aktivieren.
+4. ⬜ Security- und Datenschutz-Checks ausführen.
+5. ⬜ Backup- und Recovery-Systeme aufsetzen.
 
 Sobald eine Aufgabe abgeschlossen ist, sollte der Status in `Agenten_Aufgaben_Uebersicht.csv` auf „Abgeschlossen“ aktualisiert werden, damit der CLI-Report automatisch den Fortschritt widerspiegelt.

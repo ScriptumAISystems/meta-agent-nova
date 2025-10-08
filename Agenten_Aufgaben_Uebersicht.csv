@@ -1,5 +1,5 @@
 Agenten-Name,Aufgabe,Status
-Nova (Chef-Agentin),DGX OS überprüfen und Netzwerk einrichten,Offen
+Nova (Chef-Agentin),DGX OS überprüfen und Netzwerk einrichten,Abgeschlossen
 Nova (Chef-Agentin),Docker und Kubernetes-Cluster installieren,Offen
 Nova (Chef-Agentin),VPN & Fernzugriff (WireGuard/OpenVPN) aktivieren,Offen
 Nova (Chef-Agentin),Security & Datenschutz-Checks durchführen,Offen
