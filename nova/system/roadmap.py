@@ -135,5 +135,100 @@ def build_phase_roadmap(
     return "\n".join(lines).rstrip()
 
 
-__all__ = ["build_phase_roadmap"]
+def _pending_tasks_by_agent(tasks: Sequence[AgentTask]) -> tuple[dict[str, list[AgentTask]], dict[str, tuple[str, str | None]]]:
+    pending: dict[str, list[AgentTask]] = {}
+    metadata: dict[str, tuple[str, str | None]] = {}
+    for task in tasks:
+        metadata.setdefault(task.agent_identifier, (task.agent_display_name, task.agent_role))
+        if is_task_complete(task.status):
+            continue
+        pending.setdefault(task.agent_identifier, []).append(task)
+    return pending, metadata
+
+
+def _render_agent_next_steps(
+    agent_id: str,
+    tasks: Sequence[AgentTask],
+    metadata: dict[str, tuple[str, str | None]],
+    limit: int | None,
+) -> list[str]:
+    display_name, role = metadata.get(agent_id, (agent_id.title(), None))
+    block: list[str] = [f"### {display_name}"]
+    if role:
+        block.append(f"*Rolle:* {role}")
+
+    if limit is None:
+        selected = list(tasks)
+    else:
+        limit = max(limit, 0)
+        selected = list(tasks[:limit])
+
+    for task in selected:
+        block.append(f"- {task.description} (Status: {task.status})")
+
+    remaining = len(tasks) - len(selected)
+    if remaining > 0:
+        plural = "n" if remaining != 1 else ""
+        block.append(f"- … {remaining} weitere Aufgabe{plural} offen.")
+
+    block.append("")
+    return block
+
+
+def build_next_steps_summary(
+    tasks: Sequence[AgentTask],
+    plan: ExecutionPlan | None = None,
+    *,
+    limit_per_agent: int = 1,
+) -> str:
+    """Return a Markdown summary highlighting the next steps per agent."""
+
+    pending, metadata = _pending_tasks_by_agent(tasks)
+    if not pending:
+        return "# Nova Nächste Schritte\n\nAlle Aufgaben abgeschlossen. ✅"
+
+    effective_plan = plan or build_default_plan()
+    limit = None if limit_per_agent <= 0 else limit_per_agent
+
+    total_pending = sum(len(agent_tasks) for agent_tasks in pending.values())
+    limit_label = "alle" if limit is None else str(limit)
+
+    lines: list[str] = [
+        "# Nova Nächste Schritte",
+        "",
+        f"- Offene Aufgaben gesamt: {total_pending}",
+        f"- Angezeigte Schritte pro Agent: {limit_label}",
+        "",
+    ]
+
+    seen_agents: set[str] = set()
+    for phase in effective_plan.phases:
+        phase_agents = [agent for agent in phase.agents if agent in pending]
+        if not phase_agents:
+            continue
+
+        lines.append(f"## {phase.name.title()}")
+        lines.append(phase.goal)
+        lines.append("")
+
+        for agent_id in phase_agents:
+            lines.extend(
+                _render_agent_next_steps(agent_id, pending[agent_id], metadata, limit)
+            )
+            seen_agents.add(agent_id)
+
+    remaining_agents = [agent for agent in pending if agent not in seen_agents]
+    if remaining_agents:
+        lines.append("## Ad-Hoc")
+        lines.append("Aufgaben ohne Phasenzuordnung im aktuellen Ausführungsplan.")
+        lines.append("")
+        for agent_id in remaining_agents:
+            lines.extend(
+                _render_agent_next_steps(agent_id, pending[agent_id], metadata, limit)
+            )
+
+    return "\n".join(lines).rstrip()
+
+
+__all__ = ["build_phase_roadmap", "build_next_steps_summary"]
 

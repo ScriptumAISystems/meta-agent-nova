@@ -8,6 +8,7 @@ from nova import __main__
     [
         ["blueprints"],
         ["monitor"],
+        ["next-steps"],
     ],
 )
 def test_cli_commands(argv):
@@ -111,3 +112,24 @@ def test_cli_roadmap_with_phase_filter(tmp_path, monkeypatch, caplog):
     assert "## Observability" in caplog.text
     assert "Grafana installieren" in caplog.text
     assert "## Foundation" not in caplog.text
+
+
+def test_cli_next_steps_command(tmp_path, monkeypatch, caplog):
+    csv_path = tmp_path / "tasks.csv"
+    csv_path.write_text(
+        "Agenten-Name,Aufgabe,Status\n"
+        "Nova (Chef-Agentin),System prüfen,Offen\n"
+        "Nova (Chef-Agentin),Backup,In Arbeit\n"
+        "Chronos (Workflow & Automation Specialist),n8n Workflows,Offen\n"
+        "Orion (KI-Software-Spezialist),LLM vorbereiten,Abgeschlossen\n",
+        encoding="utf-8",
+    )
+    monkeypatch.setenv("NOVA_TASK_CSV", str(csv_path))
+
+    caplog.set_level("INFO", logger="nova.monitoring")
+    __main__.main(["next-steps", "--limit", "1"])
+
+    assert "Nova Nächste Schritte" in caplog.text
+    assert "System prüfen" in caplog.text
+    assert "… 1 weitere Aufgabe" in caplog.text
+    assert "n8n Workflows" in caplog.text
