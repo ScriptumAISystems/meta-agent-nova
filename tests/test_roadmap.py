@@ -161,8 +161,8 @@ def test_build_global_step_plan_includes_all_statuses():
 
     assert "# Nova Schritt-für-Schritt Plan" in plan_markdown
     assert "- Gesamtaufgaben: 5" in plan_markdown
-    assert "1. [x] Backup einrichten (Status: Abgeschlossen)" in plan_markdown
-    assert "2. [ ] System prüfen (Status: Offen)" in plan_markdown
+    assert "1. [ ] System prüfen (Status: Offen)" in plan_markdown
+    assert "2. [x] Backup einrichten (Status: Abgeschlossen)" in plan_markdown
     assert "3. [ ] LLM vorbereiten (Status: In Arbeit)" in plan_markdown
     assert "Abstimmung" in plan_markdown
 

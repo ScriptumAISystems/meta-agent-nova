@@ -176,8 +176,8 @@ def test_cli_step_plan_command(tmp_path, monkeypatch, caplog):
     __main__.main(["step-plan"])
 
     assert "Nova Schritt-für-Schritt Plan" in caplog.text
-    assert "1. [x] Backup (Status: Abgeschlossen)" in caplog.text
-    assert "2. [ ] System prüfen (Status: Offen)" in caplog.text
+    assert "1. [ ] System prüfen (Status: Offen)" in caplog.text
+    assert "2. [x] Backup (Status: Abgeschlossen)" in caplog.text
     assert "LLM vorbereiten" in caplog.text
     assert "Abstimmung" in caplog.text
 
