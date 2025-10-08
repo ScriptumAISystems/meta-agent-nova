@@ -61,6 +61,10 @@ handoffs and rollback paths.
         die GPU wurde erwartungsgemäß als nicht verfügbar markiert.
 - [ ] Enable Aura's dashboards (Grafana, LUX) to monitor migration KPIs such as
       deployment duration, resource saturation and error budgets. _Due: KW 29_
+      - *Status 2025-10-08:* Grafana-Paneldefinitionen für Deployment-Dauer und
+        Error-Budget-Verbrauch stehen nun unter
+        ``docs/dashboards/spark_migration_grafana.json`` bereit und werden in
+        der Observability-CLI referenziert. Die LUX-Integration folgt.
 - [ ] Collect security and compliance evidence (audit logs, policy decisions)
       to support the scheduled integration and security reviews. _Due: KW 30_
 

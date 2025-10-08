@@ -20,6 +20,7 @@ from .system.security import run_security_audit
 from .system.orchestrator import Orchestrator
 from .blueprints.generator import create_blueprint, list_available_blueprints
 from .monitoring.alerts import notify_info, notify_warning
+from .monitoring.dashboards import export_migration_dashboard
 from .monitoring.logging import configure_logger, log_error, log_info, log_warning
 from .monitoring.reports import build_markdown_test_report
 from .system.roadmap import (
@@ -123,6 +124,8 @@ def run_monitor() -> None:
 
     configure_logger()
     log_info("Monitoring services initialised.")
+    dashboard_path = export_migration_dashboard()
+    log_info(f"Grafana dashboard exported to {dashboard_path}")
     notify_warning("Monitoring is running in stub mode.")
     notify_info("No active alerts.")
 
