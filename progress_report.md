@@ -15,3 +15,15 @@ Basierend auf dem Abschnitt **Roadmap** in der `README.md` sind aktuell 5 von 7 
 - [ ] Refine automated testing and monitoring pipelines für die Endphase.
 
 Dieser Wert ist eine grobe Näherung, weil keine detaillierteren Statusangaben im Repository vorliegen.
+
+## Was bedeutet 100 %?
+
+Sobald alle sieben Roadmap-Meilensteine erledigt sind, springt der Fortschrittswert auf 100 %. Das heißt:
+
+- Die Dokumentationen, Pläne und Skripte aus der Roadmap liegen vollständig vor (siehe `README.md` und verlinkte Dokumente).
+- Die offenen Arbeiten aus dem Refinement-Plan (`docs/TESTING_MONITORING_REFINEMENT.md`) sind abgeschlossen.
+
+Trotzdem stehen nach dem Roadmap-Abschluss noch Betriebsschritte an:
+
+- Die Definition-of-Done-Checklisten je Agentenrolle (`docs/DEFINITION_OF_DONE.md`) müssen vollständig abgehakt sein, damit Nova im Dauerbetrieb als "fertig" gilt.
+- Übergabe, Inbetriebnahme und eventuelle Go-Live-Freigaben erfolgen außerhalb dieser Roadmap und werden separat dokumentiert.
