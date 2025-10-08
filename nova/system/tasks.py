@@ -37,6 +37,12 @@ _COMPLETED_STATUSES = {
 }
 
 
+def is_task_complete(status: str) -> bool:
+    """Return ``True`` if ``status`` represents a completed task."""
+
+    return status.strip().lower() in _COMPLETED_STATUSES
+
+
 def resolve_task_csv_path(csv_path: Path | str | None = None) -> Path:
     """Return the effective CSV path, considering overrides."""
 
@@ -171,7 +177,7 @@ def build_stepwise_task_checklist(tasks: Sequence[AgentTask]) -> str:
         if role:
             lines.append(f"*Rolle:* {role}")
         for task in agent_tasks:
-            checkbox = "x" if task.status.strip().lower() in _COMPLETED_STATUSES else " "
+            checkbox = "x" if is_task_complete(task.status) else " "
             lines.append(
                 f"{step}. [{checkbox}] {task.description} (Status: {task.status})"
             )
@@ -193,6 +199,7 @@ __all__ = [
     "build_markdown_task_overview",
     "filter_tasks",
     "group_tasks_by_agent",
+    "is_task_complete",
     "load_agent_tasks",
     "normalise_agent_identifier",
     "resolve_task_csv_path",

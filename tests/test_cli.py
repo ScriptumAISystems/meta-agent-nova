@@ -76,3 +76,19 @@ def test_cli_tasks_checklist(tmp_path, monkeypatch, caplog):
     assert "Nova Agent Task Checklist" in caplog.text
     assert "1. [x] Backup (Status: Abgeschlossen)" in caplog.text
     assert "2. [ ] LLM vorbereiten (Status: Offen)" in caplog.text
+
+
+def test_cli_roadmap_command(tmp_path, monkeypatch, caplog):
+    csv_path = tmp_path / "tasks.csv"
+    csv_path.write_text(
+        "Agenten-Name,Aufgabe,Status\n"
+        "Nova (Chef-Agentin),System prüfen,Offen\n",
+        encoding="utf-8",
+    )
+    monkeypatch.setenv("NOVA_TASK_CSV", str(csv_path))
+
+    caplog.set_level("INFO", logger="nova.monitoring")
+    __main__.main(["roadmap"])
+
+    assert "Nova Phasen-Roadmap" in caplog.text
+    assert "System prüfen" in caplog.text

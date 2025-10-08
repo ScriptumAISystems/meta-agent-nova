@@ -22,6 +22,7 @@ from .blueprints.generator import create_blueprint, list_available_blueprints
 from .monitoring.alerts import notify_info, notify_warning
 from .monitoring.logging import configure_logger, log_error, log_info, log_warning
 from .monitoring.reports import build_markdown_test_report
+from .system.roadmap import build_phase_roadmap
 from .system.tasks import (
     build_markdown_task_overview,
     build_stepwise_task_checklist,
@@ -198,6 +199,24 @@ def run_tasks(
         log_info(line)
 
 
+def run_roadmap(csv_path: Path | None = None) -> None:
+    """Render the execution roadmap with step-by-step guidance."""
+
+    configure_logger()
+    resolved_path = resolve_task_csv_path(csv_path)
+    log_info(f"Loading agent tasks from {resolved_path}")
+
+    try:
+        tasks = load_agent_tasks(resolved_path)
+    except FileNotFoundError as exc:
+        log_error(f"Task overview file not found: {exc}")
+        raise
+
+    roadmap = build_phase_roadmap(tasks)
+    for line in roadmap.splitlines():
+        log_info(line)
+
+
 def build_parser() -> argparse.ArgumentParser:
     """Construct the argument parser for the CLI."""
 
@@ -275,6 +294,16 @@ def build_parser() -> argparse.ArgumentParser:
         help="Render the task overview as a step-by-step checklist.",
     )
 
+    roadmap_parser = subparsers.add_parser(
+        "roadmap", help="Display the phased roadmap and remaining steps"
+    )
+    roadmap_parser.add_argument(
+        "--csv",
+        type=Path,
+        metavar="PATH",
+        help="Optional path to an alternative task overview CSV file.",
+    )
+
     return parser
 
 
@@ -301,6 +330,8 @@ def main(argv: list[str] | None = None) -> None:
             csv_path=args.csv,
             as_checklist=args.checklist,
         )
+    elif args.command == "roadmap":
+        run_roadmap(csv_path=args.csv)
     else:  # pragma: no cover - defensive default
         parser.error(f"Unknown command: {args.command}")
 
