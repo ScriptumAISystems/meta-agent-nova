@@ -362,9 +362,119 @@ def build_global_step_plan(
     return "\n".join(lines).rstrip()
 
 
+def build_executive_summary(
+    tasks: Sequence[AgentTask],
+    plan: ExecutionPlan | None = None,
+    *,
+    limit_per_agent: int = 1,
+) -> str:
+    """Return a concise roadmap snapshot across phases and agents."""
+
+    if not tasks:
+        return "# Nova Roadmap Snapshot\n\nKeine Aufgaben gefunden."
+
+    effective_plan = plan or build_default_plan()
+
+    total = len(tasks)
+    completed = sum(1 for task in tasks if is_task_complete(task.status))
+
+    pending_by_agent, metadata = _pending_tasks_by_agent(tasks)
+    limit = None if limit_per_agent <= 0 else limit_per_agent
+
+    lines: list[str] = [
+        "# Nova Roadmap Snapshot",
+        "",
+        f"- Gesamtaufgaben: {total}",
+        f"- Abgeschlossen: {completed}",
+        f"- Offen: {total - completed}",
+        "",
+    ]
+
+    if not effective_plan.phases:
+        lines.append("Keine Phasen definiert.")
+        return "\n".join(lines).rstrip()
+
+    seen_agents: set[str] = set()
+
+    for phase in effective_plan.phases:
+        lines.append(f"## {phase.name.title()}")
+        lines.append(phase.goal)
+
+        phase_tasks = _tasks_for_agents(tasks, phase.agents)
+        total_phase = len(phase_tasks)
+        completed_phase = sum(
+            1 for task in phase_tasks if is_task_complete(task.status)
+        )
+        percent = int(round((completed_phase / total_phase) * 100)) if total_phase else 0
+        lines.append(f"- Fortschritt: {completed_phase}/{total_phase} ({percent}%)")
+
+        if not total_phase:
+            lines.append("*Hinweis:* Für diese Phase sind noch keine Aufgaben im CSV hinterlegt.")
+            lines.append("")
+            continue
+
+        pending_agents = [agent for agent in phase.agents if agent in pending_by_agent]
+        if not pending_agents:
+            lines.append("Alle Aufgaben dieser Phase abgeschlossen. ✅")
+            lines.append("")
+            continue
+
+        lines.append("")
+        lines.append("### Offene Schritte")
+        for agent_id in pending_agents:
+            display_name, role = metadata.get(agent_id, (agent_id.title(), None))
+            label = (
+                f"{display_name} ({role})"
+                if role and role not in display_name
+                else display_name
+            )
+            lines.append(f"- {label}")
+
+            agent_tasks = pending_by_agent[agent_id]
+            selected = list(agent_tasks) if limit is None else list(agent_tasks[:limit])
+            for task in selected:
+                lines.append(f"  - [ ] {task.description} (Status: {task.status})")
+
+            remaining = len(agent_tasks) - len(selected)
+            if remaining > 0:
+                plural = "n" if remaining != 1 else ""
+                lines.append(f"  - … {remaining} weitere Aufgabe{plural} offen.")
+
+            seen_agents.add(agent_id)
+        lines.append("")
+
+    remaining_agents = [agent for agent in pending_by_agent if agent not in seen_agents]
+    if remaining_agents:
+        lines.append("## Ad-Hoc")
+        lines.append("Aufgaben ohne Phasenzuordnung im aktuellen Ausführungsplan.")
+        lines.append("")
+        for agent_id in remaining_agents:
+            display_name, role = metadata.get(agent_id, (agent_id.title(), None))
+            label = (
+                f"{display_name} ({role})"
+                if role and role not in display_name
+                else display_name
+            )
+            lines.append(f"- {label}")
+
+            agent_tasks = pending_by_agent[agent_id]
+            selected = list(agent_tasks) if limit is None else list(agent_tasks[:limit])
+            for task in selected:
+                lines.append(f"  - [ ] {task.description} (Status: {task.status})")
+
+            remaining = len(agent_tasks) - len(selected)
+            if remaining > 0:
+                plural = "n" if remaining != 1 else ""
+                lines.append(f"  - … {remaining} weitere Aufgabe{plural} offen.")
+        lines.append("")
+
+    return "\n".join(lines).rstrip()
+
+
 __all__ = [
     "build_phase_roadmap",
     "build_next_steps_summary",
     "build_global_step_plan",
+    "build_executive_summary",
 ]
 

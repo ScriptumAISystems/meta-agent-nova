@@ -1,6 +1,6 @@
 # Progress Report
 
-> 💡 **Hinweis:** Der Fortschritt lässt sich jetzt direkt über die CLI abrufen: `python -m nova progress` erzeugt einen aktuellen Bericht inklusive nächster Schritte je Agent.
+> 💡 **Hinweis:** Der Fortschritt lässt sich jetzt direkt über die CLI abrufen: `python -m nova summary` liefert eine kompakte Roadmap-Übersicht und `python -m nova progress` erzeugt einen detaillierten Bericht inklusive nächster Schritte je Agent.
 
 Basierend auf dem Abschnitt **Roadmap** in der `README.md` sind aktuell alle 7 Meilensteine als abgeschlossen markiert (✅). Damit liegt der Roadmap-Fortschritt bei 100 %.
 

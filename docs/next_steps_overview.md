@@ -26,4 +26,4 @@ Diese Übersicht fasst die priorisierten Folgeaktivitäten für Meta-Agent Nova 
 - [ ] Roadmap, Definition-of-Done und Teststrategie regelmäßig aktualisieren.
 - [ ] Sprint-Board anlegen, Kick-off organisieren und Minimalziel (Systemchecks + Docker + Logging) starten.
 
-> 📌 Nutze `python -m nova step-plan` und `python -m nova progress`, um den aktuellen Status je Agentenrolle zu verfolgen.
+> 📌 Nutze `python -m nova step-plan`, `python -m nova summary` und `python -m nova progress`, um den aktuellen Status je Agentenrolle zu verfolgen.

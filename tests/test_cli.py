@@ -12,6 +12,7 @@ from nova.system import containers as container_utils
         ["next-steps"],
         ["step-plan"],
         ["progress"],
+        ["summary"],
     ],
 )
 def test_cli_commands(argv):
@@ -198,9 +199,30 @@ def test_cli_progress_command(tmp_path, monkeypatch, caplog):
     __main__.main(["progress", "--limit", "1"])
 
     assert "Nova Fortschrittsbericht" in caplog.text
+
+
+def test_cli_summary_command(tmp_path, monkeypatch, caplog):
+    csv_path = tmp_path / "tasks.csv"
+    csv_path.write_text(
+        "Agenten-Name,Aufgabe,Status\n"
+        "Nova (Chef-Agentin),System prüfen,Offen\n"
+        "Nova (Chef-Agentin),Backup,Abgeschlossen\n"
+        "Chronos (Workflow & Automatisierungsspezialist),n8n Workflows,Offen\n"
+        "Zeus,Abstimmung,Offen\n",
+        encoding="utf-8",
+    )
+    monkeypatch.setenv("NOVA_TASK_CSV", str(csv_path))
+
+    caplog.set_level("INFO", logger="nova.monitoring")
+    __main__.main(["summary", "--limit", "1"])
+
+    assert "Nova Roadmap Snapshot" in caplog.text
+    assert "## Foundation" in caplog.text
+    assert "System prüfen" in caplog.text
+    assert "## Ad-Hoc" in caplog.text
+    assert "Abstimmung" in caplog.text
     assert "- Gesamtaufgaben: 4" in caplog.text
-    assert "### Nächste Schritte" in caplog.text
-    assert "- …" in caplog.text
+    assert "### Offene Schritte" in caplog.text
 
 
 def test_cli_progress_default_shows_all_tasks(tmp_path, monkeypatch, caplog):
