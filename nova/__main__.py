@@ -35,6 +35,7 @@ from .system.tasks import (
     normalise_agent_identifier,
     resolve_task_csv_path,
 )
+from .system.progress import build_progress_report
 
 
 def _parse_toggle(value: str | None) -> bool | None:
@@ -264,6 +265,28 @@ def run_step_plan(
         log_info(line)
 
 
+def run_progress(
+    csv_path: Path | None = None,
+    *,
+    pending_limit: int = 3,
+) -> None:
+    """Render the aggregated progress snapshot."""
+
+    configure_logger()
+    resolved_path = resolve_task_csv_path(csv_path)
+    log_info(f"Loading agent tasks from {resolved_path}")
+
+    try:
+        tasks = load_agent_tasks(resolved_path)
+    except FileNotFoundError as exc:
+        log_error(f"Task overview file not found: {exc}")
+        raise
+
+    report = build_progress_report(tasks, pending_limit=pending_limit)
+    for line in report.splitlines():
+        log_info(line)
+
+
 def build_parser() -> argparse.ArgumentParser:
     """Construct the argument parser for the CLI."""
 
@@ -392,6 +415,24 @@ def build_parser() -> argparse.ArgumentParser:
         help="Limit the plan to the specified phases (e.g. observability).",
     )
 
+    progress_parser = subparsers.add_parser(
+        "progress",
+        help="Display the overall progress snapshot",
+    )
+    progress_parser.add_argument(
+        "--csv",
+        type=Path,
+        metavar="PATH",
+        help="Optional path to an alternative task overview CSV file.",
+    )
+    progress_parser.add_argument(
+        "--limit",
+        type=int,
+        metavar="N",
+        default=3,
+        help="Number of pending tasks to show per agent (0 for unlimited).",
+    )
+
     return parser
 
 
@@ -424,6 +465,8 @@ def main(argv: list[str] | None = None) -> None:
         run_next_steps(csv_path=args.csv, limit_per_agent=args.limit)
     elif args.command == "step-plan":
         run_step_plan(csv_path=args.csv, phases=args.phase)
+    elif args.command == "progress":
+        run_progress(csv_path=args.csv, pending_limit=args.limit)
     else:  # pragma: no cover - defensive default
         parser.error(f"Unknown command: {args.command}")
 
