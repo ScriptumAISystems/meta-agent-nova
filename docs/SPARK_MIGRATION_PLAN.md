@@ -59,12 +59,19 @@ handoffs and rollback paths.
         ``nova/logging/kpi/spark_baseline_2025-10-08T07-33-58+00-00.json``. Die
         Ergebnisse bestätigen funktionierende CPU-, GPU- und Netzwerkchecks;
         die GPU wurde erwartungsgemäß als nicht verfügbar markiert.
-- [ ] Enable Aura's dashboards (Grafana, LUX) to monitor migration KPIs such as
+      - Ausführung via ``python -m nova.monitoring.benchmarks``. Der Lauf
+        erstellt automatisch KPI-Schnappschüsse, schreibt sie nach
+        ``nova/logging/kpi`` und aktualisiert den KPI-Tracker für weitere
+        Dashboards.
+- [x] Enable Aura's dashboards (Grafana, LUX) to monitor migration KPIs such as
       deployment duration, resource saturation and error budgets. _Due: KW 29_
       - *Status 2025-10-08:* Grafana-Paneldefinitionen für Deployment-Dauer und
         Error-Budget-Verbrauch stehen nun unter
         ``docs/dashboards/spark_migration_grafana.json`` bereit und werden in
-        der Observability-CLI referenziert. Die LUX-Integration folgt.
+        der Observability-CLI referenziert.
+      - LUX-Compliance-Slice als Evidenzpaket: ``docs/dashboards/lux_compliance_slice.json``
+        verbindet Audit-Trail-Abdeckung und Policy-Drift mit den Review-Fenstern
+        aus ``docs/INTEGRATION_SECURITY_REVIEWS.md``.
 - [ ] Collect security and compliance evidence (audit logs, policy decisions)
       to support the scheduled integration and security reviews. _Due: KW 30_
 
