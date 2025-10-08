@@ -46,7 +46,7 @@ Dieses Dokument konkretisiert die Qualitätskriterien, die erfüllt sein müssen
 ## Aura – Monitoring & Dashboard Developer
 - [ ] Grafana Deployment (lokal/Cluster) beschrieben, Dashboards versioniert und wiederholbar installierbar.
 - [ ] LUX-Dashboard Mockups/Wireframes erstellt, mit Datenquellen aus `nova/logging/kpi` verdrahtet.
-- [ ] KPI-Definitionen für Energie- und Ressourceneffizienz inklusive Alert-Grenzwerte dokumentiert.
+- [x] KPI-Definitionen für Energie- und Ressourceneffizienz inklusive Alert-Grenzwerte dokumentiert (`nova/logging/kpi/thresholds.yaml`, `docs/TESTING_MONITORING_REFINEMENT.md`).
 - [ ] Emotionale/Stimmungs-Metriken konzipiert, Datenschutz implikationen bewertet und Freigabe eingeholt.
 - [ ] Monitoring-Hooks (Logs, Metriken, Traces) in Testumgebung verifiziert.
 
