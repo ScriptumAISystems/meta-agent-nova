@@ -1,6 +1,7 @@
 import pytest
 
 from nova import __main__
+from nova.system import containers as container_utils
 
 
 @pytest.mark.parametrize(
@@ -36,6 +37,28 @@ def test_cli_audit(monkeypatch):
     __main__.main(["audit", "--firewall", "enabled", "--antivirus", "enabled", "--policies", "disabled"])
     assert warnings, "audit should raise warnings when a control is disabled"
     assert not infos, "audit should not report success when warnings are issued"
+
+
+def test_cli_containers_command(monkeypatch):
+    report = container_utils.ContainerInspectionReport(
+        [
+            container_utils.RuntimeCheckResult(
+                name="Docker Engine",
+                binary="docker",
+                found=True,
+                version="Docker version 26.0.0",
+                health="ok",
+                notes=[],
+            )
+        ]
+    )
+    captured: list[container_utils.ContainerInspectionReport] = []
+    monkeypatch.setattr(__main__, "inspect_container_runtimes", lambda kubeconfig=None: report)
+    monkeypatch.setattr(__main__, "log_container_report", lambda rep: captured.append(rep))
+
+    __main__.main(["containers"])
+
+    assert captured == [report]
 
 
 def test_cli_orchestrate_parallel(tmp_path, monkeypatch):

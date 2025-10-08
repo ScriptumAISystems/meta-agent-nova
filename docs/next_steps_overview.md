@@ -4,7 +4,7 @@ Diese Übersicht fasst die priorisierten Folgeaktivitäten für Meta-Agent Nova 
 
 ## Top-Prioritäten (0-2 Wochen)
 - [ ] Infrastruktur-Audits ausführen (CPU/GPU/Netzwerk) und Ergebnisse dokumentieren.
-- [ ] Automatisiertes Setup für Container-Orchestrierung (Docker, Kubernetes) bereitstellen.
+- [ ] Automatisiertes Setup für Container-Orchestrierung (Docker, Kubernetes) bereitstellen – Status mit `python -m nova containers` dokumentieren.
 - [ ] VPN/Remote-Zugriff und Basis-Sicherheitsmaßnahmen aktivieren (Backups, Logging).
 
 ## KI-Stack vorbereiten (Parallel zu oben)

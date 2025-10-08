@@ -52,7 +52,7 @@ Trotzdem stehen nach dem Roadmap-Abschluss noch Betriebsschritte an:
 Um den operativen Fortschritt zu aktivieren, empfiehlt sich die Foundation-Phase (Nova) als erster Block. Die folgenden fünf Aufgaben stammen direkt aus dem Schritt-für-Schritt-Plan (`python -m nova step-plan --phase foundation`):
 
 1. ✅ DGX-Betriebssystem prüfen und Netzwerk einrichten (`python -m nova setup --packages docker kubernetes wireguard`).
-2. ⬜ Docker- und Kubernetes-Cluster installieren.
+2. ⬜ Docker- und Kubernetes-Cluster installieren (`python -m nova containers` liefert den aktuellen Prüfstatus).
 3. ⬜ VPN/Fernzugriff via WireGuard oder OpenVPN aktivieren.
 4. ⬜ Security- und Datenschutz-Checks ausführen.
 5. ⬜ Backup- und Recovery-Systeme aufsetzen.
