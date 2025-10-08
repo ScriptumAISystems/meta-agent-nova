@@ -24,14 +24,14 @@ It extends the existing harness in `tests/` and the monitoring utilities under `
   - [x] Extend `tests/test_task_queue.py` with concurrency stress scenarios (1k jobs, 10 workers).
   - [x] Mirror scenarios for Redis backend in `tests/test_task_queue_redis.py` with configurable latency injection.
   - [x] Create `tests/test_policy_engine.py` to validate allow/deny caches and OPA fallback behaviour using fixtures.
-- [ ] **Performance Benchmarks**
+- [x] **Performance Benchmarks**
   - [x] Implement `nova.monitoring.benchmarks.run_spark_baseline()` to orchestrate GPU, CPU and network measurements.
   - [x] Store benchmark artefacts in `nova/logging/kpi` for reuse by dashboards and reports.
-  - [ ] Document benchmark execution in `docs/SPARK_MIGRATION_PLAN.md` section 5 upon completion.
-- [ ] **Monitoring Dashboard Enhancements**
+  - [x] Document benchmark execution in `docs/SPARK_MIGRATION_PLAN.md` section 5 upon completion (incl. CLI workflow and artefact reference).
+- [x] **Monitoring Dashboard Enhancements**
   - [x] Add migration KPI panels (deployment duration, error budgets) to Grafana JSON definitions (`docs/dashboards/spark_migration_grafana.json`).
-  - [ ] Generate a LUX dashboard slice for compliance evidence (audit trail coverage, policy drift).
-  - [ ] Link dashboards to review schedule in `docs/INTEGRATION_SECURITY_REVIEWS.md`.
+  - [x] Generate a LUX dashboard slice for compliance evidence (audit trail coverage, policy drift) and version it at `docs/dashboards/lux_compliance_slice.json`.
+  - [x] Link dashboards to review schedule in `docs/INTEGRATION_SECURITY_REVIEWS.md`.
 - [ ] **Alerting Automation**
   - [x] Define KPI thresholds inside `nova/logging/kpi/thresholds.yaml`.
   - [x] Wire KPI breaches to PagerDuty/webhook integration script under `nova/monitoring/alerts.py`.

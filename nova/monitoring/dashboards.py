@@ -4,10 +4,14 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
-from typing import Any
+from typing import Any, Iterable
 
 _DEFAULT_DASHBOARD_PATH = (
     Path(__file__).resolve().parents[2] / "docs" / "dashboards" / "spark_migration_grafana.json"
+)
+
+_DEFAULT_LUX_SLICE_PATH = (
+    Path(__file__).resolve().parents[2] / "docs" / "dashboards" / "lux_compliance_slice.json"
 )
 
 
@@ -235,6 +239,93 @@ def build_migration_dashboard(*, refresh: str = "5m") -> dict[str, Any]:
     return dashboard
 
 
+def _build_widget_layout(widget_id: str, *, x: int, y: int, w: int, h: int) -> dict[str, int | str]:
+    return {"widget": widget_id, "x": x, "y": y, "w": w, "h": h}
+
+
+def build_lux_compliance_slice(
+    *,
+    review_windows: Iterable[str] | None = None,
+    data_source: str = "nova-compliance-registry",
+) -> dict[str, Any]:
+    """Return the LUX dashboard slice used to evidence compliance metrics."""
+
+    windows = list(review_windows) if review_windows is not None else [
+        "KW 26 – Foundation Review",
+        "KW 27 – Intelligence Review",
+        "KW 28 – Interaction Review",
+        "KW 31 – Cut-over Review",
+    ]
+
+    slice_payload: dict[str, Any] = {
+        "id": "lux-compliance-evidence",
+        "title": "Spark Migration Compliance Evidence",
+        "description": (
+            "Curated evidence package combining audit trail coverage, policy drift "
+            "observability and review readiness for Spark migration governance."
+        ),
+        "data_sources": {
+            "compliance_store": {
+                "name": data_source,
+                "type": "parquet",
+                "path": "nova/security/compliance_store.parquet",
+                "refresh_interval": "24h",
+            },
+            "policy_registry": {
+                "name": "opa-policy-registry",
+                "type": "json",
+                "path": "nova/policy/cache/decision_log.json",
+                "refresh_interval": "1h",
+            },
+        },
+        "widgets": [
+            {
+                "id": "audit-trail-coverage",
+                "type": "gauge",
+                "title": "Audit Trail Coverage",
+                "source": "compliance_store",
+                "metric": "audit_trail.coverage",
+                "format": "percent",
+                "thresholds": {"warning": 90, "critical": 80},
+                "description": "Share of orchestrated events backed by audit artefacts.",
+            },
+            {
+                "id": "policy-drift-trend",
+                "type": "sparkline",
+                "title": "Policy Drift",
+                "source": "policy_registry",
+                "metric": "opa.policy_drift_score",
+                "format": "ratio",
+                "thresholds": {"warning": 0.2, "critical": 0.4},
+                "description": "OPA decision drift compared to approved baselines (0 = aligned).",
+            },
+            {
+                "id": "review-readiness",
+                "type": "timeline",
+                "title": "Review Readiness Checklist",
+                "items": [
+                    {
+                        "label": window,
+                        "status_metric": "audit_trail.coverage",
+                        "acceptance_criteria": ">= 95% coverage",
+                    }
+                    for window in windows
+                ],
+                "description": (
+                    "Maps compliance KPIs to the integration & security review cadence "
+                    "so Aura can confirm evidence before each gate."
+                ),
+            },
+        ],
+        "layout": [
+            _build_widget_layout("audit-trail-coverage", x=0, y=0, w=6, h=4),
+            _build_widget_layout("policy-drift-trend", x=6, y=0, w=6, h=4),
+            _build_widget_layout("review-readiness", x=0, y=4, w=12, h=3),
+        ],
+    }
+    return slice_payload
+
+
 def export_migration_dashboard(path: Path | str | None = None, *, indent: int = 2) -> Path:
     """Write the Grafana dashboard definition to ``path`` and return it."""
 
@@ -242,6 +333,16 @@ def export_migration_dashboard(path: Path | str | None = None, *, indent: int = 
     target.parent.mkdir(parents=True, exist_ok=True)
     dashboard = build_migration_dashboard()
     target.write_text(json.dumps(dashboard, indent=indent, sort_keys=True), encoding="utf-8")
+    return target
+
+
+def export_lux_compliance_slice(path: Path | str | None = None, *, indent: int = 2) -> Path:
+    """Write the LUX compliance slice definition to ``path`` and return it."""
+
+    target = Path(path) if path is not None else _DEFAULT_LUX_SLICE_PATH
+    target.parent.mkdir(parents=True, exist_ok=True)
+    payload = build_lux_compliance_slice()
+    target.write_text(json.dumps(payload, indent=indent, sort_keys=True), encoding="utf-8")
     return target
 
 
@@ -253,8 +354,19 @@ def load_migration_dashboard(path: Path | str | None = None) -> dict[str, Any]:
     return data
 
 
+def load_lux_compliance_slice(path: Path | str | None = None) -> dict[str, Any]:
+    """Load the LUX compliance slice JSON payload from disk."""
+
+    source = Path(path) if path is not None else _DEFAULT_LUX_SLICE_PATH
+    data = json.loads(source.read_text(encoding="utf-8"))
+    return data
+
+
 __all__ = [
     "build_migration_dashboard",
+    "build_lux_compliance_slice",
     "export_migration_dashboard",
+    "export_lux_compliance_slice",
     "load_migration_dashboard",
+    "load_lux_compliance_slice",
 ]
