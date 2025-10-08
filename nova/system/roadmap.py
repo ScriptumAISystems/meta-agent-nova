@@ -230,5 +230,140 @@ def build_next_steps_summary(
     return "\n".join(lines).rstrip()
 
 
-__all__ = ["build_phase_roadmap", "build_next_steps_summary"]
+def build_global_step_plan(
+    tasks: Sequence[AgentTask],
+    plan: ExecutionPlan | None = None,
+    *,
+    phase_filters: Iterable[str] | None = None,
+) -> str:
+    """Render a numbered, phase-ordered plan covering all tasks."""
+
+    if not tasks:
+        return "# Nova Schritt-für-Schritt Plan\n\nKeine Aufgaben gefunden."
+
+    effective_plan = plan or build_default_plan()
+
+    filter_names = [name.strip() for name in phase_filters or [] if name and name.strip()]
+    normalised_filters = {
+        _normalise_phase_name(name) for name in filter_names
+    } or None
+
+    if normalised_filters is None:
+        selected_phases = effective_plan.phases
+    else:
+        selected_phases = tuple(
+            phase
+            for phase in effective_plan.phases
+            if _normalise_phase_name(phase.name) in normalised_filters
+        )
+
+    total_tasks = len(tasks)
+    completed_tasks = sum(1 for task in tasks if is_task_complete(task.status))
+
+    lines: list[str] = [
+        "# Nova Schritt-für-Schritt Plan",
+        "",
+        f"- Gesamtaufgaben: {total_tasks}",
+        f"- Abgeschlossen: {completed_tasks}",
+        f"- Offen: {total_tasks - completed_tasks}",
+        "",
+    ]
+
+    if filter_names:
+        lines.append("*Gefiltert nach Phasen:* " + ", ".join(filter_names))
+        lines.append("")
+
+    if not effective_plan.phases:
+        lines.append("Keine Phasen definiert.")
+        return "\n".join(lines).strip()
+
+    if normalised_filters is not None and not selected_phases:
+        lines.append("*Hinweis:* Keine der angeforderten Phasen wurden im Ausführungsplan gefunden.")
+        return "\n".join(lines).strip()
+
+    tasks_by_agent: dict[str, list[AgentTask]] = {}
+    metadata: dict[str, tuple[str, str | None]] = {}
+    for task in tasks:
+        tasks_by_agent.setdefault(task.agent_identifier, []).append(task)
+        metadata.setdefault(
+            task.agent_identifier,
+            (task.agent_display_name, task.agent_role),
+        )
+
+    for agent_tasks in tasks_by_agent.values():
+        agent_tasks.sort(key=lambda task: task.description.lower())
+
+    step = 1
+    seen_agents: set[str] = set()
+    selected_phase_agent_ids: set[str] = {
+        agent for phase in selected_phases for agent in phase.agents
+    }
+    all_plan_agents: set[str] = {
+        agent for phase in effective_plan.phases for agent in phase.agents
+    }
+
+    for phase in selected_phases:
+        phase_agent_ids = [agent for agent in phase.agents if agent in tasks_by_agent]
+        if not phase_agent_ids:
+            continue
+
+        lines.append(f"## {phase.name.title()}")
+        lines.append(phase.goal)
+        lines.append("")
+
+        for agent_id in phase_agent_ids:
+            display_name, role = metadata.get(agent_id, (agent_id.title(), None))
+            lines.append(f"### {display_name}")
+            if role:
+                lines.append(f"*Rolle:* {role}")
+
+            for task in tasks_by_agent[agent_id]:
+                checkbox = "x" if is_task_complete(task.status) else " "
+                lines.append(
+                    f"{step}. [{checkbox}] {task.description} (Status: {task.status})"
+                )
+                step += 1
+
+            lines.append("")
+            seen_agents.add(agent_id)
+
+    remaining_agents: list[str] = []
+    for agent_id in sorted(tasks_by_agent):
+        if agent_id in seen_agents:
+            continue
+        if agent_id in selected_phase_agent_ids:
+            continue
+        if normalised_filters is not None and agent_id in all_plan_agents:
+            # Skip agents that belong to filtered-out phases.
+            continue
+        remaining_agents.append(agent_id)
+
+    if remaining_agents:
+        lines.append("## Ad-Hoc")
+        lines.append("Aufgaben ohne Zuordnung in den ausgewählten Phasen.")
+        lines.append("")
+
+        for agent_id in remaining_agents:
+            display_name, role = metadata.get(agent_id, (agent_id.title(), None))
+            lines.append(f"### {display_name}")
+            if role:
+                lines.append(f"*Rolle:* {role}")
+
+            for task in tasks_by_agent[agent_id]:
+                checkbox = "x" if is_task_complete(task.status) else " "
+                lines.append(
+                    f"{step}. [{checkbox}] {task.description} (Status: {task.status})"
+                )
+                step += 1
+
+            lines.append("")
+
+    return "\n".join(lines).rstrip()
+
+
+__all__ = [
+    "build_phase_roadmap",
+    "build_next_steps_summary",
+    "build_global_step_plan",
+]
 

@@ -2,6 +2,8 @@
 
 Dieses Dokument beantwortet die Frage "Wie machen wir jetzt weiter?" und bietet einen klaren Fahrplan, um das Nova-Orchestratorsystem strukturiert auszubauen. Die Schritte sind nach Priorität geordnet und referenzieren die vorhandenen Rollenaufgaben aus `TASKS.md`.
 
+> 💡 **Tipp:** Verwende `python -m nova step-plan`, um eine automatisch generierte Schritt-für-Schritt-Liste aus der Aufgabenübersicht (`Agenten_Aufgaben_Uebersicht.csv`) zu erhalten. Über `--phase foundation` lässt sich der Plan auf einzelne Phasen eingrenzen.
+
 ## 1. Infrastruktur-Grundlagen fertigstellen (Nova)
 - **System- und Hardware-Audits abschließen:** Führe die in `nova/system` implementierten Prüf-Utilities aus, um CPU, GPU und Netzwerk zu verifizieren.
 - **Container- und Orchestrierungstools installieren:** Script- oder CLI-Aufrufe für Docker und Kubernetes automatisieren und Ergebnisse dokumentieren.
