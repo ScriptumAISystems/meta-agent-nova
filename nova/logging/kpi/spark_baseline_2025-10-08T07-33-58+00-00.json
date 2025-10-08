@@ -1,0 +1,16 @@
+{
+  "cpu": {
+    "architecture": "x86_64",
+    "logical_cores": 3,
+    "processor": "x86_64"
+  },
+  "gpu": {
+    "available": false,
+    "details": "nvidia-smi executable not found"
+  },
+  "network": {
+    "details": "localhost name resolution succeeded",
+    "online": true
+  },
+  "timestamp": "2025-10-08T07:33:58+00:00"
+}
