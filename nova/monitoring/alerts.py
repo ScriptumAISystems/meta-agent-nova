@@ -6,7 +6,8 @@ import importlib
 import importlib.util
 import json
 import logging
-from dataclasses import dataclass
+from dataclasses import dataclass, asdict
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict, Iterable, List, Mapping, MutableMapping, Optional, Tuple
 
@@ -140,8 +141,18 @@ def dispatch_alert(event: AlertEvent, *, dry_run: bool = False) -> None:
     message = event.format_message(dry_run=dry_run)
     payload = event.webhook_payload()
     if dry_run:
-        logger.info(message)
-        logger.debug("Simulated webhook payload", extra={"payload": payload})
+        logger.info(
+            message,
+            extra={
+                "dry_run": True,
+                "event": asdict(event),
+                "payload": payload,
+            },
+        )
+        logger.debug(
+            "Simulated webhook payload",
+            extra={"dry_run": True, "payload": payload, "event": asdict(event)},
+        )
         return
     send_alert(event.severity, message)
     logger.debug("Dispatched webhook payload", extra={"payload": payload})
@@ -162,6 +173,111 @@ def run_alert_evaluation(
 
     for event in events:
         dispatch_alert(event, dry_run=dry_run)
+    return events
+
+
+def _format_timestamp() -> str:
+    return datetime.now(timezone.utc).replace(microsecond=0).isoformat()
+
+
+def render_alert_report(
+    events: Iterable[AlertEvent],
+    *,
+    dry_run: bool,
+    snapshot: Mapping[str, Any] | None = None,
+) -> str:
+    """Render a Markdown summary for ``events`` suitable for the journal."""
+
+    events = list(events)
+    lines = [
+        "# Nova Alert Evaluation",
+        "",
+        f"*Timestamp:* {_format_timestamp()}",
+        f"*Mode:* {'dry-run' if dry_run else 'live'}",
+        f"*Events:* {len(events)}",
+        "",
+    ]
+
+    if not events:
+        lines.append("Keine Schwellenwertverletzungen festgestellt. ✅")
+        return "\n".join(lines).strip()
+
+    lines.append("## Ausgelöste Alerts")
+    lines.append("")
+    for index, event in enumerate(events, start=1):
+        lines.append(
+            "{}. [{}] {} – Feld `{}` überschritt den Grenzwert (Wert: {}, Grenzwert: {}) -> Kanal: {}".format(
+                index,
+                event.severity.upper(),
+                event.metric,
+                event.field,
+                event.value,
+                event.threshold,
+                event.channel,
+            )
+        )
+    lines.append("")
+
+    if snapshot:
+        lines.append("## Snapshot-Auszug")
+        lines.append("")
+        counters = snapshot.get("counters", {})
+        metrics = snapshot.get("metrics", {})
+        if counters:
+            lines.append("**Counters:**")
+            for name, value in counters.items():
+                lines.append(f"- {name}: {value}")
+            lines.append("")
+        if metrics:
+            lines.append("**Metriken:**")
+            for name, fields in metrics.items():
+                if not isinstance(fields, Mapping):
+                    continue
+                field_repr = ", ".join(
+                    f"{key}={value}" for key, value in sorted(fields.items()) if not isinstance(value, Mapping)
+                )
+                lines.append(f"- {name}: {field_repr}")
+            lines.append("")
+
+    return "\n".join(lines).strip()
+
+
+def export_alert_report(
+    events: Iterable[AlertEvent],
+    *,
+    output_path: Path,
+    dry_run: bool,
+    snapshot: Mapping[str, Any] | None = None,
+) -> Path:
+    """Write a Markdown alert report and return the resolved path."""
+
+    output_path = output_path.expanduser().resolve()
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    report = render_alert_report(events, dry_run=dry_run, snapshot=snapshot)
+    output_path.write_text(report, encoding="utf-8")
+    logger.info("Alert evaluation exported", extra={"path": str(output_path), "dry_run": dry_run})
+    return output_path
+
+
+def execute_alert_workflow(
+    *,
+    thresholds_path: Path,
+    snapshot_path: Path | None,
+    dry_run: bool,
+    export_path: Path | None = None,
+) -> List[AlertEvent]:
+    """Evaluate thresholds using files and optionally export a journal report."""
+
+    thresholds = load_thresholds(thresholds_path)
+    snapshot: Mapping[str, Any]
+    if dry_run:
+        snapshot = build_dry_run_snapshot(thresholds)
+    else:
+        snapshot = load_snapshot(snapshot_path)
+
+    events = run_alert_evaluation(snapshot=snapshot, thresholds=thresholds, dry_run=dry_run)
+    if export_path is not None:
+        export_alert_report(events, output_path=export_path, dry_run=dry_run, snapshot=snapshot)
     return events
 
 
@@ -233,6 +349,12 @@ def build_arg_parser() -> argparse.ArgumentParser:
         action="store_true",
         help="Generate a synthetic snapshot and log alerts without dispatching them.",
     )
+    parser.add_argument(
+        "--export",
+        type=Path,
+        metavar="PATH",
+        help="Optional path to store a Markdown alert report for the orchestration journal.",
+    )
     return parser
 
 
@@ -241,13 +363,12 @@ def main(argv: Optional[Iterable[str]] = None) -> None:
     args = parser.parse_args(list(argv) if argv is not None else None)
 
     logger.setLevel(logging.INFO)
-    thresholds = load_thresholds(args.thresholds)
-    if args.dry_run:
-        snapshot = build_dry_run_snapshot(thresholds)
-    else:
-        snapshot = load_snapshot(args.snapshot)
-
-    run_alert_evaluation(snapshot=snapshot, thresholds=thresholds, dry_run=args.dry_run)
+    execute_alert_workflow(
+        thresholds_path=args.thresholds,
+        snapshot_path=args.snapshot,
+        dry_run=args.dry_run,
+        export_path=args.export,
+    )
 
 
 def send_alert(severity: str, message: str) -> None:

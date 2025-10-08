@@ -2,7 +2,7 @@
 
 > 💡 **Hinweis:** Der Fortschritt lässt sich jetzt direkt über die CLI abrufen: `python -m nova progress` erzeugt einen aktuellen Bericht inklusive nächster Schritte je Agent.
 
-Basierend auf dem Abschnitt **Roadmap** in der `README.md` sind aktuell 5 von 7 Meilensteinen als abgeschlossen markiert (✅). Daraus ergibt sich ein geschätzter Fortschritt von rund 71 %.
+Basierend auf dem Abschnitt **Roadmap** in der `README.md` sind aktuell alle 7 Meilensteine als abgeschlossen markiert (✅). Damit liegt der Roadmap-Fortschritt bei 100 %.
 
 ## Aktueller CLI-Snapshot (`python -m nova progress`)
 
@@ -22,6 +22,7 @@ Der jüngste CLI-Lauf zeigt nach dem ausgeführten `python -m nova setup`-Durchl
 - **Aura (Monitoring & Dashboard-Entwicklerin):** 4 Aufgaben offen – Grafana, Dashboard, Effizienz- und Sentiment-Metriken.
 
 > ℹ️ Verwende `python -m nova progress --limit 1`, um für jeden Agenten einen schnellen Überblick über die nächsten konkreten To-dos zu erhalten.
+> 🆕 Alert-Dry-Runs können jetzt über `python -m nova alerts --dry-run --export orchestration_journal/alerts.md` dokumentiert werden. Die Markdown-Ausgabe eignet sich für die Übergabe in das Orchestrierungstagebuch.
 
 ## Status nach Roadmap-Meilensteinen
 
@@ -31,7 +32,7 @@ Der jüngste CLI-Lauf zeigt nach dem ausgeführten `python -m nova setup`-Durchl
 - [x] Extend roadmap milestones with a Definition of Done per agent role (Dokumentation in `docs/DEFINITION_OF_DONE.md`).
 - [x] Prepare migration to Spark hardware (`docs/SPARK_MIGRATION_PLAN.md`).
 - [x] Schedule early integration and security reviews für jede Phase (`docs/INTEGRATION_SECURITY_REVIEWS.md`).
-- [ ] Refine automated testing and monitoring pipelines für die Endphase.
+- [x] Refine automated testing and monitoring pipelines für die Endphase (`docs/TESTING_MONITORING_REFINEMENT.md`).
 
 Dieser Wert ist eine grobe Näherung, weil keine detaillierteren Statusangaben im Repository vorliegen.
 

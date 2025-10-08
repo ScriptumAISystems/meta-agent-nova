@@ -32,10 +32,11 @@ It extends the existing harness in `tests/` and the monitoring utilities under `
   - [x] Add migration KPI panels (deployment duration, error budgets) to Grafana JSON definitions (`docs/dashboards/spark_migration_grafana.json`).
   - [x] Generate a LUX dashboard slice for compliance evidence (audit trail coverage, policy drift) and version it at `docs/dashboards/lux_compliance_slice.json`.
   - [x] Link dashboards to review schedule in `docs/INTEGRATION_SECURITY_REVIEWS.md`.
-- [ ] **Alerting Automation**
+- [x] **Alerting Automation**
   - [x] Define KPI thresholds inside `nova/logging/kpi/thresholds.yaml`.
   - [x] Wire KPI breaches to PagerDuty/webhook integration script under `nova/monitoring/alerts.py`.
   - [x] Simulate alert run via `python -m nova.monitoring.alerts --dry-run` and attach output to the orchestration journal (dry run mode now emits structured payload logs for inclusion).
+  - [x] Provide `nova alerts` CLI entry point with optional Markdown export for journal hand-off.
 
 ## 4. Metrics & Reporting
 

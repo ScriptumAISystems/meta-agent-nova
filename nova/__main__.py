@@ -20,7 +20,12 @@ from .system.security import run_security_audit
 from .system.orchestrator import Orchestrator
 from .system.containers import inspect_container_runtimes, log_container_report
 from .blueprints.generator import create_blueprint, list_available_blueprints
-from .monitoring.alerts import notify_info, notify_warning
+from .monitoring.alerts import (
+    DEFAULT_THRESHOLDS_PATH,
+    execute_alert_workflow,
+    notify_info,
+    notify_warning,
+)
 from .monitoring.dashboards import (
     export_lux_compliance_slice,
     export_migration_dashboard,
@@ -134,6 +139,29 @@ def run_monitor() -> None:
     log_info(f"LUX compliance slice exported to {lux_path}")
     notify_warning("Monitoring is running in stub mode.")
     notify_info("No active alerts.")
+
+
+def run_alerts(
+    thresholds: Path | None = None,
+    snapshot: Path | None = None,
+    *,
+    dry_run: bool = False,
+    export: Path | None = None,
+) -> None:
+    """Evaluate KPI thresholds and optionally export a journal report."""
+
+    configure_logger()
+    thresholds_path = thresholds or DEFAULT_THRESHOLDS_PATH
+    events = execute_alert_workflow(
+        thresholds_path=thresholds_path,
+        snapshot_path=snapshot,
+        dry_run=dry_run,
+        export_path=export,
+    )
+    if events:
+        log_info(f"Alert evaluation generated {len(events)} Ereignis(se).")
+    else:
+        log_info("Alert evaluation reported no threshold breaches.")
 
 
 def run_containers(kubeconfig: Path | None = None) -> None:
@@ -342,6 +370,33 @@ def build_parser() -> argparse.ArgumentParser:
         "monitor", help="Start monitoring services"
     )
 
+    alerts_parser = subparsers.add_parser(
+        "alerts", help="Evaluate KPI thresholds and emit PagerDuty/webhook events"
+    )
+    alerts_parser.add_argument(
+        "--thresholds",
+        type=Path,
+        metavar="PATH",
+        help="Optional path to a custom threshold definition file.",
+    )
+    alerts_parser.add_argument(
+        "--snapshot",
+        type=Path,
+        metavar="PATH",
+        help="Path to a KPI snapshot (JSON or YAML). Required unless --dry-run is used.",
+    )
+    alerts_parser.add_argument(
+        "--dry-run",
+        action="store_true",
+        help="Generate synthetic snapshot data and avoid dispatching real alerts.",
+    )
+    alerts_parser.add_argument(
+        "--export",
+        type=Path,
+        metavar="PATH",
+        help="Optional path for exporting a Markdown alert summary for the journal.",
+    )
+
     containers_parser = subparsers.add_parser(
         "containers", help="Prüfe Docker- und Kubernetes-Laufzeitumgebungen"
     )
@@ -494,6 +549,13 @@ def main(argv: list[str] | None = None) -> None:
         run_blueprints()
     elif args.command == "monitor":
         run_monitor()
+    elif args.command == "alerts":
+        run_alerts(
+            thresholds=args.thresholds,
+            snapshot=args.snapshot,
+            dry_run=args.dry_run,
+            export=args.export,
+        )
     elif args.command == "containers":
         run_containers(kubeconfig=args.kubeconfig)
     elif args.command == "audit":
