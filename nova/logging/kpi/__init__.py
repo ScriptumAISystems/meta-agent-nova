@@ -39,6 +39,8 @@ class MetricAggregate:
     def percentile_95(self) -> float:
         if not self.values:
             return 0.0
+        if len(self.values) == 1:
+            return self.values[0]
         return statistics.quantiles(self.values, n=100)[94]
 
 

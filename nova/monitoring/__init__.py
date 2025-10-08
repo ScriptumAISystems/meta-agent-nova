@@ -1,5 +1,5 @@
-"""
-Monitoring subpackage for Nova.
+"""Monitoring subpackage for Nova."""
 
-This package contains modules responsible for logging and system monitoring.
-"""
+from .benchmarks import BaselineSnapshot, run_spark_baseline
+
+__all__ = ["BaselineSnapshot", "run_spark_baseline"]

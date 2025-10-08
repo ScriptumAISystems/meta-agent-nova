@@ -25,8 +25,8 @@ It extends the existing harness in `tests/` and the monitoring utilities under `
   - [ ] Mirror scenarios for Redis backend in `tests/test_task_queue_redis.py` with configurable latency injection.
   - [ ] Create `tests/test_policy_engine.py` to validate allow/deny caches and OPA fallback behaviour using fixtures.
 - [ ] **Performance Benchmarks**
-  - [ ] Implement `nova.monitoring.benchmarks.run_spark_baseline()` to orchestrate GPU, CPU and network measurements.
-  - [ ] Store benchmark artefacts in `nova/logging/kpi` for reuse by dashboards and reports.
+  - [x] Implement `nova.monitoring.benchmarks.run_spark_baseline()` to orchestrate GPU, CPU and network measurements.
+  - [x] Store benchmark artefacts in `nova/logging/kpi` for reuse by dashboards and reports.
   - [ ] Document benchmark execution in `docs/SPARK_MIGRATION_PLAN.md` section 5 upon completion.
 - [ ] **Monitoring Dashboard Enhancements**
   - [ ] Add migration KPI panels (deployment duration, error budgets) to Grafana JSON definitions.
