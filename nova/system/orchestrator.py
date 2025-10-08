@@ -56,9 +56,8 @@ class OrchestrationReport:
                 lines.append(f"- **{phase.name}**: {phase.goal}")
                 lines.append("  - Agents: " + ", ".join(phase.agents))
             lines.append("")
-        lines.extend(
-            "## Agent Runs",
-        )
+        lines.append("## Agent Runs")
+        lines.append("")
         for report in self.agent_reports:
             lines.append(report.to_markdown())
             lines.append("")

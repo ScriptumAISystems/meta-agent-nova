@@ -19,6 +19,7 @@ def test_build_markdown_test_report(tmp_path, monkeypatch):
     assert "## Agent Outcomes" in markdown
     assert "## Communication Summary" in markdown
     assert "## Execution Plan" in markdown
+    assert "## Agent Runs" in report.to_markdown()
 
     failures = extract_failed_tasks(report)
     assert failures == []
