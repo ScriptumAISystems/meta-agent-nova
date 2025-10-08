@@ -40,3 +40,21 @@ def test_cli_orchestrate_parallel(tmp_path, monkeypatch):
     monkeypatch.setenv("NOVA_EXECUTION_MODE", "parallel")
     __main__.main(["orchestrate"])
     assert (tmp_path / "reports" / "nova-test-report.md").exists()
+
+
+def test_cli_tasks_command(tmp_path, monkeypatch, caplog):
+    csv_path = tmp_path / "tasks.csv"
+    csv_path.write_text(
+        "Agenten-Name,Aufgabe,Status\n"
+        "Nova (Chef-Agentin),System prüfen,Offen\n"
+        "Orion (KI-Software-Spezialist),LLM vorbereiten,In Arbeit\n",
+        encoding="utf-8",
+    )
+    monkeypatch.setenv("NOVA_TASK_CSV", str(csv_path))
+
+    caplog.set_level("INFO", logger="nova.monitoring")
+    __main__.main(["tasks", "--status", "offen"])
+
+    assert "Loading agent tasks from" in caplog.text
+    assert "Total tasks: 1" in caplog.text
+    assert "## Nova (Chef-Agentin)" in caplog.text

@@ -22,6 +22,13 @@ from .blueprints.generator import create_blueprint, list_available_blueprints
 from .monitoring.alerts import notify_info, notify_warning
 from .monitoring.logging import configure_logger, log_error, log_info, log_warning
 from .monitoring.reports import build_markdown_test_report
+from .system.tasks import (
+    build_markdown_task_overview,
+    filter_tasks as filter_agent_tasks,
+    load_agent_tasks,
+    normalise_agent_identifier,
+    resolve_task_csv_path,
+)
 
 
 def _parse_toggle(value: str | None) -> bool | None:
@@ -153,6 +160,38 @@ def run_orchestration(agent_types: Iterable[str] | None = None) -> None:
     log_info(f"Stored orchestration test report at {report_path}")
 
 
+def run_tasks(
+    agent_filters: Iterable[str] | None = None,
+    status: str | None = None,
+    csv_path: Path | None = None,
+) -> None:
+    """Load the task overview and log a grouped summary."""
+
+    configure_logger()
+    resolved_path = resolve_task_csv_path(csv_path)
+    log_info(f"Loading agent tasks from {resolved_path}")
+
+    try:
+        tasks = load_agent_tasks(resolved_path)
+    except FileNotFoundError as exc:
+        log_error(f"Task overview file not found: {exc}")
+        raise
+
+    filters = (
+        [normalise_agent_identifier(identifier) for identifier in agent_filters]
+        if agent_filters
+        else None
+    )
+    filtered_tasks = filter_agent_tasks(tasks, filters, status)
+    if not filtered_tasks:
+        log_warning("No tasks matched the provided filters.")
+        return
+
+    overview = build_markdown_task_overview(filtered_tasks)
+    for line in overview.splitlines():
+        log_info(line)
+
+
 def build_parser() -> argparse.ArgumentParser:
     """Construct the argument parser for the CLI."""
 
@@ -204,6 +243,27 @@ def build_parser() -> argparse.ArgumentParser:
         help="Subset of agents to orchestrate (defaults to all registered agents).",
     )
 
+    tasks_parser = subparsers.add_parser(
+        "tasks", help="Display the agent task overview"
+    )
+    tasks_parser.add_argument(
+        "--agent",
+        nargs="*",
+        metavar="AGENT",
+        help="Filter tasks by agent identifier (e.g. nova, orion).",
+    )
+    tasks_parser.add_argument(
+        "--status",
+        metavar="STATUS",
+        help="Filter tasks by a specific status label (case-insensitive).",
+    )
+    tasks_parser.add_argument(
+        "--csv",
+        type=Path,
+        metavar="PATH",
+        help="Optional path to an alternative task overview CSV file.",
+    )
+
     return parser
 
 
@@ -223,6 +283,8 @@ def main(argv: list[str] | None = None) -> None:
         run_audit(firewall=args.firewall, antivirus=args.antivirus, policies=args.policies)
     elif args.command == "orchestrate":
         run_orchestration(args.agents)
+    elif args.command == "tasks":
+        run_tasks(agent_filters=args.agent, status=args.status, csv_path=args.csv)
     else:  # pragma: no cover - defensive default
         parser.error(f"Unknown command: {args.command}")
 
