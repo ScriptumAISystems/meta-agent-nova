@@ -270,6 +270,7 @@ def run_step_plan(
 
 def run_progress(
     csv_path: Path | None = None,
+    agent_filters: Iterable[str] | None = None,
     *,
     pending_limit: int = 3,
 ) -> None:
@@ -285,7 +286,17 @@ def run_progress(
         log_error(f"Task overview file not found: {exc}")
         raise
 
-    report = build_progress_report(tasks, pending_limit=pending_limit)
+    filters = (
+        [normalise_agent_identifier(identifier) for identifier in agent_filters]
+        if agent_filters
+        else None
+    )
+    filtered_tasks = filter_agent_tasks(tasks, filters, None)
+    if not filtered_tasks:
+        log_warning("No tasks matched the provided filters.")
+        return
+
+    report = build_progress_report(filtered_tasks, pending_limit=pending_limit)
     for line in report.splitlines():
         log_info(line)
 
@@ -429,6 +440,12 @@ def build_parser() -> argparse.ArgumentParser:
         help="Optional path to an alternative task overview CSV file.",
     )
     progress_parser.add_argument(
+        "--agent",
+        nargs="*",
+        metavar="AGENT",
+        help="Filter the progress report by agent identifier (e.g. nova, orion).",
+    )
+    progress_parser.add_argument(
         "--limit",
         type=int,
         metavar="N",
@@ -469,7 +486,11 @@ def main(argv: list[str] | None = None) -> None:
     elif args.command == "step-plan":
         run_step_plan(csv_path=args.csv, phases=args.phase)
     elif args.command == "progress":
-        run_progress(csv_path=args.csv, pending_limit=args.limit)
+        run_progress(
+            csv_path=args.csv,
+            agent_filters=args.agent,
+            pending_limit=args.limit,
+        )
     else:  # pragma: no cover - defensive default
         parser.error(f"Unknown command: {args.command}")
 
