@@ -46,6 +46,7 @@ def _build_file_descriptor() -> descriptor_pb2.FileDescriptorProto:
         ("updated_at", 7, descriptor_pb2.FieldDescriptorProto.TYPE_INT64),
         ("result", 8, descriptor_pb2.FieldDescriptorProto.TYPE_STRING),
         ("worker_id", 9, descriptor_pb2.FieldDescriptorProto.TYPE_STRING),
+        ("attempts", 10, descriptor_pb2.FieldDescriptorProto.TYPE_INT32),
     ]
 
     for name, number, field_type in fields:

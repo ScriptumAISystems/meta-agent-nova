@@ -8,7 +8,9 @@ import time
 import uuid
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Dict, Iterable, List, Optional
+from typing import Dict, Iterable, List, Optional, cast
+
+_UNSET = object()
 
 from ..logging import get_logger
 
@@ -34,6 +36,7 @@ class TaskRecord:
     updated_at: int
     result: Optional[str]
     worker_id: Optional[str]
+    attempts: int
 
 
 class TaskRepository:
@@ -60,10 +63,19 @@ class TaskRepository:
                     created_at INTEGER NOT NULL,
                     updated_at INTEGER NOT NULL,
                     result TEXT,
-                    worker_id TEXT
+                    worker_id TEXT,
+                    attempts INTEGER NOT NULL DEFAULT 0
                 )
                 """
             )
+            columns = {
+                row["name"]
+                for row in self._connection.execute("PRAGMA table_info(tasks)").fetchall()
+            }
+            if "attempts" not in columns:
+                self._connection.execute(
+                    "ALTER TABLE tasks ADD COLUMN attempts INTEGER NOT NULL DEFAULT 0"
+                )
 
     def close(self) -> None:
         self._connection.close()
@@ -82,13 +94,14 @@ class TaskRepository:
             updated_at=now,
             result=None,
             worker_id=None,
+            attempts=0,
         )
         self._logger.debug("Persisting new task", extra={"task_id": task_id, "task_type": task_type})
         with self._lock, self._connection:
             self._connection.execute(
                 """
-                INSERT INTO tasks (id, type, payload, metadata, status, created_at, updated_at, result, worker_id)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+                INSERT INTO tasks (id, type, payload, metadata, status, created_at, updated_at, result, worker_id, attempts)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 """,
                 (
                     record.id,
@@ -100,6 +113,7 @@ class TaskRepository:
                     record.updated_at,
                     record.result,
                     record.worker_id,
+                    record.attempts,
                 ),
             )
         return record
@@ -121,13 +135,19 @@ class TaskRepository:
             self._connection.execute(
                 """
                 UPDATE tasks
-                SET status = 'IN_PROGRESS', updated_at = ?, worker_id = ?
+                SET status = 'IN_PROGRESS', updated_at = ?, worker_id = ?, attempts = attempts + 1
                 WHERE id = ?
                 """,
                 (now, worker_id, row["id"]),
             )
             self._connection.commit()
-        return self._row_to_record(row, status="IN_PROGRESS", worker_id=worker_id, updated_at=now)
+        return self._row_to_record(
+            row,
+            status="IN_PROGRESS",
+            worker_id=worker_id,
+            updated_at=now,
+            attempts=row["attempts"] + 1,
+        )
 
     def ack(self, task_id: str, success: bool, result: Optional[str]) -> TaskRecord:
         target_status = "COMPLETED" if success else "FAILED"
@@ -167,6 +187,74 @@ class TaskRepository:
                 "UPDATE tasks SET updated_at = ? WHERE id = ?", (now, task_id)
             )
 
+    def recover_overdue_tasks(
+        self,
+        max_age_ms: int,
+        *,
+        max_attempts: int,
+    ) -> tuple[List[TaskRecord], List[TaskRecord]]:
+        """Requeue or fail tasks that exceeded the visibility timeout.
+
+        Returns a tuple of (requeued_records, failed_records).
+        """
+        threshold = self._now() - max_age_ms
+        requeued: List[TaskRecord] = []
+        failed: List[TaskRecord] = []
+        with self._lock:
+            cursor = self._connection.execute(
+                """
+                SELECT * FROM tasks
+                WHERE status = 'IN_PROGRESS' AND updated_at < ?
+                """,
+                (threshold,),
+            )
+            rows = cursor.fetchall()
+            if not rows:
+                return requeued, failed
+            now = self._now()
+            for row in rows:
+                record_attempts = row["attempts"]
+                if record_attempts >= max_attempts:
+                    self._connection.execute(
+                        """
+                        UPDATE tasks
+                        SET status = 'FAILED', updated_at = ?, result = ?
+                        WHERE id = ?
+                        """,
+                        (
+                            now,
+                            "maximum attempts exceeded",
+                            row["id"],
+                        ),
+                    )
+                    failed.append(
+                        self._row_to_record(
+                            row,
+                            status="FAILED",
+                            updated_at=now,
+                            result="maximum attempts exceeded",
+                        )
+                    )
+                else:
+                    self._connection.execute(
+                        """
+                        UPDATE tasks
+                        SET status = 'PENDING', updated_at = ?, worker_id = NULL
+                        WHERE id = ?
+                        """,
+                        (now, row["id"]),
+                    )
+                    requeued.append(
+                        self._row_to_record(
+                            row,
+                            status="PENDING",
+                            updated_at=now,
+                            worker_id=None,
+                        )
+                    )
+            self._connection.commit()
+        return requeued, failed
+
     @staticmethod
     def _now() -> int:
         return int(time.time() * 1000)
@@ -178,8 +266,14 @@ class TaskRepository:
         status: Optional[str] = None,
         updated_at: Optional[int] = None,
         result: Optional[str] = None,
-        worker_id: Optional[str] = None,
+        worker_id: Optional[str] | object = _UNSET,
+        attempts: Optional[int] = None,
     ) -> TaskRecord:
+        resolved_worker: Optional[str]
+        if worker_id is _UNSET:
+            resolved_worker = row["worker_id"]
+        else:
+            resolved_worker = cast(Optional[str], worker_id)
         return TaskRecord(
             id=row["id"],
             type=row["type"],
@@ -189,7 +283,8 @@ class TaskRepository:
             created_at=row["created_at"],
             updated_at=updated_at or row["updated_at"],
             result=result if result is not None else row["result"],
-            worker_id=worker_id if worker_id is not None else row["worker_id"],
+            worker_id=resolved_worker,
+            attempts=attempts if attempts is not None else row["attempts"],
         )
 
 
