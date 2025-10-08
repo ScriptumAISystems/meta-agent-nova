@@ -1,8 +1,10 @@
 """Integration tests for the gRPC task queue."""
 from __future__ import annotations
 
-import grpc
+import threading
 import time
+
+import grpc
 
 from nova.logging import initialize_logging
 from nova.task_queue import TaskQueueServer, TaskQueueService, TaskRepository, TaskQueueStub
@@ -151,6 +153,67 @@ def test_service_marks_tasks_failed_after_max_attempts() -> None:
     assert failed.tasks[0].status == "FAILED"
     assert failed.tasks[0].result == "maximum attempts exceeded"
     assert failed.tasks[0].attempts == 1
+
+    channel.close()
+    server.stop(0)
+
+
+def test_task_queue_concurrency_stress() -> None:
+    """Stress the gRPC service with concurrent workers and 1k jobs."""
+    initialize_logging(log_level="CRITICAL")
+    repository = TaskRepository()
+    service = TaskQueueService(repository, visibility_timeout_ms=50_000, max_attempts=3)
+    server = TaskQueueServer(service, host="localhost", port=0, max_workers=32)
+    server.start()
+    channel = grpc.insecure_channel(server.address)
+    grpc.channel_ready_future(channel).result(timeout=5)
+    stub = TaskQueueStub(channel)
+
+    total_jobs = 1000
+    for index in range(total_jobs):
+        enqueue_request = proto.EnqueueRequest()
+        enqueue_request.type = "bulk"
+        enqueue_request.payload = f"payload-{index}"
+        enqueue_request.metadata.add(key="batch", value="stress")
+        stub.Enqueue(enqueue_request)
+
+    completed_ids: set[str] = set()
+    completed_lock = threading.Lock()
+    done_event = threading.Event()
+
+    def worker(worker_index: int) -> None:
+        dequeue_request = proto.DequeueRequest()
+        dequeue_request.worker_id = f"worker-{worker_index}"
+        while True:
+            response = stub.Dequeue(dequeue_request)
+            if not response.has_task:
+                if done_event.is_set():
+                    break
+                time.sleep(0.002)
+                continue
+            ack_request = proto.AckRequest()
+            ack_request.task_id = response.task.id
+            ack_request.success = True
+            ack_request.result = "ok"
+            ack_response = stub.Ack(ack_request)
+            assert ack_response.task.status == "COMPLETED"
+            with completed_lock:
+                completed_ids.add(ack_response.task.id)
+                if len(completed_ids) == total_jobs:
+                    done_event.set()
+
+    workers = [threading.Thread(target=worker, args=(idx,), daemon=True) for idx in range(10)]
+    for thread in workers:
+        thread.start()
+    for thread in workers:
+        thread.join()
+
+    assert len(completed_ids) == total_jobs
+
+    list_request = proto.ListTasksRequest()
+    list_request.status = "COMPLETED"
+    list_response = stub.ListTasks(list_request)
+    assert len(list_response.tasks) == total_jobs
 
     channel.close()
     server.stop(0)

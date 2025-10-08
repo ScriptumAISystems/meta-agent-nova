@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import json
+import threading
 import time
 import uuid
 from typing import Any, Dict, List, Optional
@@ -336,67 +337,91 @@ class RedisTaskRepository:
 class InMemoryRedis:
     """Lightweight Redis-compatible store for tests and local development."""
 
-    def __init__(self) -> None:
+    def __init__(self, *, latency_ms: float = 0.0) -> None:
         self._hashes: Dict[str, Dict[str, Any]] = {}
         self._sorted_sets: Dict[str, Dict[str, float]] = {}
         self._sets: Dict[str, set[str]] = {}
+        self._latency_seconds = max(latency_ms, 0.0) / 1000.0
+        self._lock = threading.RLock()
+
+    def _sleep_if_needed(self) -> None:
+        if self._latency_seconds > 0:
+            time.sleep(self._latency_seconds)
 
     # -- generic operations -------------------------------------------------
     def close(self) -> None:  # pragma: no cover - included for API parity
         return None
 
     def hset(self, key: str, *, mapping: Dict[str, Any]) -> None:
-        target = self._hashes.setdefault(key, {})
-        target.update(mapping)
+        with self._lock:
+            self._sleep_if_needed()
+            target = self._hashes.setdefault(key, {})
+            target.update(mapping)
 
     def hgetall(self, key: str) -> Dict[str, Any]:
-        return dict(self._hashes.get(key, {}))
+        with self._lock:
+            self._sleep_if_needed()
+            return dict(self._hashes.get(key, {}))
 
     def zadd(self, key: str, mapping: Dict[str, float]) -> None:
-        target = self._sorted_sets.setdefault(key, {})
-        for member, score in mapping.items():
-            target[str(member)] = float(score)
+        with self._lock:
+            self._sleep_if_needed()
+            target = self._sorted_sets.setdefault(key, {})
+            for member, score in mapping.items():
+                target[str(member)] = float(score)
 
     def zpopmin(self, key: str, count: int = 1) -> List[tuple[str, float]]:
-        target = self._sorted_sets.get(key, {})
-        if not target:
-            return []
-        ordered = sorted(target.items(), key=lambda item: (item[1], item[0]))
-        popped: List[tuple[str, float]] = []
-        for member, score in ordered[:count]:
-            popped.append((member, score))
-            del target[member]
-        return popped
+        with self._lock:
+            self._sleep_if_needed()
+            target = self._sorted_sets.get(key, {})
+            if not target:
+                return []
+            ordered = sorted(target.items(), key=lambda item: (item[1], item[0]))
+            popped: List[tuple[str, float]] = []
+            for member, score in ordered[:count]:
+                popped.append((member, score))
+                del target[member]
+            return popped
 
     def zrangebyscore(self, key: str, min_score: float, max_score: float) -> List[str]:
-        target = self._sorted_sets.get(key, {})
-        return [member for member, score in target.items() if min_score <= score <= max_score]
+        with self._lock:
+            self._sleep_if_needed()
+            target = self._sorted_sets.get(key, {})
+            return [member for member, score in target.items() if min_score <= score <= max_score]
 
     def zrem(self, key: str, member: str) -> int:
-        target = self._sorted_sets.get(key, {})
-        if member in target:
-            del target[member]
-            return 1
-        return 0
+        with self._lock:
+            self._sleep_if_needed()
+            target = self._sorted_sets.get(key, {})
+            if member in target:
+                del target[member]
+                return 1
+            return 0
 
     def sadd(self, key: str, *members: str) -> int:
-        target = self._sets.setdefault(key, set())
-        before = len(target)
-        for member in members:
-            target.add(member)
-        return len(target) - before
+        with self._lock:
+            self._sleep_if_needed()
+            target = self._sets.setdefault(key, set())
+            before = len(target)
+            for member in members:
+                target.add(member)
+            return len(target) - before
 
     def smembers(self, key: str) -> set[str]:
-        return set(self._sets.get(key, set()))
+        with self._lock:
+            self._sleep_if_needed()
+            return set(self._sets.get(key, set()))
 
     def srem(self, key: str, *members: str) -> int:
-        target = self._sets.get(key, set())
-        removed = 0
-        for member in members:
-            if member in target:
-                target.remove(member)
-                removed += 1
-        return removed
+        with self._lock:
+            self._sleep_if_needed()
+            target = self._sets.get(key, set())
+            removed = 0
+            for member in members:
+                if member in target:
+                    target.remove(member)
+                    removed += 1
+            return removed
 
     def pipeline(self, transaction: bool = True) -> "_InMemoryPipeline":
         return _InMemoryPipeline(self)

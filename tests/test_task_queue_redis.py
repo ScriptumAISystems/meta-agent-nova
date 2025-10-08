@@ -1,6 +1,7 @@
 """Redis-backed task repository tests."""
 from __future__ import annotations
 
+import threading
 import time
 
 import pytest
@@ -65,3 +66,45 @@ def test_redis_heartbeat_updates_timestamp(redis_repository: RedisTaskRepository
     redis_repository.heartbeat(claimed.id)
     refreshed = redis_repository.list_tasks("IN_PROGRESS")[0]
     assert refreshed.updated_at >= original_update
+
+
+def test_redis_concurrency_with_latency_injection() -> None:
+    client = InMemoryRedis(latency_ms=1.5)
+    repository = RedisTaskRepository(client)
+
+    total_jobs = 1000
+    for index in range(total_jobs):
+        repository.enqueue("bulk", f"payload-{index}")
+
+    completed_ids: set[str] = set()
+    completed_lock = threading.Lock()
+    done_event = threading.Event()
+
+    def worker(worker_index: int) -> None:
+        worker_id = f"worker-{worker_index}"
+        while True:
+            record = repository.dequeue(worker_id)
+            if record is None:
+                if done_event.is_set():
+                    break
+                time.sleep(0.002)
+                continue
+            acked = repository.ack(record.id, True, "ok")
+            assert acked.status == "COMPLETED"
+            with completed_lock:
+                completed_ids.add(acked.id)
+                if len(completed_ids) == total_jobs:
+                    done_event.set()
+
+    workers = [threading.Thread(target=worker, args=(idx,), daemon=True) for idx in range(10)]
+    for thread in workers:
+        thread.start()
+    for thread in workers:
+        thread.join()
+
+    assert len(completed_ids) == total_jobs
+
+    completed = repository.list_tasks("COMPLETED")
+    assert len(completed) == total_jobs
+
+    client.close()
