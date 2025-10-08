@@ -277,7 +277,7 @@ def run_progress(
     csv_path: Path | None = None,
     agent_filters: Iterable[str] | None = None,
     *,
-    pending_limit: int = 3,
+    pending_limit: int | None = None,
 ) -> None:
     """Render the aggregated progress snapshot."""
 
@@ -454,8 +454,10 @@ def build_parser() -> argparse.ArgumentParser:
         "--limit",
         type=int,
         metavar="N",
-        default=3,
-        help="Number of pending tasks to show per agent (0 for unlimited).",
+        default=None,
+        help=(
+            "Number of pending tasks to show per agent (omit or 0 for unlimited)."
+        ),
     )
 
     return parser

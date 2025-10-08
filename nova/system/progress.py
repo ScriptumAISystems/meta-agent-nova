@@ -16,7 +16,7 @@ def _percentage(completed: int, total: int) -> int:
 
 
 def _render_pending_tasks(
-    tasks: Sequence[AgentTask], pending_limit: int
+    tasks: Sequence[AgentTask], pending_limit: int | None
 ) -> list[str]:
     """Render a bullet list of pending tasks constrained by ``pending_limit``."""
 
@@ -25,7 +25,7 @@ def _render_pending_tasks(
         return ["Alle Aufgaben abgeschlossen. ✅"]
 
     lines = ["### Nächste Schritte"]
-    if pending_limit <= 0:
+    if pending_limit is None or pending_limit <= 0:
         selected = list(pending)
     else:
         selected = list(pending[:pending_limit])
@@ -42,7 +42,7 @@ def _render_pending_tasks(
 
 
 def build_progress_report(
-    tasks: Sequence[AgentTask], *, pending_limit: int = 3
+    tasks: Sequence[AgentTask], *, pending_limit: int | None = None
 ) -> str:
     """Return a Markdown progress snapshot for ``tasks``."""
 

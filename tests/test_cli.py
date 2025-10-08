@@ -180,6 +180,23 @@ def test_cli_progress_command(tmp_path, monkeypatch, caplog):
     assert "- …" in caplog.text
 
 
+def test_cli_progress_default_shows_all_tasks(tmp_path, monkeypatch, caplog):
+    csv_path = tmp_path / "tasks.csv"
+    csv_path.write_text(
+        "Agenten-Name,Aufgabe,Status\n"
+        "Nova (Chef-Agentin),System prüfen,Offen\n"
+        "Nova (Chef-Agentin),Backup,Offen\n",
+        encoding="utf-8",
+    )
+    monkeypatch.setenv("NOVA_TASK_CSV", str(csv_path))
+
+    caplog.set_level("INFO", logger="nova.monitoring")
+    __main__.main(["progress"])
+
+    assert caplog.text.count("- [ ]") == 2
+    assert "weitere Aufgabe" not in caplog.text
+
+
 def test_cli_progress_with_agent_filter(tmp_path, monkeypatch, caplog):
     csv_path = tmp_path / "tasks.csv"
     csv_path.write_text(

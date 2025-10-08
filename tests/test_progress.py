@@ -71,6 +71,24 @@ def test_progress_report_limit_zero_includes_all_pending():
     assert "weitere Aufgabe" not in report
 
 
+def test_progress_report_default_includes_all_pending():
+    tasks = [
+        _task("nova", "Nova (Chef-Agentin)", "Chef-Agentin", "System prüfen", "Offen"),
+        _task(
+            "nova",
+            "Nova (Chef-Agentin)",
+            "Chef-Agentin",
+            "Dokumentation aktualisieren",
+            "Offen",
+        ),
+    ]
+
+    report = build_progress_report(tasks)
+
+    assert report.count("- [ ]") == 2
+    assert "weitere Aufgabe" not in report
+
+
 def test_progress_report_without_tasks_returns_placeholder():
     report = build_progress_report([], pending_limit=2)
     assert report == "# Nova Fortschrittsbericht\n\nKeine Aufgaben gefunden."
