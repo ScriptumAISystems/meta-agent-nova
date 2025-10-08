@@ -18,6 +18,7 @@ from .system.checks import check_cpu, check_gpu, check_network
 from .system.setup import configure_os, install_packages, prepare_environment
 from .system.security import run_security_audit
 from .system.orchestrator import Orchestrator
+from .system.containers import inspect_container_runtimes, log_container_report
 from .blueprints.generator import create_blueprint, list_available_blueprints
 from .monitoring.alerts import notify_info, notify_warning
 from .monitoring.dashboards import (
@@ -133,6 +134,14 @@ def run_monitor() -> None:
     log_info(f"LUX compliance slice exported to {lux_path}")
     notify_warning("Monitoring is running in stub mode.")
     notify_info("No active alerts.")
+
+
+def run_containers(kubeconfig: Path | None = None) -> None:
+    """Inspect Docker and Kubernetes availability and log the findings."""
+
+    configure_logger()
+    report = inspect_container_runtimes(kubeconfig=kubeconfig)
+    log_container_report(report)
 
 
 def run_audit(
@@ -333,6 +342,16 @@ def build_parser() -> argparse.ArgumentParser:
         "monitor", help="Start monitoring services"
     )
 
+    containers_parser = subparsers.add_parser(
+        "containers", help="Prüfe Docker- und Kubernetes-Laufzeitumgebungen"
+    )
+    containers_parser.add_argument(
+        "--kubeconfig",
+        type=Path,
+        metavar="PATH",
+        help="Optionaler Pfad zu einer Kubeconfig-Datei, die bevorzugt geprüft werden soll.",
+    )
+
     audit_parser = subparsers.add_parser(
         "audit", help="Run the Nova security audit"
     )
@@ -475,6 +494,8 @@ def main(argv: list[str] | None = None) -> None:
         run_blueprints()
     elif args.command == "monitor":
         run_monitor()
+    elif args.command == "containers":
+        run_containers(kubeconfig=args.kubeconfig)
     elif args.command == "audit":
         run_audit(firewall=args.firewall, antivirus=args.antivirus, policies=args.policies)
     elif args.command == "orchestrate":

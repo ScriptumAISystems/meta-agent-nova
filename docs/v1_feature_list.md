@@ -13,7 +13,7 @@ This catalogue defines the functional scope for the v1.0 release of the Nova orc
 | Feature | Description | Owner | Acceptance Criteria |
 | --- | --- | --- | --- |
 | DGX/Spark Readiness Audits | Run scripted hardware, OS and network diagnostics with Markdown evidence artefacts. | Nova | Reports stored under `reports/hw/` covering CPU, GPU, fabric and firmware deltas; checklist signed off in repository. |
-| Container Platform Baseline | Automated installation validation for Docker and Kubernetes including policy bootstrap. | Nova | CI run of `python -m nova system.check_containers` succeeds; kubeconfig and Docker daemon health logs archived. |
+| Container Platform Baseline | Automated installation validation for Docker and Kubernetes including policy bootstrap. | Nova | CI run of `python -m nova containers` succeeds; kubeconfig and Docker daemon health logs archived. |
 | Secure Remote Access Profiles | WireGuard/OpenVPN templates with least-privilege configs and onboarding guide. | Nova | Sample configs committed under `nova/security/vpn/`; onboarding playbook reviewed by security officer. |
 | Security & Compliance Audit Trail | Firewall, OPA and kill-switch policies codified with audit logging enabled. | Nova | `nova/security` policies compiled without errors; mock incident drill recorded in `reports/security/incident-sim.md`. |
 | Resilient Backup & Recovery | Scheduled backup scripts plus recovery rehearsal covering configuration and state. | Nova | Dry-run restore documented with timestamps; backup jobs registered in orchestrator schedule. |
