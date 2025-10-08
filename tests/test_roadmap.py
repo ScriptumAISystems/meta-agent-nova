@@ -1,5 +1,9 @@
 from nova.system.mission import build_default_plan
-from nova.system.roadmap import build_next_steps_summary, build_phase_roadmap
+from nova.system.roadmap import (
+    build_global_step_plan,
+    build_next_steps_summary,
+    build_phase_roadmap,
+)
 from nova.system.tasks import AgentTask
 
 
@@ -143,3 +147,34 @@ def test_build_next_steps_summary_reports_completion():
     summary = build_next_steps_summary(tasks, plan)
 
     assert summary.strip().endswith("Alle Aufgaben abgeschlossen. ✅")
+
+
+def test_build_global_step_plan_includes_all_statuses():
+    plan = build_default_plan()
+    tasks = _sample_tasks()
+    tasks.append(
+        AgentTask("chronos", "Chronos", "Workflow", "n8n Workflows", "Offen")
+    )
+    tasks.append(AgentTask("zeus", "Zeus", None, "Abstimmung", "In Arbeit"))
+
+    plan_markdown = build_global_step_plan(tasks, plan)
+
+    assert "# Nova Schritt-für-Schritt Plan" in plan_markdown
+    assert "- Gesamtaufgaben: 5" in plan_markdown
+    assert "1. [x] Backup einrichten (Status: Abgeschlossen)" in plan_markdown
+    assert "2. [ ] System prüfen (Status: Offen)" in plan_markdown
+    assert "3. [ ] LLM vorbereiten (Status: In Arbeit)" in plan_markdown
+    assert "Abstimmung" in plan_markdown
+
+
+def test_build_global_step_plan_respects_phase_filters():
+    plan = build_default_plan()
+    plan_markdown = build_global_step_plan(
+        _sample_tasks(),
+        plan,
+        phase_filters=["model-operations"],
+    )
+
+    assert "*Gefiltert nach Phasen:* model-operations" in plan_markdown
+    assert "1. [ ] LLM vorbereiten (Status: In Arbeit)" in plan_markdown
+    assert "System prüfen" not in plan_markdown

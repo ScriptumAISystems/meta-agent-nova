@@ -45,6 +45,7 @@ The CLI provides the following subcommands:
 - `orchestrate`: execute every registered agent sequentially using the blueprint specifications. Provide ``--agents`` to limit the set and use ``NOVA_EXECUTION_MODE=parallel`` (or the programmatic API) for concurrent execution.
 - `tasks`: inspect agent assignments or render them as a checklist with ``--checklist``.
 - `roadmap`: create a phase-orientated progress report that highlights the remaining steps for each specialist. Pass `--phase foundation observability` to focus on specific phases.
+- `step-plan`: render an ordered Schritt-für-Schritt-Plan über alle offenen Aufgaben; combine with `--phase` to narrow the focus.
 
 Example workflow:
 
@@ -53,6 +54,7 @@ python -m nova setup --packages docker kubernetes
 python -m nova blueprints
 python -m nova orchestrate
 python -m nova roadmap
+python -m nova step-plan
 ```
 
 ## Task Queue & Microservices
