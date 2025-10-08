@@ -18,6 +18,8 @@ Nova's mission is to accelerate software delivery while improving reproducibilit
 - **Modularity & Portability**: All scripts and configurations are modular so the system can be migrated from a local machine to the Spark cluster.
 - **User Interfaces**: Simple command-line interface (CLI) with optional web dashboard for status and control.
 - **Logging**: Comprehensive logging and optional cloud backup of logs and configuration.
+- **Task Automation**: gRPC-based task queue with persistence, KPI tracking and audit trails for deterministic background work.
+- **Governance & Security**: OPA-powered policy engine, ISO 27001 aligned auditing and compliance registry for operational transparency.
 
 ## Installation
 
@@ -49,6 +51,30 @@ python -m nova setup --packages docker kubernetes
 python -m nova blueprints
 python -m nova orchestrate
 ```
+
+## Task Queue & Microservices
+
+- `nova.task_queue`: gRPC microservice backed by SQLite persistence. It supports reliable enqueue/dequeue semantics, worker acknowledgements, health heartbeats and structured metadata.
+- Components can communicate through the generated gRPC stub (`TaskQueueStub`) and can run inside Kubernetes or standalone containers.
+- Unit tests (`tests/test_task_queue.py`) demonstrate the end-to-end lifecycle to help onboard new contributors quickly.
+
+## Policy Engine & Authorization
+
+- `nova.policy.PolicyEngine` communicates with an Open Policy Agent (OPA) control plane using the standard REST API.
+- Policies can be authored in Rego (`nova/policy/policies/authorization.rego`) and hot-reloaded in OPA.
+- Cached decisions reduce load on OPA while keeping results auditable through structured logging.
+
+## Monitoring, KPIs & Logging
+
+- `nova.logging.initialize_logging` configures structured logging with rotation-ready handlers.
+- `nova.logging.kpi.KPITracker` captures counters and latency statistics for operational dashboards.
+- Every subsystem emits KPI snapshots and audit trails so that incidents can be reconstructed quickly.
+
+## Security & Compliance
+
+- `nova.security` contains audit storage (`AuditStore`), runtime logging helpers (`AuditLogger`) and an ISO 27001 compliance registry.
+- The `SecurityManager` centralises registration of controls and connects operational events with their audit trail.
+- All code paths follow least-privilege defaults: policy decisions deny by default, and task queue metadata is validated at ingress.
 
 ## Roadmap
 
