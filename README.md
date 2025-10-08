@@ -82,7 +82,7 @@ python -m nova roadmap
 
 ## Roadmap
 
-- Finalise feature list for v1.0.
+- Finalise feature list for v1.0. ✅ (See `docs/v1_feature_list.md`.)
 - Develop agent blueprints and roles. ✅
 - Implement test harness and monitoring. ✅
 - Prepare migration to Spark hardware.
