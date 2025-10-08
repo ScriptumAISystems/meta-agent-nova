@@ -29,7 +29,7 @@ It extends the existing harness in `tests/` and the monitoring utilities under `
   - [x] Store benchmark artefacts in `nova/logging/kpi` for reuse by dashboards and reports.
   - [ ] Document benchmark execution in `docs/SPARK_MIGRATION_PLAN.md` section 5 upon completion.
 - [ ] **Monitoring Dashboard Enhancements**
-  - [ ] Add migration KPI panels (deployment duration, error budgets) to Grafana JSON definitions.
+  - [x] Add migration KPI panels (deployment duration, error budgets) to Grafana JSON definitions (`docs/dashboards/spark_migration_grafana.json`).
   - [ ] Generate a LUX dashboard slice for compliance evidence (audit trail coverage, policy drift).
   - [ ] Link dashboards to review schedule in `docs/INTEGRATION_SECURITY_REVIEWS.md`.
 - [ ] **Alerting Automation**
