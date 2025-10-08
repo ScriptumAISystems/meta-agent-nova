@@ -10,6 +10,12 @@ def test_resolve_task_csv_path_env_override(monkeypatch, tmp_path):
     assert resolved == csv_path
 
 
+def test_is_task_complete_handles_various_labels():
+    assert tasks.is_task_complete("Abgeschlossen")
+    assert tasks.is_task_complete("completed")
+    assert not tasks.is_task_complete("Offen")
+
+
 def test_load_agent_tasks_reads_rows(tmp_path):
     csv_path = tmp_path / "tasks.csv"
     csv_path.write_text(
