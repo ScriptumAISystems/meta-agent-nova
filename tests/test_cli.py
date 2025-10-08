@@ -178,3 +178,23 @@ def test_cli_progress_command(tmp_path, monkeypatch, caplog):
     assert "- Gesamtaufgaben: 4" in caplog.text
     assert "### Nächste Schritte" in caplog.text
     assert "- …" in caplog.text
+
+
+def test_cli_progress_with_agent_filter(tmp_path, monkeypatch, caplog):
+    csv_path = tmp_path / "tasks.csv"
+    csv_path.write_text(
+        "Agenten-Name,Aufgabe,Status\n"
+        "Nova (Chef-Agentin),System prüfen,Offen\n"
+        "Nova (Chef-Agentin),Backup,Abgeschlossen\n"
+        "Orion (KI-Software-Spezialist),LLM vorbereiten,Offen\n",
+        encoding="utf-8",
+    )
+    monkeypatch.setenv("NOVA_TASK_CSV", str(csv_path))
+
+    caplog.set_level("INFO", logger="nova.monitoring")
+    __main__.main(["progress", "--agent", "nova"])
+
+    assert "Loading agent tasks from" in caplog.text
+    assert "- Gesamtaufgaben: 2" in caplog.text
+    assert "## Nova (Chef-Agentin)" in caplog.text
+    assert "## Orion" not in caplog.text

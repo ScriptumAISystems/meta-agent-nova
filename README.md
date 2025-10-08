@@ -46,7 +46,7 @@ The CLI provides the following subcommands:
 - `tasks`: inspect agent assignments or render them as a checklist with ``--checklist``.
 - `roadmap`: create a phase-orientated progress report that highlights the remaining steps for each specialist. Pass `--phase foundation observability` to focus on specific phases.
 - `step-plan`: render an ordered Schritt-für-Schritt-Plan über alle offenen Aufgaben; combine with `--phase` to narrow the focus.
-- `progress`: generate an aggregated Fortschrittsbericht with per-agent snapshots and the next pending steps (configure the number of previews with `--limit`).
+- `progress`: generate an aggregated Fortschrittsbericht with per-agent snapshots and the next pending steps (configure the number of previews with `--limit` and focus on specific specialists via `--agent`).
 
 Example workflow:
 
