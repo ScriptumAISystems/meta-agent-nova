@@ -6,11 +6,20 @@ Basierend auf dem Abschnitt **Roadmap** in der `README.md` sind aktuell alle 7 M
 
 ## Aktueller CLI-Snapshot (`python -m nova progress`)
 
-Der jüngste CLI-Lauf zeigt nach dem ausgeführten `python -m nova setup`-Durchlauf den ersten erledigten Foundation-Schritt in `Agenten_Aufgaben_Uebersicht.csv`. Damit sind aktuell 21 von 22 Einträgen offen.
+Der jüngste CLI-Lauf (Stand: 09.10.2025, 18:22 UTC) bestätigt nach wie vor den ersten erledigten Foundation-Schritt in `Agenten_Aufgaben_Uebersicht.csv`. Damit sind aktuell 21 von 22 Einträgen offen.
 
 - Gesamtaufgaben: 22
 - Abgeschlossen: 1
 - Fortschritt: 5 %
+
+| Agentenrolle | Aufgaben (offen/gesamt) | Fortschritt | Nächste konkrete Schritte |
+| --- | --- | --- | --- |
+| Nova (Chef-Agentin) | 4 / 5 | 20 % | Docker / Kubernetes installieren · VPN einrichten · Security-Checks · Backup-System |
+| Orion (KI-Software-Spezialist) | 4 / 4 | 0 % | NVIDIA NeMo · LLM-Auswahl · Finetuning · LangChain-Integration |
+| Lumina (Datenbank & Speicherexperte) | 2 / 2 | 0 % | MongoDB & PostgreSQL · Wissensdatenbank (VectorDB) |
+| Echo (Avatar & Interaktionsdesigner) | 3 / 3 | 0 % | NVIDIA ACE installieren · Avatar-Pipeline · MS-Teams-Integration |
+| Chronos (Workflow & Automatisierungsspezialist) | 4 / 4 | 0 % | n8n aufsetzen · Chain-Pipelines · Data-Flywheel · CI/CD |
+| Aura (Monitoring & Dashboard-Entwicklerin) | 4 / 4 | 0 % | Grafana · LUX-Dashboard · Effizienzoptimierung · Stimmungsfeedback |
 
 ### Offene Schritte je Agent (gekürzt)
 
@@ -60,6 +69,13 @@ Um den operativen Fortschritt zu aktivieren, empfiehlt sich die Foundation-Phase
 
 ### Container-Prüfung (Foundation Schritt 2)
 
-Der jüngste Lauf von `python -m nova containers` zeigte, dass weder Docker (`docker`) noch das Kubernetes-CLI (`kubectl`) im PATH gefunden wurden. Beide Prüfungen schlagen daher mit Status ❌ fehl und liefern den Hinweis, die Installation der jeweiligen Laufzeitumgebung nachzuholen. Für den nächsten Schritt muss zunächst die Container-Basisinstallation nachgezogen oder – falls ein alternativer Pfad genutzt wird – die Binaries in den PATH aufgenommen werden.
+Die wiederholte Prüfung (`python -m nova containers`) meldet weiterhin ❌ für Docker (`docker`) und Kubernetes-CLI (`kubectl`), da beide Tools nicht im PATH gefunden werden. Für die Fortsetzung der Foundation-Phase muss daher zuerst die Container-Basisinstallation nachgezogen oder – falls ein alternativer Pfad genutzt wird – die Binaries in den PATH aufgenommen werden.
+
+### Empfohlene Task-Reihenfolge (Fortschreibungsrunde #2)
+
+1. Docker- und Kubernetes-Cluster installieren (`python -m nova containers --fix` nachziehen, sobald Pakete verfügbar sind).
+2. VPN-/Fernzugriff per WireGuard oder OpenVPN aktivieren (`python -m nova network --vpn wireguard`).
+3. Security- und Datenschutz-Checks ausführen (`python -m nova security --run`).
+4. Backup- und Recovery-Systeme konfigurieren (`python -m nova backup --plan default`).
 
 Sobald eine Aufgabe abgeschlossen ist, sollte der Status in `Agenten_Aufgaben_Uebersicht.csv` auf „Abgeschlossen“ aktualisiert werden, damit der CLI-Report automatisch den Fortschritt widerspiegelt.
