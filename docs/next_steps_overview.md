@@ -3,6 +3,7 @@
 Diese Übersicht fasst die priorisierten Folgeaktivitäten für Meta-Agent Nova zusammen. Detaillierte Beschreibungen stehen in `docs/next_steps.md`.
 
 ## Top-Prioritäten (0-2 Wochen)
+- [ ] **DGX Spark Vorbereitungsplan umsetzen** – siehe `docs/DGX_PRE_ARRIVAL_PLAN.md` für detaillierte Checklisten.
 - [ ] Infrastruktur-Audits ausführen (CPU/GPU/Netzwerk) und Ergebnisse dokumentieren.
 - [ ] Automatisiertes Setup für Container-Orchestrierung (Docker, Kubernetes) bereitstellen – Anleitung `docs/FOUNDATION_CONTAINER_SETUP.md` befolgen und Status mit `python -m nova containers` dokumentieren.
 - [ ] VPN/Remote-Zugriff und Basis-Sicherheitsmaßnahmen aktivieren (Backups, Logging).
