@@ -18,7 +18,11 @@ from .system.checks import check_cpu, check_gpu, check_network
 from .system.setup import configure_os, install_packages, prepare_environment
 from .system.security import run_security_audit
 from .system.orchestrator import Orchestrator
-from .system.containers import inspect_container_runtimes, log_container_report
+from .system.containers import (
+    build_container_fix_plan,
+    inspect_container_runtimes,
+    log_container_report,
+)
 from .blueprints.generator import create_blueprint, list_available_blueprints
 from .monitoring.alerts import (
     DEFAULT_THRESHOLDS_PATH,
@@ -165,12 +169,16 @@ def run_alerts(
         log_info("Alert evaluation reported no threshold breaches.")
 
 
-def run_containers(kubeconfig: Path | None = None) -> None:
-    """Inspect Docker and Kubernetes availability and log the findings."""
+def run_containers(kubeconfig: Path | None = None, *, fix: bool = False) -> None:
+    """Inspect Docker/Kubernetes availability and optionally print fix guidance."""
 
     configure_logger()
     report = inspect_container_runtimes(kubeconfig=kubeconfig)
     log_container_report(report)
+    if fix:
+        plan = build_container_fix_plan(report)
+        for line in plan.splitlines():
+            log_info(line)
 
 
 def run_audit(
@@ -429,6 +437,11 @@ def build_parser() -> argparse.ArgumentParser:
         metavar="PATH",
         help="Optionaler Pfad zu einer Kubeconfig-Datei, die bevorzugt geprüft werden soll.",
     )
+    containers_parser.add_argument(
+        "--fix",
+        action="store_true",
+        help="Zeigt einen detaillierten Fix-Plan an, falls Runtimes fehlen oder Warnungen melden.",
+    )
 
     audit_parser = subparsers.add_parser(
         "audit", help="Run the Nova security audit"
@@ -598,7 +611,7 @@ def main(argv: list[str] | None = None) -> None:
             export=args.export,
         )
     elif args.command == "containers":
-        run_containers(kubeconfig=args.kubeconfig)
+        run_containers(kubeconfig=args.kubeconfig, fix=args.fix)
     elif args.command == "audit":
         run_audit(firewall=args.firewall, antivirus=args.antivirus, policies=args.policies)
     elif args.command == "orchestrate":
