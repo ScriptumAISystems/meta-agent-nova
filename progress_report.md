@@ -64,7 +64,7 @@ Um den operativen Fortschritt zu aktivieren, empfiehlt sich die Foundation-Phase
 1. ✅ DGX-Betriebssystem prüfen und Netzwerk einrichten (`python -m nova setup --packages docker kubernetes wireguard`).
 2. 🔄 Docker- und Kubernetes-Cluster installieren – aktueller Status siehe Abschnitt „Container-Prüfung“.
    - 🆕 Neue Installationsanleitung: `docs/FOUNDATION_CONTAINER_SETUP.md` beschreibt den vollständigen Ablauf inkl. Validierung.
-3. ⬜ VPN/Fernzugriff via WireGuard oder OpenVPN aktivieren.
+3. ⬜ VPN/Fernzugriff via WireGuard oder OpenVPN aktivieren – Plan in `docs/FOUNDATION_VPN_SETUP.md` dokumentiert.
 4. ⬜ Security- und Datenschutz-Checks ausführen.
 5. ⬜ Backup- und Recovery-Systeme aufsetzen.
 
@@ -76,7 +76,7 @@ Die wiederholte Prüfung (`python -m nova containers`) meldet weiterhin ❌ für
 
 1. Docker- und Kubernetes-Cluster installieren (`python -m nova containers --fix` nachziehen, sobald Pakete verfügbar sind).
 2. VPN-/Fernzugriff per WireGuard oder OpenVPN aktivieren (`python -m nova network --vpn wireguard`).
-3. Security- und Datenschutz-Checks ausführen (`python -m nova security --run`).
+3. Security- und Datenschutz-Checks ausführen (`python -m nova audit`).
 4. Backup- und Recovery-Systeme konfigurieren (`python -m nova backup --plan default`).
 
 Sobald eine Aufgabe abgeschlossen ist, sollte der Status in `Agenten_Aufgaben_Uebersicht.csv` auf „Abgeschlossen“ aktualisiert werden, damit der CLI-Report automatisch den Fortschritt widerspiegelt.

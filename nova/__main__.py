@@ -51,6 +51,7 @@ from .system.tasks import (
     resolve_task_csv_path,
 )
 from .system.progress import build_progress_report
+from .system.network import build_vpn_plan, export_vpn_plan
 
 
 def _parse_toggle(value: str | None) -> bool | None:
@@ -179,6 +180,19 @@ def run_containers(kubeconfig: Path | None = None, *, fix: bool = False) -> None
         plan = build_container_fix_plan(report)
         for line in plan.splitlines():
             log_info(line)
+
+
+def run_network(vpn_type: str, export_path: Path | None = None) -> None:
+    """Render the VPN rollout plan and optionally export it as Markdown."""
+
+    configure_logger()
+    plan = build_vpn_plan(vpn_type)
+    for line in plan.to_markdown().splitlines():
+        log_info(line)
+
+    if export_path:
+        destination = export_vpn_plan(plan, export_path)
+        log_info(f"VPN-Plan als Markdown exportiert: {destination}")
 
 
 def run_audit(
@@ -457,6 +471,22 @@ def build_parser() -> argparse.ArgumentParser:
         "--policies", choices=("enabled", "disabled"), help="Override OPA policy status for the audit."
     )
 
+    network_parser = subparsers.add_parser(
+        "network", help="Planung für VPN- und Remote-Zugriff anzeigen"
+    )
+    network_parser.add_argument(
+        "--vpn",
+        choices=("wireguard", "openvpn"),
+        required=True,
+        help="VPN-Typ, für den der Rollout-Plan erzeugt werden soll.",
+    )
+    network_parser.add_argument(
+        "--export",
+        type=Path,
+        metavar="PATH",
+        help="Optionaler Pfad zum Export des Plans als Markdown-Datei.",
+    )
+
     orchestrate_parser = subparsers.add_parser(
         "orchestrate", help="Run the registered agents sequentially"
     )
@@ -617,6 +647,8 @@ def main(argv: list[str] | None = None) -> None:
         )
     elif args.command == "containers":
         run_containers(kubeconfig=args.kubeconfig, fix=args.fix)
+    elif args.command == "network":
+        run_network(args.vpn, export_path=args.export)
     elif args.command == "audit":
         run_audit(firewall=args.firewall, antivirus=args.antivirus, policies=args.policies)
     elif args.command == "orchestrate":
