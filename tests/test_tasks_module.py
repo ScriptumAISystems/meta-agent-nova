@@ -43,6 +43,20 @@ def test_filter_tasks_by_agent_and_status():
     assert filtered[0].description == "Audit"
 
 
+def test_filter_tasks_accepts_multiple_status_values():
+    entries = [
+        tasks.AgentTask("nova", "Nova (Chef-Agentin)", "Chef-Agentin", "Audit", "Offen"),
+        tasks.AgentTask("nova", "Nova (Chef-Agentin)", "Chef-Agentin", "Backup", "Abgeschlossen"),
+        tasks.AgentTask("orion", "Orion (KI-Software-Spezialist)", "KI-Software-Spezialist", "LLM", "In Arbeit"),
+    ]
+
+    filtered = tasks.filter_tasks(entries, None, ["offen", "in arbeit"])
+    assert {task.description for task in filtered} == {"Audit", "LLM"}
+
+    comma_filtered = tasks.filter_tasks(entries, None, "offen,abgeschlossen")
+    assert {task.description for task in comma_filtered} == {"Audit", "Backup"}
+
+
 def test_group_and_markdown_summary():
     entries = [
         tasks.AgentTask("nova", "Nova (Chef-Agentin)", "Chef-Agentin", "Audit", "Offen"),

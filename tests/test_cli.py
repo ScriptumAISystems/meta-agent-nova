@@ -118,6 +118,26 @@ def test_cli_tasks_command(tmp_path, monkeypatch, caplog):
     assert "## Nova (Chef-Agentin)" in caplog.text
 
 
+def test_cli_tasks_command_multiple_status_filters(tmp_path, monkeypatch, caplog):
+    csv_path = tmp_path / "tasks.csv"
+    csv_path.write_text(
+        "Agenten-Name,Aufgabe,Status\n"
+        "Nova (Chef-Agentin),System prüfen,Offen\n"
+        "Orion (KI-Software-Spezialist),LLM vorbereiten,In Arbeit\n"
+        "Lumina (Database & Storage Expert),Backup prüfen,Abgeschlossen\n",
+        encoding="utf-8",
+    )
+    monkeypatch.setenv("NOVA_TASK_CSV", str(csv_path))
+
+    caplog.set_level("INFO", logger="nova.monitoring")
+    __main__.main(["tasks", "--status", "offen", "In Arbeit"])
+
+    assert "Total tasks: 2" in caplog.text
+    assert "System prüfen" in caplog.text
+    assert "LLM vorbereiten" in caplog.text
+    assert "Backup prüfen" not in caplog.text
+
+
 def test_cli_tasks_checklist(tmp_path, monkeypatch, caplog):
     csv_path = tmp_path / "tasks.csv"
     csv_path.write_text(

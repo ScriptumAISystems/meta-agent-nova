@@ -223,7 +223,7 @@ def run_orchestration(agent_types: Iterable[str] | None = None) -> None:
 
 def run_tasks(
     agent_filters: Iterable[str] | None = None,
-    status: str | None = None,
+    status: Iterable[str] | str | None = None,
     csv_path: Path | None = None,
     *,
     as_checklist: bool = False,
@@ -245,7 +245,8 @@ def run_tasks(
         if agent_filters
         else None
     )
-    filtered_tasks = filter_agent_tasks(tasks, filters, status)
+    status_filter = status if status else None
+    filtered_tasks = filter_agent_tasks(tasks, filters, status_filter)
     if not filtered_tasks:
         log_warning("No tasks matched the provided filters.")
         return
@@ -478,8 +479,12 @@ def build_parser() -> argparse.ArgumentParser:
     )
     tasks_parser.add_argument(
         "--status",
+        nargs="*",
         metavar="STATUS",
-        help="Filter tasks by a specific status label (case-insensitive).",
+        help=(
+            "Filter tasks by one or more status labels (case-insensitive). "
+            "Comma-separated values are also supported."
+        ),
     )
     tasks_parser.add_argument(
         "--csv",
