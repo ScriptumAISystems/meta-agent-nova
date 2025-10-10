@@ -6,29 +6,29 @@ Basierend auf dem Abschnitt **Roadmap** in der `README.md` sind aktuell alle 7 M
 
 ## Aktueller CLI-Snapshot (`python -m nova progress`)
 
-Der jüngste CLI-Lauf (Stand: 09.10.2025, 18:22 UTC) bestätigt nach wie vor den ersten erledigten Foundation-Schritt in `Agenten_Aufgaben_Uebersicht.csv`. Damit sind aktuell 21 von 22 Einträgen offen.
+Der jüngste CLI-Lauf (Stand: 10.10.2025, 16:47 UTC; Befehl `python -m nova progress --limit 1`) bestätigt nach wie vor den ersten erledigten Foundation-Schritt in `Agenten_Aufgaben_Uebersicht.csv`. Damit sind aktuell 21 von 22 Einträgen offen.
 
 - Gesamtaufgaben: 22
 - Abgeschlossen: 1
 - Fortschritt: 5 %
 
-| Agentenrolle | Aufgaben (offen/gesamt) | Fortschritt | Nächste konkrete Schritte |
+| Agentenrolle | Aufgaben (offen/gesamt) | Fortschritt | Nächste konkrete Schritte (Top-Eintrag laut `--limit 1`) |
 | --- | --- | --- | --- |
-| Nova (Chef-Agentin) | 4 / 5 | 20 % | Docker / Kubernetes installieren · VPN einrichten · Security-Checks · Backup-System |
-| Orion (KI-Software-Spezialist) | 4 / 4 | 0 % | NVIDIA NeMo · LLM-Auswahl · Finetuning · LangChain-Integration |
-| Lumina (Datenbank & Speicherexperte) | 2 / 2 | 0 % | MongoDB & PostgreSQL · Wissensdatenbank (VectorDB) |
-| Echo (Avatar & Interaktionsdesigner) | 3 / 3 | 0 % | NVIDIA ACE installieren · Avatar-Pipeline · MS-Teams-Integration |
-| Chronos (Workflow & Automatisierungsspezialist) | 4 / 4 | 0 % | n8n aufsetzen · Chain-Pipelines · Data-Flywheel · CI/CD |
-| Aura (Monitoring & Dashboard-Entwicklerin) | 4 / 4 | 0 % | Grafana · LUX-Dashboard · Effizienzoptimierung · Stimmungsfeedback |
+| Nova (Chef-Agentin) | 4 / 5 | 20 % | Backup- & Recovery-System aufsetzen |
+| Orion (KI-Software-Spezialist) | 4 / 4 | 0 % | Finetuning & Anpassung des LLM für Sophia |
+| Lumina (Datenbank & Speicherexperte) | 2 / 2 | 0 % | Einrichtung der Sophia-Wissensdatenbank (VectorDB) |
+| Echo (Avatar & Interaktionsdesigner) | 3 / 3 | 0 % | Avatar-Pipeline erstellen & Avatar animieren (Omniverse, Audio2Face, Riva) |
+| Chronos (Workflow & Automatisierungsspezialist) | 4 / 4 | 0 % | Aktivierung automatischer Selbstverbesserung (Data Flywheel) |
+| Aura (Monitoring & Dashboard-Entwicklerin) | 4 / 4 | 0 % | Emotionales & Stimmungs-Feedback visualisieren |
 
 ### Offene Schritte je Agent (gekürzt)
 
-- **Nova (Chef-Agentin):** 4 Aufgaben offen – erste Infrastrukturprüfung erledigt, Fokus jetzt auf Container, Sicherheit und Backup.
-- **Orion (KI-Software-Spezialist):** 4 Aufgaben offen – LLM-Auswahl, NeMo-Installation und LangChain-Integration.
-- **Lumina (Datenbank & Speicherexperte):** 2 Aufgaben offen – Datenbanken und Wissensbasis aufsetzen.
-- **Echo (Avatar & Interaktionsdesigner):** 3 Aufgaben offen – ACE-Stack, Avatar-Pipeline und Teams-Anbindung.
-- **Chronos (Workflow & Automatisierungsspezialist):** 4 Aufgaben offen – n8n, Pipelines, Data Flywheel und CI/CD.
-- **Aura (Monitoring & Dashboard-Entwicklerin):** 4 Aufgaben offen – Grafana, Dashboard, Effizienz- und Sentiment-Metriken.
+- **Nova (Chef-Agentin):** 4 Aufgaben offen – nächster Schritt laut Report ist das Backup- & Recovery-System.
+- **Orion (KI-Software-Spezialist):** 4 Aufgaben offen – als Erstes steht das Finetuning des ausgewählten LLM für Sophia an.
+- **Lumina (Datenbank & Speicherexperte):** 2 Aufgaben offen – vorrangig ist die Einrichtung der Vector-Datenbank für Sophia.
+- **Echo (Avatar & Interaktionsdesigner):** 3 Aufgaben offen – Startpunkt ist die Avatar-Pipeline inklusive Animation.
+- **Chronos (Workflow & Automatisierungsspezialist):** 4 Aufgaben offen – Fokus auf die Aktivierung des Data Flywheels.
+- **Aura (Monitoring & Dashboard-Entwicklerin):** 4 Aufgaben offen – erste Priorität ist die Visualisierung von Stimmungs-Feedback.
 
 > ℹ️ Verwende `python -m nova progress --limit 1`, um für jeden Agenten einen schnellen Überblick über die nächsten konkreten To-dos zu erhalten.
 > 🆕 Alert-Dry-Runs können jetzt über `python -m nova alerts --dry-run --export orchestration_journal/alerts.md` dokumentiert werden. Die Markdown-Ausgabe eignet sich für die Übergabe in das Orchestrierungstagebuch.
