@@ -23,6 +23,9 @@ The file `TASKS.md` consolidates all tasks across agents into one location. Use 
 ## Execution Plan
 `docs/EXECUTION_PLAN.md` details the new phased execution model that aligns the orchestrator with the responsibilities captured in `TASKS.md`. Each phase lists participating agents, goals and the broadcast messages emitted during orchestration.
 
+## VPN & Remote Access Playbooks
+`docs/FOUNDATION_VPN_SETUP.md` beschreibt Schritt 3 der Foundation-Phase und liefert detaillierte Rollout-Pläne für WireGuard und OpenVPN. Der Leitfaden erklärt Validierung, Härtung und die Integration in das Monitoring. Die Pläne lassen sich auch per CLI (`python -m nova network --vpn <typ> --export ...`) generieren.
+
 ## Task Coverage Summary
 `docs/TASK_COMPLETION.md` cross-references every requirement from `TASKS.md` with the blueprint tasks executed during orchestration to simplify auditing and reporting.
 

@@ -13,6 +13,7 @@ from nova.system import containers as container_utils
         ["step-plan"],
         ["progress"],
         ["summary"],
+        ["network", "--vpn", "wireguard"],
     ],
 )
 def test_cli_commands(argv):
@@ -91,6 +92,18 @@ def test_cli_containers_fix_plan(monkeypatch, caplog):
     assert "Fix" in caplog.text
     assert "Problem" in caplog.text
     assert "Lösung" in caplog.text
+
+
+def test_cli_network_export(tmp_path, caplog):
+    output_path = tmp_path / "vpn_plan.md"
+
+    caplog.set_level("INFO", logger="nova.monitoring")
+    __main__.main(["network", "--vpn", "openvpn", "--export", str(output_path)])
+
+    assert output_path.exists()
+    content = output_path.read_text(encoding="utf-8")
+    assert "# Openvpn Remote Access Plan" in content
+    assert "VPN-Plan als Markdown exportiert" in caplog.text
 
 
 def test_cli_orchestrate_parallel(tmp_path, monkeypatch):
