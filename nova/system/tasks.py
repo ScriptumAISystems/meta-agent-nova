@@ -15,6 +15,8 @@ import os
 from pathlib import Path
 from typing import Iterable, Sequence
 
+from collections.abc import Iterable as IterableABC
+
 
 @dataclass(frozen=True)
 class AgentTask:
@@ -96,10 +98,34 @@ def load_agent_tasks(csv_path: Path | str | None = None) -> list[AgentTask]:
     return tasks
 
 
+def _normalise_status_filters(
+    status: str | Iterable[str] | None,
+) -> set[str] | None:
+    """Return a normalised set of status filters."""
+
+    if status is None:
+        return None
+
+    if isinstance(status, str):
+        raw_values: Iterable[str] = [status]
+    elif isinstance(status, IterableABC):
+        raw_values = status
+    else:
+        raw_values = [str(status)]
+
+    filters = {
+        part.strip().lower()
+        for value in raw_values
+        for part in str(value).replace(";", ",").split(",")
+        if part.strip()
+    }
+    return filters or None
+
+
 def filter_tasks(
     tasks: Sequence[AgentTask],
     agent_identifiers: Iterable[str] | None = None,
-    status: str | None = None,
+    status: str | Iterable[str] | None = None,
 ) -> list[AgentTask]:
     """Filter tasks by agent identifier and/or status label."""
 
@@ -108,13 +134,13 @@ def filter_tasks(
         if agent_identifiers
         else None
     )
-    status_filter = status.lower() if status else None
+    status_filter = _normalise_status_filters(status)
 
     filtered: list[AgentTask] = []
     for task in tasks:
         if identifier_filter and task.agent_identifier not in identifier_filter:
             continue
-        if status_filter and task.status.lower() != status_filter:
+        if status_filter and task.status.strip().lower() not in status_filter:
             continue
         filtered.append(task)
     return filtered
