@@ -63,13 +63,14 @@ Um den operativen Fortschritt zu aktivieren, empfiehlt sich die Foundation-Phase
 
 1. ✅ DGX-Betriebssystem prüfen und Netzwerk einrichten (`python -m nova setup --packages docker kubernetes wireguard`).
 2. 🔄 Docker- und Kubernetes-Cluster installieren – aktueller Status siehe Abschnitt „Container-Prüfung“.
+   - 🆕 Neue Installationsanleitung: `docs/FOUNDATION_CONTAINER_SETUP.md` beschreibt den vollständigen Ablauf inkl. Validierung.
 3. ⬜ VPN/Fernzugriff via WireGuard oder OpenVPN aktivieren.
 4. ⬜ Security- und Datenschutz-Checks ausführen.
 5. ⬜ Backup- und Recovery-Systeme aufsetzen.
 
 ### Container-Prüfung (Foundation Schritt 2)
 
-Die wiederholte Prüfung (`python -m nova containers`) meldet weiterhin ❌ für Docker (`docker`) und Kubernetes-CLI (`kubectl`), da beide Tools nicht im PATH gefunden werden. Für die Fortsetzung der Foundation-Phase muss daher zuerst die Container-Basisinstallation nachgezogen oder – falls ein alternativer Pfad genutzt wird – die Binaries in den PATH aufgenommen werden.
+Die wiederholte Prüfung (`python -m nova containers`) meldet weiterhin ❌ für Docker (`docker`) und Kubernetes-CLI (`kubectl`), da beide Tools nicht im PATH gefunden werden. Für die Fortsetzung der Foundation-Phase muss daher zuerst die Container-Basisinstallation nachgezogen oder – falls ein alternativer Pfad genutzt wird – die Binaries in den PATH aufgenommen werden. Die Schritte und Validierungen sind jetzt im Dokument `docs/FOUNDATION_CONTAINER_SETUP.md` hinterlegt und können unmittelbar abgearbeitet werden.
 
 ### Empfohlene Task-Reihenfolge (Fortschreibungsrunde #2)
 

@@ -6,7 +6,7 @@ Dieses Dokument beantwortet die Frage "Wie machen wir jetzt weiter?" und bietet 
 
 ## 1. Infrastruktur-Grundlagen fertigstellen (Nova)
 - [ ] System- und Hardware-Audits abschließen – Führe die in `nova/system` implementierten Prüf-Utilities aus, um CPU, GPU und Netzwerk zu verifizieren.
-- [ ] Container- und Orchestrierungstools installieren – `python -m nova containers` ausführen, um Docker/Kubernetes-Checks zu protokollieren, Ergebnisse dokumentieren und fehlende Schritte nachsteuern.
+- [ ] Container- und Orchestrierungstools installieren – arbeite die Schritt-für-Schritt-Anleitung in `docs/FOUNDATION_CONTAINER_SETUP.md` durch und protokolliere den Status mit `python -m nova containers`.
 - [ ] VPN/Remote-Zugriff konfigurieren – Lege Konfigurationsdateien für WireGuard oder OpenVPN an und integriere sie in das Setup.
 - [ ] Sicherheits- und Backup-Routinen aktivieren – Nutze `nova/security` und `nova/logging`, um Audit-Logging und Backup-Pläne festzuhalten.
 
