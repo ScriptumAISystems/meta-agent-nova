@@ -14,6 +14,7 @@ from nova.system import containers as container_utils
         ["progress"],
         ["summary"],
         ["network", "--vpn", "wireguard"],
+        ["backup"],
     ],
 )
 def test_cli_commands(argv):
@@ -104,6 +105,18 @@ def test_cli_network_export(tmp_path, caplog):
     content = output_path.read_text(encoding="utf-8")
     assert "# Openvpn Remote Access Plan" in content
     assert "VPN-Plan als Markdown exportiert" in caplog.text
+
+
+def test_cli_backup_export(tmp_path, caplog):
+    output_path = tmp_path / "backup_plan.md"
+
+    caplog.set_level("INFO", logger="nova.monitoring")
+    __main__.main(["backup", "--plan", "default", "--export", str(output_path)])
+
+    assert output_path.exists()
+    content = output_path.read_text(encoding="utf-8")
+    assert "# Default Backup & Recovery Plan" in content
+    assert "Backup-Plan als Markdown exportiert" in caplog.text
 
 
 def test_cli_orchestrate_parallel(tmp_path, monkeypatch):

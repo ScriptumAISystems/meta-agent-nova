@@ -23,6 +23,11 @@ from .system.containers import (
     inspect_container_runtimes,
     log_container_report,
 )
+from .system.backup import (
+    build_backup_plan,
+    export_backup_plan,
+    list_available_backup_plans,
+)
 from .blueprints.generator import create_blueprint, list_available_blueprints
 from .monitoring.alerts import (
     DEFAULT_THRESHOLDS_PATH,
@@ -193,6 +198,19 @@ def run_network(vpn_type: str, export_path: Path | None = None) -> None:
     if export_path:
         destination = export_vpn_plan(plan, export_path)
         log_info(f"VPN-Plan als Markdown exportiert: {destination}")
+
+
+def run_backup(plan_name: str, export_path: Path | None = None) -> None:
+    """Render the backup & recovery plan and optionally export it."""
+
+    configure_logger()
+    plan = build_backup_plan(plan_name)
+    for line in plan.to_markdown().splitlines():
+        log_info(line)
+
+    if export_path:
+        destination = export_backup_plan(plan, export_path)
+        log_info(f"Backup-Plan als Markdown exportiert: {destination}")
 
 
 def run_audit(
@@ -487,6 +505,22 @@ def build_parser() -> argparse.ArgumentParser:
         help="Optionaler Pfad zum Export des Plans als Markdown-Datei.",
     )
 
+    backup_parser = subparsers.add_parser(
+        "backup", help="Backup- & Recovery-Plan anzeigen"
+    )
+    backup_parser.add_argument(
+        "--plan",
+        default="default",
+        choices=list_available_backup_plans(),
+        help="Backup-Plan auswählen (z. B. default).",
+    )
+    backup_parser.add_argument(
+        "--export",
+        type=Path,
+        metavar="PATH",
+        help="Optionaler Pfad zum Export des Plans als Markdown-Datei.",
+    )
+
     orchestrate_parser = subparsers.add_parser(
         "orchestrate", help="Run the registered agents sequentially"
     )
@@ -649,6 +683,8 @@ def main(argv: list[str] | None = None) -> None:
         run_containers(kubeconfig=args.kubeconfig, fix=args.fix)
     elif args.command == "network":
         run_network(args.vpn, export_path=args.export)
+    elif args.command == "backup":
+        run_backup(args.plan, export_path=args.export)
     elif args.command == "audit":
         run_audit(firewall=args.firewall, antivirus=args.antivirus, policies=args.policies)
     elif args.command == "orchestrate":
