@@ -62,6 +62,37 @@ def test_cli_containers_command(monkeypatch):
     assert captured == [report]
 
 
+def test_cli_containers_fix_plan(monkeypatch, caplog):
+    report = container_utils.ContainerInspectionReport(
+        [
+            container_utils.RuntimeCheckResult(
+                name="Docker Engine",
+                binary="docker",
+                found=False,
+                version=None,
+                health="missing",
+                notes=["Binary 'docker' wurde nicht im PATH gefunden."],
+            )
+        ]
+    )
+
+    monkeypatch.setattr(__main__, "inspect_container_runtimes", lambda kubeconfig=None: report)
+    monkeypatch.setattr(__main__, "log_container_report", lambda rep: None)
+    monkeypatch.setattr(
+        __main__,
+        "build_container_fix_plan",
+        lambda rep: "# Fix\n\nProblem\nLösung",
+    )
+
+    caplog.set_level("INFO", logger="nova.monitoring")
+
+    __main__.main(["containers", "--fix"])
+
+    assert "Fix" in caplog.text
+    assert "Problem" in caplog.text
+    assert "Lösung" in caplog.text
+
+
 def test_cli_orchestrate_parallel(tmp_path, monkeypatch):
     monkeypatch.setenv("NOVA_HOME", str(tmp_path))
     monkeypatch.setenv("NOVA_EXECUTION_MODE", "parallel")

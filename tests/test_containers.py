@@ -76,3 +76,53 @@ def test_inspect_container_runtimes_aggregates(monkeypatch):
     assert "# Nova Container Runtime Check" in markdown
     assert "## Docker Engine" in markdown
     assert "⚠️" in markdown or "warning" in markdown
+
+
+def test_build_container_fix_plan_generates_actions():
+    report = containers.ContainerInspectionReport(
+        [
+            containers.RuntimeCheckResult(
+                name="Docker Engine",
+                binary="docker",
+                found=False,
+                version=None,
+                health="missing",
+                notes=["Binary 'docker' wurde nicht im PATH gefunden."],
+            ),
+            containers.RuntimeCheckResult(
+                name="Kubernetes CLI",
+                binary="kubectl",
+                found=True,
+                version="kubectl version",
+                health="warning",
+                notes=["Keine Kubeconfig-Dateien gefunden."],
+                config_ok=False,
+            ),
+        ]
+    )
+
+    plan = containers.build_container_fix_plan(report)
+
+    assert "## Docker Engine" in plan
+    assert "docker-ce" in plan
+    assert "Kubeconfig" in plan
+    assert "docs/FOUNDATION_CONTAINER_SETUP.md" in plan
+
+
+def test_build_container_fix_plan_when_healthy():
+    report = containers.ContainerInspectionReport(
+        [
+            containers.RuntimeCheckResult(
+                name="Docker Engine",
+                binary="docker",
+                found=True,
+                version="Docker version 26.0.0",
+                health="ok",
+                notes=[],
+            )
+        ]
+    )
+
+    plan = containers.build_container_fix_plan(report)
+
+    assert "Kein Fix-Plan erforderlich" in plan

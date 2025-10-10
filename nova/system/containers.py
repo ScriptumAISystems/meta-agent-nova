@@ -12,6 +12,23 @@ from typing import Iterable, List, Sequence
 from ..monitoring.logging import log_info, log_warning
 
 
+_FIX_RECIPES: dict[str, list[str]] = {
+    "docker": [
+        "Paketquellen aktualisieren: `sudo apt-get update`.",
+        "Basisabhängigkeiten installieren: `sudo apt-get install -y ca-certificates curl gnupg lsb-release`.",
+        "Docker-Repository laut `docs/FOUNDATION_CONTAINER_SETUP.md` Abschnitt 2 hinzufügen und Schlüssel ablegen.",
+        "Engine installieren: `sudo apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin`.",
+        "Dienst aktivieren und testen: `sudo systemctl enable docker --now` sowie `docker --version` und `docker run hello-world` ausführen.",
+    ],
+    "kubectl": [
+        "Kubernetes-Repository einrichten (siehe `docs/FOUNDATION_CONTAINER_SETUP.md`, Abschnitt 3B).",
+        "CLI und Control-Plane-Pakete installieren: `sudo apt-get install -y kubelet kubeadm kubectl` und Pakete mittels `sudo apt-mark hold ...` fixieren.",
+        "Cluster initialisieren oder Kind-Cluster starten (Abschnitt 3A/3B) und mit `kubectl get nodes` validieren.",
+        "Kubeconfig bereitstellen: `mkdir -p $HOME/.kube` und z. B. `/etc/kubernetes/admin.conf` nach `~/.kube/config` kopieren.",
+    ],
+}
+
+
 @dataclass(slots=True)
 class RuntimeCheckResult:
     """Outcome of a container runtime verification."""
@@ -199,6 +216,51 @@ def inspect_container_runtimes(kubeconfig: Path | None = None) -> ContainerInspe
     return ContainerInspectionReport(runtimes=results)
 
 
+def build_container_fix_plan(report: ContainerInspectionReport) -> str:
+    """Create a human-readable fix plan for unhealthy container runtimes."""
+
+    lines: list[str] = ["# Nova Container Fix-Plan", ""]
+    issues_detected = False
+
+    for runtime in report.runtimes:
+        if runtime.health == "ok":
+            continue
+
+        issues_detected = True
+        lines.append(f"## {runtime.name}")
+        lines.append("*Problemanalyse:*")
+
+        if not runtime.found:
+            lines.append("- Binary wurde nicht im PATH gefunden.")
+        else:
+            lines.append(f"- Laufzeit meldet Status '{runtime.health}'.")
+
+        if runtime.config_ok is False:
+            lines.append("- Keine nutzbare Kubeconfig gefunden (siehe Abschnitt 3 der Installationsanleitung).")
+
+        if runtime.notes:
+            for note in runtime.notes:
+                lines.append(f"- Hinweis: {note}")
+
+        recipe = _FIX_RECIPES.get(runtime.binary)
+        if recipe:
+            lines.append("")
+            lines.append("*Empfohlene Maßnahmen:*")
+            for step in recipe:
+                lines.append(f"- {step}")
+        else:
+            lines.append("")
+            lines.append("*Empfohlene Maßnahmen:*")
+            lines.append("- Bitte die Projekt-Dokumentation konsultieren und manuell nachbessern.")
+
+        lines.append("")
+
+    if not issues_detected:
+        lines.append("Alle Container-Runtimes sind einsatzbereit. Kein Fix-Plan erforderlich.")
+
+    return "\n".join(lines).strip()
+
+
 def log_container_report(report: ContainerInspectionReport) -> None:
     """Emit the inspection report via the Nova logger."""
 
@@ -215,6 +277,7 @@ def log_container_report(report: ContainerInspectionReport) -> None:
 __all__ = [
     "ContainerInspectionReport",
     "RuntimeCheckResult",
+    "build_container_fix_plan",
     "check_container_runtime",
     "inspect_container_runtimes",
     "log_container_report",
