@@ -9,6 +9,7 @@ Dieses Dokument konkretisiert die Qualitätskriterien, die erfüllt sein müssen
 - [ ] Übergabeprotokoll mit Betriebs- bzw. Runbook-Hinweisen liegt vor.
 
 ## Nova – Chef-Agentin
+- [ ] Aktualisierte DoD-Kriterien nach binärem Vertrag sind erfüllt (siehe [Nova Definition of Done](./NOVA_DEFINITION_OF_DONE.md)).
 - [ ] Hardware- und Systemaudits (CPU, GPU, Netzwerk, Speicher) dokumentiert, inkl. Pass/Fail-Report.
 - [ ] Container- und Orchestrierungstools (Docker, Kubernetes) installiert, Versionen erfasst und Smoke-Test durchgeführt.
 - [ ] VPN/Remote-Zugriff (WireGuard oder OpenVPN) konfiguriert, Zugangsdaten sicher abgelegt, Verbindungstest protokolliert.

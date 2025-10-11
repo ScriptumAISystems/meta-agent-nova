@@ -98,7 +98,7 @@ python -m nova backup --plan default --export orchestration_journal/backups/defa
 - Implement test harness and monitoring. ✅
 - Prepare migration to Spark hardware. ✅ (See `docs/SPARK_MIGRATION_PLAN.md`.)
 - Schedule early integration and security reviews for each milestone to minimise rework. ✅ (See `docs/INTEGRATION_SECURITY_REVIEWS.md`.)
-- Extend roadmap milestones with a "Definition of Done" per agent role to keep progress measurable. ✅ (See `docs/DEFINITION_OF_DONE.md`.)
+- Extend roadmap milestones with a "Definition of Done" per agent role to keep progress measurable. ✅ (See `docs/DEFINITION_OF_DONE.md` and the binary contract in `docs/NOVA_DEFINITION_OF_DONE.md`.)
 - Refine automated testing and monitoring pipelines in parallel to maintain endgame stability. ✅ (See `docs/TESTING_MONITORING_REFINEMENT.md`.)
 
 ## Contributing
