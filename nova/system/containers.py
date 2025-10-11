@@ -261,6 +261,26 @@ def build_container_fix_plan(report: ContainerInspectionReport) -> str:
     return "\n".join(lines).strip()
 
 
+def export_container_report(
+    report: ContainerInspectionReport, destination: Path
+) -> Path:
+    """Persist the inspection report as Markdown and return the output path."""
+
+    output_path = destination.expanduser()
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    output_path.write_text(report.to_markdown() + "\n", encoding="utf-8")
+    return output_path
+
+
+def export_container_fix_plan(plan: str, destination: Path) -> Path:
+    """Persist the fix plan as Markdown and return the output path."""
+
+    output_path = destination.expanduser()
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    output_path.write_text(plan.strip() + "\n", encoding="utf-8")
+    return output_path
+
+
 def log_container_report(report: ContainerInspectionReport) -> None:
     """Emit the inspection report via the Nova logger."""
 
@@ -279,6 +299,8 @@ __all__ = [
     "RuntimeCheckResult",
     "build_container_fix_plan",
     "check_container_runtime",
+    "export_container_fix_plan",
+    "export_container_report",
     "inspect_container_runtimes",
     "log_container_report",
 ]

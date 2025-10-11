@@ -95,6 +95,67 @@ def test_cli_containers_fix_plan(monkeypatch, caplog):
     assert "Lösung" in caplog.text
 
 
+def test_cli_containers_export(monkeypatch, caplog, tmp_path):
+    report = container_utils.ContainerInspectionReport(
+        [
+            container_utils.RuntimeCheckResult(
+                name="Docker Engine",
+                binary="docker",
+                found=True,
+                version="Docker version 26.0.0",
+                health="ok",
+                notes=[],
+            )
+        ]
+    )
+
+    output_path = tmp_path / "journal" / "containers.md"
+    monkeypatch.setattr(__main__, "inspect_container_runtimes", lambda kubeconfig=None: report)
+    monkeypatch.setattr(__main__, "log_container_report", lambda rep: None)
+
+    caplog.set_level("INFO", logger="nova.monitoring")
+
+    __main__.main(["containers", "--export", str(output_path)])
+
+    assert output_path.exists()
+    content = output_path.read_text(encoding="utf-8")
+    assert "# Nova Container Runtime Check" in content
+    assert "Container-Report als Markdown exportiert" in caplog.text
+
+
+def test_cli_containers_fix_export(monkeypatch, caplog, tmp_path):
+    report = container_utils.ContainerInspectionReport(
+        [
+            container_utils.RuntimeCheckResult(
+                name="Docker Engine",
+                binary="docker",
+                found=False,
+                version=None,
+                health="missing",
+                notes=["Binary 'docker' wurde nicht im PATH gefunden."],
+            )
+        ]
+    )
+
+    output_path = tmp_path / "journal" / "containers-fix.md"
+    monkeypatch.setattr(__main__, "inspect_container_runtimes", lambda kubeconfig=None: report)
+    monkeypatch.setattr(__main__, "log_container_report", lambda rep: None)
+    monkeypatch.setattr(
+        __main__,
+        "build_container_fix_plan",
+        lambda rep: "# Fix\n\nProblem\nLösung",
+    )
+
+    caplog.set_level("INFO", logger="nova.monitoring")
+
+    __main__.main(["containers", "--fix-export", str(output_path)])
+
+    assert output_path.exists()
+    content = output_path.read_text(encoding="utf-8")
+    assert "# Fix" in content
+    assert "Fix-Plan als Markdown exportiert" in caplog.text
+
+
 def test_cli_network_export(tmp_path, caplog):
     output_path = tmp_path / "vpn_plan.md"
 

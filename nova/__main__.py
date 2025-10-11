@@ -20,6 +20,8 @@ from .system.security import run_security_audit
 from .system.orchestrator import Orchestrator
 from .system.containers import (
     build_container_fix_plan,
+    export_container_fix_plan,
+    export_container_report,
     inspect_container_runtimes,
     log_container_report,
 )
@@ -175,16 +177,31 @@ def run_alerts(
         log_info("Alert evaluation reported no threshold breaches.")
 
 
-def run_containers(kubeconfig: Path | None = None, *, fix: bool = False) -> None:
+def run_containers(
+    kubeconfig: Path | None = None,
+    *,
+    fix: bool = False,
+    export_path: Path | None = None,
+    fix_export_path: Path | None = None,
+) -> None:
     """Inspect Docker/Kubernetes availability and optionally print fix guidance."""
 
     configure_logger()
     report = inspect_container_runtimes(kubeconfig=kubeconfig)
     log_container_report(report)
+    if export_path:
+        destination = export_container_report(report, export_path)
+        log_info(f"Container-Report als Markdown exportiert: {destination}")
+    fix_plan: str | None = None
+    if fix or fix_export_path:
+        fix_plan = build_container_fix_plan(report)
     if fix:
-        plan = build_container_fix_plan(report)
-        for line in plan.splitlines():
+        for line in fix_plan.splitlines():
             log_info(line)
+    if fix_export_path:
+        fix_plan = fix_plan or build_container_fix_plan(report)
+        destination = export_container_fix_plan(fix_plan, fix_export_path)
+        log_info(f"Fix-Plan als Markdown exportiert: {destination}")
 
 
 def run_network(vpn_type: str, export_path: Path | None = None) -> None:
@@ -475,6 +492,18 @@ def build_parser() -> argparse.ArgumentParser:
         action="store_true",
         help="Zeigt einen detaillierten Fix-Plan an, falls Runtimes fehlen oder Warnungen melden.",
     )
+    containers_parser.add_argument(
+        "--export",
+        type=Path,
+        metavar="PATH",
+        help="Optionaler Pfad für den Markdown-Export des Container-Reports.",
+    )
+    containers_parser.add_argument(
+        "--fix-export",
+        type=Path,
+        metavar="PATH",
+        help="Optionaler Pfad für den Export des Fix-Plans als Markdown-Datei.",
+    )
 
     audit_parser = subparsers.add_parser(
         "audit", help="Run the Nova security audit"
@@ -680,7 +709,12 @@ def main(argv: list[str] | None = None) -> None:
             export=args.export,
         )
     elif args.command == "containers":
-        run_containers(kubeconfig=args.kubeconfig, fix=args.fix)
+        run_containers(
+            kubeconfig=args.kubeconfig,
+            fix=args.fix,
+            export_path=args.export,
+            fix_export_path=args.fix_export,
+        )
     elif args.command == "network":
         run_network(args.vpn, export_path=args.export)
     elif args.command == "backup":
