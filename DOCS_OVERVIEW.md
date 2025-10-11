@@ -17,6 +17,9 @@ The file `TASKS.md` consolidates all tasks across agents into one location. Use 
 ## Spark Hardware Migration Plan
 `docs/SPARK_MIGRATION_PLAN.md` lists the checklists required to move Nova and its specialist agents from local validation to the Spark hardware clusters, covering environment readiness, security, deployment automation, data migration, observability and rollback.
 
+## NVIDIA DGX Migration & Deployment
+`docs/migration_deployment.md` liefert den detaillierten Integrationsleitfaden für den NVIDIA Software-Stack. Der Plan strukturiert die ersten beiden DGX-Wochen in drei Phasen (Basis-Setup, Framework-Integration, Systemverbund) und beschreibt die Validierungsschritte inklusive Docker-GPU-Checks, Riva/Triton-Services, Omniverse-Anbindung und DCGM-Monitoring.
+
 ## Orchestration Communication
 `docs/ORCHESTRATION_REPORTS.md` explains how the communication hub records agent messages and how Markdown status reports are produced after each orchestration run.
 
