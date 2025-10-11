@@ -367,6 +367,7 @@ def build_executive_summary(
     plan: ExecutionPlan | None = None,
     *,
     limit_per_agent: int = 1,
+    phase_filters: Iterable[str] | None = None,
 ) -> str:
     """Return a concise roadmap snapshot across phases and agents."""
 
@@ -394,9 +395,40 @@ def build_executive_summary(
         lines.append("Keine Phasen definiert.")
         return "\n".join(lines).rstrip()
 
-    seen_agents: set[str] = set()
+    filter_names = [name.strip() for name in phase_filters or [] if name and name.strip()]
+    normalised_filters = {_normalise_phase_name(name) for name in filter_names} or None
 
-    for phase in effective_plan.phases:
+    if filter_names:
+        lines.append("*Gefiltert nach Phasen:* " + ", ".join(filter_names))
+        lines.append("")
+
+    if normalised_filters is None:
+        selected_phases = effective_plan.phases
+    else:
+        selected_phases = tuple(
+            phase
+            for phase in effective_plan.phases
+            if _normalise_phase_name(phase.name) in normalised_filters
+        )
+        if not selected_phases:
+            lines.append(
+                "*Hinweis:* Keine der angeforderten Phasen wurden im Ausführungsplan gefunden."
+            )
+            return "\n".join(lines).rstrip()
+
+    seen_agents: set[str] = set()
+    all_plan_agents = {
+        normalise_agent_identifier(agent)
+        for phase in effective_plan.phases
+        for agent in phase.agents
+    }
+    selected_phase_agents = {
+        normalise_agent_identifier(agent)
+        for phase in selected_phases
+        for agent in phase.agents
+    }
+
+    for phase in selected_phases:
         lines.append(f"## {phase.name.title()}")
         lines.append(phase.goal)
 
@@ -443,7 +475,13 @@ def build_executive_summary(
             seen_agents.add(agent_id)
         lines.append("")
 
-    remaining_agents = [agent for agent in pending_by_agent if agent not in seen_agents]
+    remaining_agents = []
+    for agent in pending_by_agent:
+        if agent in seen_agents:
+            continue
+        if normalised_filters is not None and agent in all_plan_agents and agent not in selected_phase_agents:
+            continue
+        remaining_agents.append(agent)
     if remaining_agents:
         lines.append("## Ad-Hoc")
         lines.append("Aufgaben ohne Phasenzuordnung im aktuellen Ausführungsplan.")

@@ -1,5 +1,6 @@
 from nova.system.mission import build_default_plan
 from nova.system.roadmap import (
+    build_executive_summary,
     build_global_step_plan,
     build_next_steps_summary,
     build_phase_roadmap,
@@ -178,3 +179,29 @@ def test_build_global_step_plan_respects_phase_filters():
     assert "*Gefiltert nach Phasen:* model-operations" in plan_markdown
     assert "1. [ ] LLM vorbereiten (Status: In Arbeit)" in plan_markdown
     assert "System prüfen" not in plan_markdown
+
+
+def test_build_executive_summary_filters_phases():
+    plan = build_default_plan()
+    summary = build_executive_summary(
+        _sample_tasks(),
+        plan,
+        phase_filters=["model-operations"],
+    )
+
+    assert "## Foundation" not in summary
+    assert "## Model-Operations" in summary
+    assert "LLM vorbereiten" in summary
+    assert "System prüfen" not in summary
+    assert "*Gefiltert nach Phasen:* model-operations" in summary
+
+
+def test_build_executive_summary_warns_on_unknown_phase():
+    plan = build_default_plan()
+    summary = build_executive_summary(
+        _sample_tasks(),
+        plan,
+        phase_filters=["unbekannt"],
+    )
+
+    assert "Keine der angeforderten Phasen" in summary
