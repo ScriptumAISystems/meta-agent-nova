@@ -126,3 +126,38 @@ def test_build_container_fix_plan_when_healthy():
     plan = containers.build_container_fix_plan(report)
 
     assert "Kein Fix-Plan erforderlich" in plan
+
+
+def test_export_container_report_writes_markdown(tmp_path):
+    report = containers.ContainerInspectionReport(
+        [
+            containers.RuntimeCheckResult(
+                name="Docker Engine",
+                binary="docker",
+                found=True,
+                version="Docker version 26.0.0",
+                health="ok",
+                notes=[],
+            )
+        ]
+    )
+
+    output_path = tmp_path / "journal" / "container.md"
+    written_path = containers.export_container_report(report, output_path)
+
+    assert written_path == output_path
+    content = output_path.read_text(encoding="utf-8")
+    assert "# Nova Container Runtime Check" in content
+    assert "## Docker Engine" in content
+
+
+def test_export_container_fix_plan_writes_markdown(tmp_path):
+    plan = "# Nova Container Fix-Plan\n\n## Docker Engine\n- Maßnahme"
+    output_path = tmp_path / "journal" / "container-fix.md"
+
+    written_path = containers.export_container_fix_plan(plan, output_path)
+
+    assert written_path == output_path
+    content = output_path.read_text(encoding="utf-8")
+    assert "# Nova Container Fix-Plan" in content
+    assert content.endswith("\n")

@@ -113,7 +113,7 @@ Nach der Installation beide Prüfungen durchführen und dokumentieren:
 
 1. `python -m nova containers`
    - Erwartetes Ergebnis: Beide Checks melden ✅ „ok“.
-   - Markdown-Ausgabe in das Infrastrukturprotokoll (z. B. `orchestration_journal/`) kopieren.
+   - Mit `--export <pfad>` lässt sich der Markdown-Report direkt in das Infrastrukturprotokoll schreiben (z. B. `python -m nova containers --export orchestration_journal/container-report.md`).
 2. `kubectl get nodes`
    - Ausgabe in den Projekt-Statusbericht übernehmen.
 3. `docker run hello-world`
@@ -125,6 +125,7 @@ Nach der Installation beide Prüfungen durchführen und dokumentieren:
 - Docker Dienst startet nicht: `journalctl -u docker -xe` prüfen und ggf. Kernelmodule wie `overlay2` aktivieren.
 - Kubernetes-Komponenten hängen im Status `NotReady`: Netzwerk-Plugin prüfen (`kubectl get pods -n kube-flannel`).
 - Berechtigungsprobleme bei `kubectl`: Besitzrechte der `~/.kube/config` sicherstellen.
+- Für Maßnahmen aus dem Fix-Plan kann `python -m nova containers --fix` verwendet werden; mit `--fix-export <pfad>` landet der Plan als Markdown-Datei im Orchestrierungstagebuch.
 - Dokumentiere alle Abweichungen im Orchestrierungstagebuch und informiere Nova, falls weitere Unterstützung benötigt wird.
 
 ---
