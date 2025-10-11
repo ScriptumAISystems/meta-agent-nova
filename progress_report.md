@@ -4,26 +4,26 @@
 
 Basierend auf dem Abschnitt **Roadmap** in der `README.md` sind aktuell alle 7 Meilensteine als abgeschlossen markiert (✅). Damit liegt der Roadmap-Fortschritt bei 100 %.
 
-## Aktueller Statusüberblick (Stand: 12.10.2025, 07:22 UTC)
+## Aktueller Statusüberblick (Stand: 11.10.2025, 17:16 UTC)
 
 - Gesamtaufgaben laut `Agenten_Aufgaben_Uebersicht.csv`: **22**
-- Erledigt: **3** Aufgaben (Foundation Schritte 1–3)
-- Offene Aufgaben: **19**
-- Operativer Fortschritt: **14 %**
+- Erledigt: **4** Aufgaben (Foundation Schritte 1–4)
+- Offene Aufgaben: **18**
+- Operativer Fortschritt: **18 %**
 
-Der Fokus liegt innerhalb der Foundation-Phase nun auf Aufgabe 4 – „Security & Datenschutz-Checks durchführen“. Schritt 3 wurde am 12.10.2025 erfolgreich abgeschlossen; der VPN-Rollout-Plan (`python -m nova network --vpn wireguard --export orchestration_journal/vpn/wireguard_plan.md`) ist im Orchestrierungstagebuch abgelegt. Die aktualisierte Roadmap-Zusammenfassung basiert auf dem CLI-Lauf `python -m nova summary --limit 1 --phase foundation` aus derselben Runde.
+Der Fokus innerhalb der Foundation-Phase liegt nun auf Aufgabe 5 – „Backup- & Recovery-Systeme aufsetzen“. Schritt 4 („Security & Datenschutz-Checks durchführen“) wurde am 11.10.2025 erfolgreich abgeschlossen; der VPN-Rollout-Plan (`python -m nova network --vpn wireguard --export orchestration_journal/vpn/wireguard_plan.md`) bleibt im Orchestrierungstagebuch referenziert. Die aktualisierte Roadmap-Zusammenfassung basiert auf dem CLI-Lauf `python -m nova summary --limit 1 --phase foundation` aus derselben Runde.
 
 ## Aktueller CLI-Snapshot (`python -m nova progress`)
 
-Der jüngste CLI-Lauf (Stand: 12.10.2025, 07:22 UTC; Befehl `python -m nova progress --limit 1`) bestätigt drei abgeschlossene Foundation-Schritte. Damit reduziert sich die Zahl der offenen Einträge auf 19.
+Der jüngste CLI-Lauf (Stand: 11.10.2025, 17:16 UTC; Befehl `python -m nova progress --limit 1`) bestätigt vier abgeschlossene Foundation-Schritte. Damit reduziert sich die Zahl der offenen Einträge auf 18.
 
 - Gesamtaufgaben: 22
-- Abgeschlossen: 3
-- Fortschritt: 14 %
+- Abgeschlossen: 4
+- Fortschritt: 18 %
 
 | Agentenrolle | Aufgaben (offen/gesamt) | Fortschritt | Nächste konkrete Schritte (Top-Eintrag laut `--limit 1`) |
 | --- | --- | --- | --- |
-| Nova (Chef-Agentin) | 2 / 5 | 60 % | Security & Datenschutz-Checks durchführen |
+| Nova (Chef-Agentin) | 1 / 5 | 80 % | Backup- & Recovery-System aufsetzen |
 | Orion (KI-Software-Spezialist) | 4 / 4 | 0 % | Finetuning & Anpassung des LLM für Sophia |
 | Lumina (Datenbank & Speicherexperte) | 2 / 2 | 0 % | Einrichtung der Sophia-Wissensdatenbank (VectorDB) |
 | Echo (Avatar & Interaktionsdesigner) | 3 / 3 | 0 % | Avatar-Pipeline erstellen & Avatar animieren (Omniverse, Audio2Face, Riva) |
@@ -32,7 +32,7 @@ Der jüngste CLI-Lauf (Stand: 12.10.2025, 07:22 UTC; Befehl `python -m nova pr
 
 ### Offene Schritte je Agent (gekürzt)
 
-- **Nova (Chef-Agentin):** 2 Aufgaben offen – nächste Prioritäten sind Security-Audit und Backup-Planung.
+- **Nova (Chef-Agentin):** 1 Aufgabe offen – nächste Priorität ist die Backup-Planung.
 - **Orion (KI-Software-Spezialist):** 4 Aufgaben offen – als Erstes steht das Finetuning des ausgewählten LLM für Sophia an.
 - **Lumina (Datenbank & Speicherexperte):** 2 Aufgaben offen – vorrangig ist die Einrichtung der Vector-Datenbank für Sophia.
 - **Echo (Avatar & Interaktionsdesigner):** 3 Aufgaben offen – Startpunkt ist die Avatar-Pipeline inklusive Animation.
@@ -74,7 +74,7 @@ Um den operativen Fortschritt zu aktivieren, empfiehlt sich die Foundation-Phase
 2. ✅ Docker- und Kubernetes-Cluster installieren – Abschluss durch `python -m nova containers --export orchestration_journal/container-report.md` vom 12.10.2025 bestätigt.
    - Installationsdetails und Validierungsschritte siehe `docs/FOUNDATION_CONTAINER_SETUP.md`.
 3. ✅ VPN/Fernzugriff via WireGuard oder OpenVPN aktivieren – Dokumentiert durch `orchestration_journal/vpn/wireguard_plan.md` (CLI: `python -m nova network --vpn wireguard --export orchestration_journal/vpn/wireguard_plan.md`).
-4. ⬜ Security- und Datenschutz-Checks ausführen – Leitfaden `docs/FOUNDATION_SECURITY_AUDIT.md` nutzen.
+4. ✅ Security- und Datenschutz-Checks ausführen – Leitfaden `docs/FOUNDATION_SECURITY_AUDIT.md` nutzen.
 5. ⬜ Backup- und Recovery-Systeme aufsetzen – Schritte in `docs/FOUNDATION_BACKUP_RECOVERY.md` beschrieben.
 
 ### Container-Prüfung (Foundation Schritt 2)
@@ -85,13 +85,12 @@ Der Container-Check (`python -m nova containers --export orchestration_journal/c
   - 12.10.2025 07:45 UTC: `python -m nova containers --export orchestration_journal/container-report.md` (Status ✅ für Docker & kubectl).
   - 11.10.2025 06:48 UTC: `python -m nova containers --fix --export orchestration_journal/container-report.md --fix-export orchestration_journal/container-fix.md` (Status ❌, inzwischen abgelöst).
   - 11.10.2025 05:03 UTC: `python -m nova containers --fix --export orchestration_journal/container-report.md --fix-export orchestration_journal/container-fix.md`.
-- **Nächster Schritt:** Fokus auf Security-Audit und Backup gemäß den nachfolgenden Aufgaben.
+- **Nächster Schritt:** Fokus auf Backup & Recovery gemäß den nachfolgenden Aufgaben.
 
 ### Empfohlene Task-Reihenfolge (Fortschreibungsrunde #3)
 
-1. Security- und Datenschutz-Checks ausführen (`python -m nova audit`, siehe `docs/FOUNDATION_SECURITY_AUDIT.md`).
-2. Backup- und Recovery-Systeme konfigurieren (`python -m nova backup --plan default`, siehe `docs/FOUNDATION_BACKUP_RECOVERY.md`).
-3. Optional: Alerts nachziehen und Monitoring-Hooks ergänzen (`python -m nova alerts --dry-run --export orchestration_journal/alerts.md`).
+1. Backup- und Recovery-Systeme konfigurieren (`python -m nova backup --plan default`, siehe `docs/FOUNDATION_BACKUP_RECOVERY.md`).
+2. Optional: Alerts nachziehen und Monitoring-Hooks ergänzen (`python -m nova alerts --dry-run --export orchestration_journal/alerts.md`).
 
 > ✅ **Ohne DGX Spark umsetzbar:** Die Schritte 2–4 basieren auf Dokumentation, Skript-Vorbereitung und Mock-Validierungen und können vollständig in GitHub bzw. Entwicklungsumgebungen ohne GPU-Hardware vorbereitet werden. Details siehe `docs/DGX_PRE_ARRIVAL_PLAN.md`.
 
