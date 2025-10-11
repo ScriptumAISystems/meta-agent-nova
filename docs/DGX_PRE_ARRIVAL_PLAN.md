@@ -2,6 +2,17 @@
 
 Der DGX Spark wird in etwa zwei Wochen geliefert. Um die Zeit optimal zu nutzen, konzentrieren wir uns auf Aufgaben, die vollständig in GitHub erledigt werden können – insbesondere Dokumentation, Automatisierungsskripte und Integrations-Vorbereitung. Die folgenden Checklisten sind nach Wirkung und Abhängigkeiten geordnet und können parallel von mehreren Rollen bearbeitet werden.
 
+## Schnellübersicht: Operative Schritte ohne DGX-Hardware
+
+Die operativen Vorarbeiten lassen sich bereits jetzt durchführen, solange sie sich auf Skripte, Dokumentation und Mock-Validierungen beschränken. Erst wenn GPU-Treiber, CUDA-Profile oder reale Benchmarks ausgeführt werden sollen, wird der physische DGX Spark benötigt. Folgende Aufgabenpakete können sofort angegangen werden:
+
+- ✅ **Provisionierungs-Playbooks & Automatisierung** – Anleitungen, Skripte und GitHub-Workflows für Setup, Container-Prüfungen und Remote-Zugriff sind hardwareunabhängig erstellbar. Tests laufen per Linter/CI.
+- ✅ **Blueprints, Pipelines & Tests im Trockendock** – KI- und Datenpipelines lassen sich mit Mock-/CPU-Profilen vorbereiten. Unit- und Integrationstests können lokal oder in GitHub Actions laufen.
+- ✅ **Monitoring & Governance-Artefakte** – Dashboards, Alerting-Runbooks und Compliance-Reports sind Dokumentationsaufgaben, die lediglich strukturierte JSON/Markdown-Dateien benötigen.
+- ✅ **Projekt- & Risikomanagement** – Projektstruktur, Onboarding-Pakete und Risikoanalysen erfordern keine Hardwarezugriffe und können zur Übergabe vorbereitet werden.
+
+> 📌 **Merksatz:** Alles, was reine Konfiguration, Dokumentation oder Mock-Ausführung ist, kann vor der Hardwarelieferung fertiggestellt werden. Lediglich Treiber-Installationen, GPU-Benchmarks und Laufzeit-Tunings warten, bis der DGX Spark physisch verfügbar ist.
+
 ## 1. Infrastruktur- & Setup-Automatisierung
 - [ ] **DGX Setup Playbook erstellen** – Skript oder Markdown-Anleitung für Erstkonfiguration (Benutzer, Netzwerke, Time Sync) vorbereiten.
 - [ ] **NVIDIA Treiber + CUDA Installationsskript vorbereiten** – Automatisiertes Bash/Python-Skript in `scripts/` anlegen, inklusive Prüfroutinen.
