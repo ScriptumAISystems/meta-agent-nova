@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 import os
+from pathlib import Path
 from typing import Iterable, List, Tuple
 
 _TRUE_VALUES = {"1", "true", "yes", "enabled", "on"}
@@ -61,6 +62,17 @@ class SecurityAuditReport:
         else:
             lines.extend(f"- {finding}" for finding in self.findings)
         return "\n".join(lines).strip()
+
+
+def export_security_audit_report(
+    report: "SecurityAuditReport", destination: Path
+) -> Path:
+    """Persist a security audit report as Markdown and return the output path."""
+
+    output_path = destination.expanduser()
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    output_path.write_text(report.to_markdown() + "\n", encoding="utf-8")
+    return output_path
 
 
 def _resolve_flag(value: bool | None, env_var: str) -> bool | None:
@@ -147,5 +159,6 @@ def run_security_audit(
 __all__ = [
     "SecurityControlStatus",
     "SecurityAuditReport",
+    "export_security_audit_report",
     "run_security_audit",
 ]

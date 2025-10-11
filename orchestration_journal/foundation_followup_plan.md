@@ -20,7 +20,7 @@ Dieser Plan beantwortet "Wie machen wir weiter?" für die anstehenden Schritte d
   - Kommender Fokus: Security-Audit vorbereiten und Backup-Plan exportieren.
 - [ ] **Security & Datenschutz-Checks terminieren**
   - Leitfaden: `docs/FOUNDATION_SECURITY_AUDIT.md`.
-  - Vorbereitend `python -m nova audit --export orchestration_journal/security/initial_audit.md` (Skript erstellen, falls noch nicht vorhanden).
+  - Vorbereitend `python -m nova audit --export orchestration_journal/security/initial_audit.md` (Exportfunktion steht jetzt direkt in der CLI bereit).
 - [ ] **Backup- & Recovery-Plan finalisieren**
   - Anleitung: `docs/FOUNDATION_BACKUP_RECOVERY.md`.
   - CLI: `python -m nova backup --plan default --export orchestration_journal/backups/default_plan.md`.

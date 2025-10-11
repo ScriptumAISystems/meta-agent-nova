@@ -16,7 +16,7 @@ from typing import Iterable
 from .agents.registry import list_agent_types
 from .system.checks import check_cpu, check_gpu, check_network
 from .system.setup import configure_os, install_packages, prepare_environment
-from .system.security import run_security_audit
+from .system.security import export_security_audit_report, run_security_audit
 from .system.orchestrator import Orchestrator
 from .system.containers import (
     build_container_fix_plan,
@@ -290,7 +290,11 @@ def run_backup(
 
 
 def run_audit(
-    *, firewall: str | None = None, antivirus: str | None = None, policies: str | None = None
+    *,
+    firewall: str | None = None,
+    antivirus: str | None = None,
+    policies: str | None = None,
+    export_path: Path | None = None,
 ) -> None:
     """Execute the security audit workflow and log findings."""
 
@@ -310,6 +314,9 @@ def run_audit(
             notify_warning(finding)
         notify_warning("Security audit detected issues that require attention.")
     log_info("Security audit summary (markdown):\n" + report.to_markdown())
+    if export_path:
+        destination = export_security_audit_report(report, export_path)
+        log_info(f"Security audit exported to {destination}")
 
 
 def run_orchestration(
@@ -629,6 +636,12 @@ def build_parser() -> argparse.ArgumentParser:
     audit_parser.add_argument(
         "--policies", choices=("enabled", "disabled"), help="Override OPA policy status for the audit."
     )
+    audit_parser.add_argument(
+        "--export",
+        type=Path,
+        metavar="PATH",
+        help="Optional path to export the audit report as Markdown.",
+    )
 
     network_parser = subparsers.add_parser(
         "network", help="Planung für VPN- und Remote-Zugriff anzeigen"
@@ -866,7 +879,12 @@ def main(argv: list[str] | None = None) -> None:
             restore_timestamp=args.restore,
         )
     elif args.command == "audit":
-        run_audit(firewall=args.firewall, antivirus=args.antivirus, policies=args.policies)
+        run_audit(
+            firewall=args.firewall,
+            antivirus=args.antivirus,
+            policies=args.policies,
+            export_path=args.export,
+        )
     elif args.command == "orchestrate":
         run_orchestration(args.agents, execution_mode=args.mode)
     elif args.command == "tasks":

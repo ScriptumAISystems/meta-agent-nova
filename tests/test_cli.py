@@ -32,14 +32,31 @@ def test_cli_setup_and_orchestrate(tmp_path, monkeypatch):
     assert report_path.read_text().startswith("# Nova Integration Test Report")
 
 
-def test_cli_audit(monkeypatch):
+def test_cli_audit(monkeypatch, tmp_path):
     warnings: list[str] = []
     infos: list[str] = []
     monkeypatch.setattr(__main__, "notify_warning", lambda message: warnings.append(message))
     monkeypatch.setattr(__main__, "notify_info", lambda message: infos.append(message))
-    __main__.main(["audit", "--firewall", "enabled", "--antivirus", "enabled", "--policies", "disabled"])
+    output_path = tmp_path / "journal" / "security" / "audit.md"
+    __main__.main(
+        [
+            "audit",
+            "--firewall",
+            "enabled",
+            "--antivirus",
+            "enabled",
+            "--policies",
+            "disabled",
+            "--export",
+            str(output_path),
+        ]
+    )
     assert warnings, "audit should raise warnings when a control is disabled"
     assert not infos, "audit should not report success when warnings are issued"
+    assert output_path.exists(), "audit export should create the target file"
+    assert output_path.read_text(encoding="utf-8").startswith(
+        "# Security Audit Report"
+    )
 
 
 def test_cli_containers_command(monkeypatch):
