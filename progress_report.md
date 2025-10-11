@@ -4,26 +4,26 @@
 
 Basierend auf dem Abschnitt **Roadmap** in der `README.md` sind aktuell alle 7 Meilensteine als abgeschlossen markiert (✅). Damit liegt der Roadmap-Fortschritt bei 100 %.
 
-## Aktueller Statusüberblick (Stand: 12.10.2025, 07:50 UTC)
+## Aktueller Statusüberblick (Stand: 12.10.2025, 07:22 UTC)
 
 - Gesamtaufgaben laut `Agenten_Aufgaben_Uebersicht.csv`: **22**
-- Erledigt: **2** Aufgaben (Foundation Schritte 1–2)
-- Offene Aufgaben: **20**
-- Operativer Fortschritt: **9 %**
+- Erledigt: **3** Aufgaben (Foundation Schritte 1–3)
+- Offene Aufgaben: **19**
+- Operativer Fortschritt: **14 %**
 
-Der Fokus verlagert sich innerhalb der Foundation-Phase von **Nova (Chef-Agentin)** nun auf Aufgabe 3 – „VPN & Fernzugriff aktivieren“. Schritt 2 wurde am 12.10.2025 erfolgreich abgeschlossen; die Validierung ist in `orchestration_journal/container-report.md` dokumentiert. Die aktuelle Roadmap-Zusammenfassung stammt aus dem CLI-Lauf `python -m nova summary --limit 1 --phase foundation` vom selben Zeitpunkt.
+Der Fokus liegt innerhalb der Foundation-Phase nun auf Aufgabe 4 – „Security & Datenschutz-Checks durchführen“. Schritt 3 wurde am 12.10.2025 erfolgreich abgeschlossen; der VPN-Rollout-Plan (`python -m nova network --vpn wireguard --export orchestration_journal/vpn/wireguard_plan.md`) ist im Orchestrierungstagebuch abgelegt. Die aktualisierte Roadmap-Zusammenfassung basiert auf dem CLI-Lauf `python -m nova summary --limit 1 --phase foundation` aus derselben Runde.
 
 ## Aktueller CLI-Snapshot (`python -m nova progress`)
 
-Der jüngste CLI-Lauf (Stand: 12.10.2025, 07:50 UTC; Befehl `python -m nova progress --limit 1`) bestätigt zwei abgeschlossene Foundation-Schritte. Damit sinkt die Zahl der offenen Einträge auf 20.
+Der jüngste CLI-Lauf (Stand: 12.10.2025, 07:22 UTC; Befehl `python -m nova progress --limit 1`) bestätigt drei abgeschlossene Foundation-Schritte. Damit reduziert sich die Zahl der offenen Einträge auf 19.
 
 - Gesamtaufgaben: 22
-- Abgeschlossen: 2
-- Fortschritt: 9 %
+- Abgeschlossen: 3
+- Fortschritt: 14 %
 
 | Agentenrolle | Aufgaben (offen/gesamt) | Fortschritt | Nächste konkrete Schritte (Top-Eintrag laut `--limit 1`) |
 | --- | --- | --- | --- |
-| Nova (Chef-Agentin) | 3 / 5 | 40 % | VPN & Fernzugriff (WireGuard/OpenVPN) aktivieren |
+| Nova (Chef-Agentin) | 2 / 5 | 60 % | Security & Datenschutz-Checks durchführen |
 | Orion (KI-Software-Spezialist) | 4 / 4 | 0 % | Finetuning & Anpassung des LLM für Sophia |
 | Lumina (Datenbank & Speicherexperte) | 2 / 2 | 0 % | Einrichtung der Sophia-Wissensdatenbank (VectorDB) |
 | Echo (Avatar & Interaktionsdesigner) | 3 / 3 | 0 % | Avatar-Pipeline erstellen & Avatar animieren (Omniverse, Audio2Face, Riva) |
@@ -32,7 +32,7 @@ Der jüngste CLI-Lauf (Stand: 12.10.2025, 07:50 UTC; Befehl `python -m nova pr
 
 ### Offene Schritte je Agent (gekürzt)
 
-- **Nova (Chef-Agentin):** 3 Aufgaben offen – nächster Schritt laut Report ist die Aktivierung des VPN-/Fernzugangs.
+- **Nova (Chef-Agentin):** 2 Aufgaben offen – nächste Prioritäten sind Security-Audit und Backup-Planung.
 - **Orion (KI-Software-Spezialist):** 4 Aufgaben offen – als Erstes steht das Finetuning des ausgewählten LLM für Sophia an.
 - **Lumina (Datenbank & Speicherexperte):** 2 Aufgaben offen – vorrangig ist die Einrichtung der Vector-Datenbank für Sophia.
 - **Echo (Avatar & Interaktionsdesigner):** 3 Aufgaben offen – Startpunkt ist die Avatar-Pipeline inklusive Animation.
@@ -73,7 +73,7 @@ Um den operativen Fortschritt zu aktivieren, empfiehlt sich die Foundation-Phase
 1. ✅ DGX-Betriebssystem prüfen und Netzwerk einrichten (`python -m nova setup --packages docker kubernetes wireguard`).
 2. ✅ Docker- und Kubernetes-Cluster installieren – Abschluss durch `python -m nova containers --export orchestration_journal/container-report.md` vom 12.10.2025 bestätigt.
    - Installationsdetails und Validierungsschritte siehe `docs/FOUNDATION_CONTAINER_SETUP.md`.
-3. ⬜ VPN/Fernzugriff via WireGuard oder OpenVPN aktivieren – Plan in `docs/FOUNDATION_VPN_SETUP.md` dokumentiert.
+3. ✅ VPN/Fernzugriff via WireGuard oder OpenVPN aktivieren – Dokumentiert durch `orchestration_journal/vpn/wireguard_plan.md` (CLI: `python -m nova network --vpn wireguard --export orchestration_journal/vpn/wireguard_plan.md`).
 4. ⬜ Security- und Datenschutz-Checks ausführen – Leitfaden `docs/FOUNDATION_SECURITY_AUDIT.md` nutzen.
 5. ⬜ Backup- und Recovery-Systeme aufsetzen – Schritte in `docs/FOUNDATION_BACKUP_RECOVERY.md` beschrieben.
 
@@ -85,13 +85,13 @@ Der Container-Check (`python -m nova containers --export orchestration_journal/c
   - 12.10.2025 07:45 UTC: `python -m nova containers --export orchestration_journal/container-report.md` (Status ✅ für Docker & kubectl).
   - 11.10.2025 06:48 UTC: `python -m nova containers --fix --export orchestration_journal/container-report.md --fix-export orchestration_journal/container-fix.md` (Status ❌, inzwischen abgelöst).
   - 11.10.2025 05:03 UTC: `python -m nova containers --fix --export orchestration_journal/container-report.md --fix-export orchestration_journal/container-fix.md`.
-- **Nächster Schritt:** Fokus auf VPN-/Fernzugriff, Security-Audit und Backup gemäß den nachfolgenden Aufgaben.
+- **Nächster Schritt:** Fokus auf Security-Audit und Backup gemäß den nachfolgenden Aufgaben.
 
 ### Empfohlene Task-Reihenfolge (Fortschreibungsrunde #3)
 
-1. VPN-/Fernzugriff per WireGuard oder OpenVPN aktivieren (`python -m nova network --vpn wireguard`).
-2. Security- und Datenschutz-Checks ausführen (`python -m nova audit`, siehe `docs/FOUNDATION_SECURITY_AUDIT.md`).
-3. Backup- und Recovery-Systeme konfigurieren (`python -m nova backup --plan default`, siehe `docs/FOUNDATION_BACKUP_RECOVERY.md`).
+1. Security- und Datenschutz-Checks ausführen (`python -m nova audit`, siehe `docs/FOUNDATION_SECURITY_AUDIT.md`).
+2. Backup- und Recovery-Systeme konfigurieren (`python -m nova backup --plan default`, siehe `docs/FOUNDATION_BACKUP_RECOVERY.md`).
+3. Optional: Alerts nachziehen und Monitoring-Hooks ergänzen (`python -m nova alerts --dry-run --export orchestration_journal/alerts.md`).
 
 > ✅ **Ohne DGX Spark umsetzbar:** Die Schritte 2–4 basieren auf Dokumentation, Skript-Vorbereitung und Mock-Validierungen und können vollständig in GitHub bzw. Entwicklungsumgebungen ohne GPU-Hardware vorbereitet werden. Details siehe `docs/DGX_PRE_ARRIVAL_PLAN.md`.
 

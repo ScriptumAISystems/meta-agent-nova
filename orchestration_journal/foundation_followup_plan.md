@@ -15,9 +15,9 @@ Dieser Plan beantwortet "Wie machen wir weiter?" für die anstehenden Schritte d
 
 ## 2. Nachfolgende Foundation-Schritte vorbereiten
 
-- [ ] **VPN & Fernzugriff planen**
-  - Anleitung: `docs/FOUNDATION_VPN_SETUP.md`.
-  - Optionaler Export für das Tagebuch: `python -m nova network --vpn wireguard --export orchestration_journal/vpn/wireguard_plan.md`.
+- [x] **VPN & Fernzugriff planen**
+  - Abschluss: WireGuard-Plan am 12.10.2025 exportiert (`orchestration_journal/vpn/wireguard_plan.md`).
+  - Kommender Fokus: Security-Audit vorbereiten und Backup-Plan exportieren.
 - [ ] **Security & Datenschutz-Checks terminieren**
   - Leitfaden: `docs/FOUNDATION_SECURITY_AUDIT.md`.
   - Vorbereitend `python -m nova audit --export orchestration_journal/security/initial_audit.md` (Skript erstellen, falls noch nicht vorhanden).
@@ -35,7 +35,7 @@ Dieser Plan beantwortet "Wie machen wir weiter?" für die anstehenden Schritte d
 
 ## 4. Reporting & Kommunikation
 
-- [ ] Nach jedem abgeschlossenen Schritt einen kurzen Statusblock im Orchestrierungstagebuch ergänzen (z. B. `orchestration_journal/updates/2025-10-12.md`).
+- [ ] Nach jedem abgeschlossenen Schritt einen kurzen Statusblock im Orchestrierungstagebuch ergänzen (z. B. `orchestration_journal/updates/2025-10-12.md`, `updates/2025-10-12_0722.md`).
 - [ ] `python -m nova progress --limit 1` erneut ausführen und Screenshot/Markdown sichern (nächster Turnus nach VPN-Setup).
 - [x] Wöchentliche Zusammenfassung in `progress_report.md` aktualisieren.
 
