@@ -128,6 +128,12 @@ Nach der Installation beide Prüfungen durchführen und dokumentieren:
 - Für Maßnahmen aus dem Fix-Plan kann `python -m nova containers --fix` verwendet werden; mit `--fix-export <pfad>` landet der Plan als Markdown-Datei im Orchestrierungstagebuch.
 - Dokumentiere alle Abweichungen im Orchestrierungstagebuch und informiere Nova, falls weitere Unterstützung benötigt wird.
 
+## 6. Aktueller Repository-Status (Stand 11.10.2025)
+
+- `orchestration_journal/container-report.md` protokolliert den CLI-Lauf vom 11.10.2025 (`python -m nova containers --fix --export orchestration_journal/container-report.md --fix-export orchestration_journal/container-fix.md`). Beide Checks stehen aktuell auf ❌, weil die Binaries auf der Entwicklungsumgebung fehlen.
+- `orchestration_journal/container-fix.md` enthält den automatisch generierten Maßnahmenplan aus dieser Anleitung.
+- Nach erfolgreicher Installation sollten beide Dateien aktualisiert und der Status in `Agenten_Aufgaben_Uebersicht.csv` angepasst werden.
+
 ---
 
 Mit Abschluss dieser Anleitung ist Schritt 2 der Foundation-Phase klar beschrieben und ausführbar. Die nächsten Aufgaben (VPN, Security, Backup) bauen auf der nun verfügbaren Container-Infrastruktur auf.
