@@ -81,6 +81,11 @@ Um den operativen Fortschritt zu aktivieren, empfiehlt sich die Foundation-Phase
 
 Die wiederholte Prüfung (`python -m nova containers`) meldet weiterhin ❌ für Docker (`docker`) und Kubernetes-CLI (`kubectl`), da beide Tools nicht im PATH gefunden werden. Für die Fortsetzung der Foundation-Phase muss daher zuerst die Container-Basisinstallation nachgezogen oder – falls ein alternativer Pfad genutzt wird – die Binaries in den PATH aufgenommen werden. Die Schritte und Validierungen sind jetzt im Dokument `docs/FOUNDATION_CONTAINER_SETUP.md` hinterlegt und können unmittelbar abgearbeitet werden.
 
+- **Letzter CLI-Lauf:** `python -m nova containers --fix --export orchestration_journal/container-report.md --fix-export orchestration_journal/container-fix.md` (11.10.2025 UTC).
+  - `orchestration_journal/container-report.md` dokumentiert den aktuellen Fehlstatus der Binaries.
+  - `orchestration_journal/container-fix.md` hält den automatisch generierten Maßnahmenplan fest.
+- **Nächster Schritt:** Installation gemäss `docs/FOUNDATION_CONTAINER_SETUP.md` durchführen und den Check erneut laufen lassen, bis beide Tools mit ✅ bestätigen.
+
 ### Empfohlene Task-Reihenfolge (Fortschreibungsrunde #2)
 
 1. Docker- und Kubernetes-Cluster installieren (`python -m nova containers --fix` nachziehen, sobald Pakete verfügbar sind).
