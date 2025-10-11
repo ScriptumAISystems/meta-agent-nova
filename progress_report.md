@@ -88,4 +88,6 @@ Die wiederholte Prüfung (`python -m nova containers`) meldet weiterhin ❌ für
 3. Security- und Datenschutz-Checks ausführen (`python -m nova audit`).
 4. Backup- und Recovery-Systeme konfigurieren (`python -m nova backup --plan default`).
 
+> ✅ **Ohne DGX Spark umsetzbar:** Die Schritte 2–4 basieren auf Dokumentation, Skript-Vorbereitung und Mock-Validierungen und können vollständig in GitHub bzw. Entwicklungsumgebungen ohne GPU-Hardware vorbereitet werden. Details siehe `docs/DGX_PRE_ARRIVAL_PLAN.md`.
+
 Sobald eine Aufgabe abgeschlossen ist, sollte der Status in `Agenten_Aufgaben_Uebersicht.csv` auf „Abgeschlossen“ aktualisiert werden, damit der CLI-Report automatisch den Fortschritt widerspiegelt.
