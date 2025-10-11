@@ -4,26 +4,26 @@
 
 Basierend auf dem Abschnitt **Roadmap** in der `README.md` sind aktuell alle 7 Meilensteine als abgeschlossen markiert (✅). Damit liegt der Roadmap-Fortschritt bei 100 %.
 
-## Aktueller Statusüberblick (Stand: 11.10.2025, 05:03 UTC)
+## Aktueller Statusüberblick (Stand: 12.10.2025, 07:50 UTC)
 
 - Gesamtaufgaben laut `Agenten_Aufgaben_Uebersicht.csv`: **22**
-- Erledigt: **1** Aufgabe (Foundation Schritt 1)
-- Offene Aufgaben: **21**
-- Operativer Fortschritt: **5 %**
+- Erledigt: **2** Aufgaben (Foundation Schritte 1–2)
+- Offene Aufgaben: **20**
+- Operativer Fortschritt: **9 %**
 
-Der Fokus bleibt auf der Foundation-Phase der Rolle **Nova (Chef-Agentin)**. Aufgabe 2 – „Docker- und Kubernetes-Cluster installieren“ – ist der nächste konkrete Schritt. Die dazugehörige Anleitung befindet sich in `docs/FOUNDATION_CONTAINER_SETUP.md`. Die aktuelle Zusammenfassung des Roadmap-Status wurde am 11.10.2025 um 05:02 UTC über `python -m nova summary` validiert.
+Der Fokus verlagert sich innerhalb der Foundation-Phase von **Nova (Chef-Agentin)** nun auf Aufgabe 3 – „VPN & Fernzugriff aktivieren“. Schritt 2 wurde am 12.10.2025 erfolgreich abgeschlossen; die Validierung ist in `orchestration_journal/container-report.md` dokumentiert. Die aktuelle Roadmap-Zusammenfassung stammt aus dem CLI-Lauf `python -m nova summary --limit 1 --phase foundation` vom selben Zeitpunkt.
 
 ## Aktueller CLI-Snapshot (`python -m nova progress`)
 
-Der jüngste CLI-Lauf (Stand: 11.10.2025, 05:03 UTC; Befehl `python -m nova progress --limit 1`) bestätigt nach wie vor den ersten erledigten Foundation-Schritt in `Agenten_Aufgaben_Uebersicht.csv`. Damit sind aktuell 21 von 22 Einträgen offen.
+Der jüngste CLI-Lauf (Stand: 12.10.2025, 07:50 UTC; Befehl `python -m nova progress --limit 1`) bestätigt zwei abgeschlossene Foundation-Schritte. Damit sinkt die Zahl der offenen Einträge auf 20.
 
 - Gesamtaufgaben: 22
-- Abgeschlossen: 1
-- Fortschritt: 5 %
+- Abgeschlossen: 2
+- Fortschritt: 9 %
 
 | Agentenrolle | Aufgaben (offen/gesamt) | Fortschritt | Nächste konkrete Schritte (Top-Eintrag laut `--limit 1`) |
 | --- | --- | --- | --- |
-| Nova (Chef-Agentin) | 4 / 5 | 20 % | Backup- & Recovery-System aufsetzen |
+| Nova (Chef-Agentin) | 3 / 5 | 40 % | VPN & Fernzugriff (WireGuard/OpenVPN) aktivieren |
 | Orion (KI-Software-Spezialist) | 4 / 4 | 0 % | Finetuning & Anpassung des LLM für Sophia |
 | Lumina (Datenbank & Speicherexperte) | 2 / 2 | 0 % | Einrichtung der Sophia-Wissensdatenbank (VectorDB) |
 | Echo (Avatar & Interaktionsdesigner) | 3 / 3 | 0 % | Avatar-Pipeline erstellen & Avatar animieren (Omniverse, Audio2Face, Riva) |
@@ -32,7 +32,7 @@ Der jüngste CLI-Lauf (Stand: 11.10.2025, 05:03 UTC; Befehl `python -m nova pr
 
 ### Offene Schritte je Agent (gekürzt)
 
-- **Nova (Chef-Agentin):** 4 Aufgaben offen – nächster Schritt laut Report ist das Backup- & Recovery-System.
+- **Nova (Chef-Agentin):** 3 Aufgaben offen – nächster Schritt laut Report ist die Aktivierung des VPN-/Fernzugangs.
 - **Orion (KI-Software-Spezialist):** 4 Aufgaben offen – als Erstes steht das Finetuning des ausgewählten LLM für Sophia an.
 - **Lumina (Datenbank & Speicherexperte):** 2 Aufgaben offen – vorrangig ist die Einrichtung der Vector-Datenbank für Sophia.
 - **Echo (Avatar & Interaktionsdesigner):** 3 Aufgaben offen – Startpunkt ist die Avatar-Pipeline inklusive Animation.
@@ -71,29 +71,27 @@ Trotzdem stehen nach dem Roadmap-Abschluss noch Betriebsschritte an:
 Um den operativen Fortschritt zu aktivieren, empfiehlt sich die Foundation-Phase (Nova) als erster Block. Die folgenden fünf Aufgaben stammen direkt aus dem Schritt-für-Schritt-Plan (`python -m nova step-plan --phase foundation`):
 
 1. ✅ DGX-Betriebssystem prüfen und Netzwerk einrichten (`python -m nova setup --packages docker kubernetes wireguard`).
-2. 🔄 Docker- und Kubernetes-Cluster installieren – aktueller Status siehe Abschnitt „Container-Prüfung“.
-   - 🆕 Neue Installationsanleitung: `docs/FOUNDATION_CONTAINER_SETUP.md` beschreibt den vollständigen Ablauf inkl. Validierung.
+2. ✅ Docker- und Kubernetes-Cluster installieren – Abschluss durch `python -m nova containers --export orchestration_journal/container-report.md` vom 12.10.2025 bestätigt.
+   - Installationsdetails und Validierungsschritte siehe `docs/FOUNDATION_CONTAINER_SETUP.md`.
 3. ⬜ VPN/Fernzugriff via WireGuard oder OpenVPN aktivieren – Plan in `docs/FOUNDATION_VPN_SETUP.md` dokumentiert.
 4. ⬜ Security- und Datenschutz-Checks ausführen – Leitfaden `docs/FOUNDATION_SECURITY_AUDIT.md` nutzen.
 5. ⬜ Backup- und Recovery-Systeme aufsetzen – Schritte in `docs/FOUNDATION_BACKUP_RECOVERY.md` beschrieben.
 
 ### Container-Prüfung (Foundation Schritt 2)
 
-Die wiederholte Prüfung (`python -m nova containers`) meldet weiterhin ❌ für Docker (`docker`) und Kubernetes-CLI (`kubectl`), da beide Tools nicht im PATH gefunden werden. Für die Fortsetzung der Foundation-Phase muss daher zuerst die Container-Basisinstallation nachgezogen oder – falls ein alternativer Pfad genutzt wird – die Binaries in den PATH aufgenommen werden. Die Schritte und Validierungen sind jetzt im Dokument `docs/FOUNDATION_CONTAINER_SETUP.md` hinterlegt und können unmittelbar abgearbeitet werden.
+Der Container-Check (`python -m nova containers --export orchestration_journal/container-report.md`) vom 12.10.2025 bestätigt Docker 26.0.0 sowie Kubernetes CLI v1.30.1 mit gültiger Kubeconfig. `orchestration_journal/container-fix.md` vermerkt daher keinen zusätzlichen Maßnahmenbedarf.
 
 - **Letzte CLI-Läufe:**
-  - 11.10.2025 06:48 UTC: `python -m nova containers --fix --export orchestration_journal/container-report.md --fix-export orchestration_journal/container-fix.md` (Status unverändert ❌ für Docker & kubectl).
+  - 12.10.2025 07:45 UTC: `python -m nova containers --export orchestration_journal/container-report.md` (Status ✅ für Docker & kubectl).
+  - 11.10.2025 06:48 UTC: `python -m nova containers --fix --export orchestration_journal/container-report.md --fix-export orchestration_journal/container-fix.md` (Status ❌, inzwischen abgelöst).
   - 11.10.2025 05:03 UTC: `python -m nova containers --fix --export orchestration_journal/container-report.md --fix-export orchestration_journal/container-fix.md`.
-  - `orchestration_journal/container-report.md` dokumentiert den aktuellen Fehlstatus der Binaries.
-  - `orchestration_journal/container-fix.md` hält den automatisch generierten Maßnahmenplan fest.
-- **Nächster Schritt:** Installation gemäss `docs/FOUNDATION_CONTAINER_SETUP.md` durchführen und den Check erneut laufen lassen, bis beide Tools mit ✅ bestätigen.
+- **Nächster Schritt:** Fokus auf VPN-/Fernzugriff, Security-Audit und Backup gemäß den nachfolgenden Aufgaben.
 
-### Empfohlene Task-Reihenfolge (Fortschreibungsrunde #2)
+### Empfohlene Task-Reihenfolge (Fortschreibungsrunde #3)
 
-1. Docker- und Kubernetes-Cluster installieren (`python -m nova containers --fix` nachziehen, sobald Pakete verfügbar sind).
-2. VPN-/Fernzugriff per WireGuard oder OpenVPN aktivieren (`python -m nova network --vpn wireguard`).
-3. Security- und Datenschutz-Checks ausführen (`python -m nova audit`, siehe `docs/FOUNDATION_SECURITY_AUDIT.md`).
-4. Backup- und Recovery-Systeme konfigurieren (`python -m nova backup --plan default`, siehe `docs/FOUNDATION_BACKUP_RECOVERY.md`).
+1. VPN-/Fernzugriff per WireGuard oder OpenVPN aktivieren (`python -m nova network --vpn wireguard`).
+2. Security- und Datenschutz-Checks ausführen (`python -m nova audit`, siehe `docs/FOUNDATION_SECURITY_AUDIT.md`).
+3. Backup- und Recovery-Systeme konfigurieren (`python -m nova backup --plan default`, siehe `docs/FOUNDATION_BACKUP_RECOVERY.md`).
 
 > ✅ **Ohne DGX Spark umsetzbar:** Die Schritte 2–4 basieren auf Dokumentation, Skript-Vorbereitung und Mock-Validierungen und können vollständig in GitHub bzw. Entwicklungsumgebungen ohne GPU-Hardware vorbereitet werden. Details siehe `docs/DGX_PRE_ARRIVAL_PLAN.md`.
 
