@@ -59,6 +59,14 @@ from .system.tasks import (
 )
 from .system.progress import build_progress_report
 from .system.network import build_vpn_plan, export_vpn_plan
+from .monitoring.optimizer import optimize
+from .orchestration.task_queue import TaskQueueDispatcher
+from .security.backup_recovery import (
+    ensure_weekly_backup,
+    restore_backup as restore_backup_snapshot,
+    run_backup as execute_backup_job,
+)
+from .system.dgx_audit import run_dgx_audit
 
 
 def _parse_toggle(value: str | None) -> bool | None:
@@ -77,7 +85,14 @@ DEFAULT_PACKAGES = [
 ]
 
 
-def run_setup(packages: Iterable[str] | None = None) -> None:
+def _nova_home() -> Path:
+    env_value = os.environ.get("NOVA_HOME")
+    if env_value:
+        return Path(env_value).expanduser()
+    return Path.cwd() / ".nova"
+
+
+def run_setup(packages: Iterable[str] | None = None, *, dgx_check: bool = False) -> None:
     """Perform system setup and installation tasks.
 
     The function orchestrates the stubbed system preparation utilities and logs
@@ -122,6 +137,12 @@ def run_setup(packages: Iterable[str] | None = None) -> None:
     if not network_status.get("online", False):
         log_warning("Network check indicates connectivity issues.")
 
+    if dgx_check:
+        audit_result = run_dgx_audit(base_path=environment_report.root)
+        log_info(f"DGX audit report stored at {audit_result.report_path}")
+        if not audit_result.passed:
+            log_warning("DGX audit reported findings that require attention.")
+
     log_info("System setup routine finished.")
 
 
@@ -141,7 +162,7 @@ def run_blueprints() -> None:
         log_info(f"Generated blueprint for {agent_type}: {blueprint.to_dict()}")
 
 
-def run_monitor() -> None:
+def run_monitor(*, optimize_pipeline: bool = False) -> None:
     """Start monitoring services (placeholder)."""
 
     configure_logger()
@@ -152,6 +173,9 @@ def run_monitor() -> None:
     log_info(f"LUX compliance slice exported to {lux_path}")
     notify_warning("Monitoring is running in stub mode.")
     notify_info("No active alerts.")
+    if optimize_pipeline:
+        report = optimize(_nova_home())
+        log_info("Optimizer summary (markdown):\n" + report.to_markdown())
 
 
 def run_alerts(
@@ -183,10 +207,25 @@ def run_containers(
     fix: bool = False,
     export_path: Path | None = None,
     fix_export_path: Path | None = None,
+    deploy_target: str | None = None,
+    show_status: bool = False,
 ) -> None:
     """Inspect Docker/Kubernetes availability and optionally print fix guidance."""
 
     configure_logger()
+    if deploy_target:
+        from .containers.container_manager import deploy_dgx
+
+        deployment_report = deploy_dgx(target=deploy_target)
+        log_info("DGX deployment summary (markdown):\n" + deployment_report.to_markdown())
+    if show_status:
+        from .containers.container_manager import status as container_status
+
+        statuses = container_status()
+        for entry in statuses:
+            log_info(f"Service {entry.name}: {entry.status}")
+            for detail in entry.details:
+                log_info(f"  - {detail}")
     report = inspect_container_runtimes(kubeconfig=kubeconfig)
     log_container_report(report)
     if export_path:
@@ -217,17 +256,37 @@ def run_network(vpn_type: str, export_path: Path | None = None) -> None:
         log_info(f"VPN-Plan als Markdown exportiert: {destination}")
 
 
-def run_backup(plan_name: str, export_path: Path | None = None) -> None:
-    """Render the backup & recovery plan and optionally export it."""
+def run_backup(
+    plan_name: str,
+    export_path: Path | None = None,
+    *,
+    execute: bool = False,
+    restore_timestamp: str | None = None,
+) -> None:
+    """Render the backup plan or execute backup/restore routines."""
 
     configure_logger()
-    plan = build_backup_plan(plan_name)
-    for line in plan.to_markdown().splitlines():
-        log_info(line)
-
-    if export_path:
-        destination = export_backup_plan(plan, export_path)
-        log_info(f"Backup-Plan als Markdown exportiert: {destination}")
+    home = _nova_home()
+    action_performed = False
+    if execute:
+        snapshot = execute_backup_job(home)
+        log_info(f"Backup snapshot created: {snapshot.timestamp} → {snapshot.location}")
+        action_performed = True
+    if restore_timestamp:
+        marker = restore_backup_snapshot(home, restore_timestamp)
+        log_info(f"Restore marker written to {marker}")
+        action_performed = True
+    if not action_performed:
+        plan = build_backup_plan(plan_name)
+        for line in plan.to_markdown().splitlines():
+            log_info(line)
+        if export_path:
+            destination = export_backup_plan(plan, export_path)
+            log_info(f"Backup-Plan als Markdown exportiert: {destination}")
+    else:
+        ensure_weekly_backup(home)
+        if export_path:
+            log_warning("Export path ignored when executing backup or restore actions.")
 
 
 def run_audit(
@@ -253,15 +312,38 @@ def run_audit(
     log_info("Security audit summary (markdown):\n" + report.to_markdown())
 
 
-def run_orchestration(agent_types: Iterable[str] | None = None) -> None:
+def run_orchestration(
+    agent_types: Iterable[str] | None = None,
+    *,
+    execution_mode: str | None = None,
+) -> None:
     """Execute orchestrated agent workflows."""
 
     configure_logger()
-    execution_mode = os.environ.get("NOVA_EXECUTION_MODE", "sequential")
-    orchestrator = Orchestrator(agent_types, execution_mode=execution_mode)
-    report = orchestrator.execute()
-    log_info(f"Orchestration result: {report.to_dict()}")
-    log_info("Orchestration summary (markdown):\n" + report.to_markdown())
+    mode = execution_mode or os.environ.get("NOVA_EXECUTION_MODE", "sequential")
+    orchestrator = Orchestrator(agent_types, execution_mode=mode)
+    dispatcher = TaskQueueDispatcher()
+    queued_tasks: list = []
+    report = None
+    try:
+        for agent in orchestrator.agent_types:
+            queued = dispatcher.run_task(agent, "execute", {"mode": mode})
+            log_info(f"Queued orchestration task {queued.id} for agent {agent}.")
+            queued_tasks.append(queued)
+        report = orchestrator.execute()
+        log_info(f"Orchestration result: {report.to_dict()}")
+        log_info("Orchestration summary (markdown):\n" + report.to_markdown())
+        for task in queued_tasks:
+            dispatcher.acknowledge(task.id, True, "completed")
+        final_tasks = dispatcher.list_tasks()
+        log_info(
+            "Task queue state after orchestration: "
+            + ", ".join(f"{task.agent}:{task.status}" for task in final_tasks)
+        )
+    finally:
+        dispatcher.close()
+    if report is None:  # pragma: no cover - defensive fallback
+        return
     report_content = build_markdown_test_report(report)
     reports_dir = Path(os.environ.get("NOVA_HOME") or Path.cwd()) / "reports"
     reports_dir.mkdir(parents=True, exist_ok=True)
@@ -453,12 +535,22 @@ def build_parser() -> argparse.ArgumentParser:
         metavar="PACKAGE",
         help="Optional list of packages to install (defaults to core tools).",
     )
+    setup_parser.add_argument(
+        "--dgx-check",
+        action="store_true",
+        help="Run the DGX audit after preparing the environment.",
+    )
 
     subparsers.add_parser(
         "blueprints", help="Generate agent blueprints"
     )
-    subparsers.add_parser(
+    monitor_parser = subparsers.add_parser(
         "monitor", help="Start monitoring services"
+    )
+    monitor_parser.add_argument(
+        "--optimize",
+        action="store_true",
+        help="Run the optimizer and persist explainability metrics.",
     )
 
     alerts_parser = subparsers.add_parser(
@@ -514,6 +606,16 @@ def build_parser() -> argparse.ArgumentParser:
         metavar="PATH",
         help="Optionaler Pfad für den Export des Fix-Plans als Markdown-Datei.",
     )
+    containers_parser.add_argument(
+        "--deploy",
+        choices=("dgx",),
+        help="Deploy the Nova container stack to the specified target (e.g. dgx).",
+    )
+    containers_parser.add_argument(
+        "--status",
+        action="store_true",
+        help="Display the current service status for deployed containers.",
+    )
 
     audit_parser = subparsers.add_parser(
         "audit", help="Run the Nova security audit"
@@ -559,6 +661,16 @@ def build_parser() -> argparse.ArgumentParser:
         metavar="PATH",
         help="Optionaler Pfad zum Export des Plans als Markdown-Datei.",
     )
+    backup_parser.add_argument(
+        "--run",
+        action="store_true",
+        help="Execute the automated backup routine.",
+    )
+    backup_parser.add_argument(
+        "--restore",
+        metavar="TIMESTAMP",
+        help="Restore a previously created snapshot identified by timestamp.",
+    )
 
     orchestrate_parser = subparsers.add_parser(
         "orchestrate", help="Run the registered agents sequentially"
@@ -569,6 +681,11 @@ def build_parser() -> argparse.ArgumentParser:
         metavar="AGENT",
         choices=list_agent_types(),
         help="Subset of agents to orchestrate (defaults to all registered agents).",
+    )
+    orchestrate_parser.add_argument(
+        "--mode",
+        choices=("sequential", "parallel"),
+        help="Execution mode for orchestrated runs (defaults to sequential).",
     )
 
     tasks_parser = subparsers.add_parser(
@@ -718,11 +835,11 @@ def main(argv: list[str] | None = None) -> None:
     args = parser.parse_args(argv)
 
     if args.command == "setup":
-        run_setup(args.packages)
+        run_setup(args.packages, dgx_check=args.dgx_check)
     elif args.command == "blueprints":
         run_blueprints()
     elif args.command == "monitor":
-        run_monitor()
+        run_monitor(optimize_pipeline=args.optimize)
     elif args.command == "alerts":
         run_alerts(
             thresholds=args.thresholds,
@@ -736,15 +853,22 @@ def main(argv: list[str] | None = None) -> None:
             fix=args.fix,
             export_path=args.export,
             fix_export_path=args.fix_export,
+            deploy_target=args.deploy,
+            show_status=args.status,
         )
     elif args.command == "network":
         run_network(args.vpn, export_path=args.export)
     elif args.command == "backup":
-        run_backup(args.plan, export_path=args.export)
+        run_backup(
+            args.plan,
+            export_path=args.export,
+            execute=args.run,
+            restore_timestamp=args.restore,
+        )
     elif args.command == "audit":
         run_audit(firewall=args.firewall, antivirus=args.antivirus, policies=args.policies)
     elif args.command == "orchestrate":
-        run_orchestration(args.agents)
+        run_orchestration(args.agents, execution_mode=args.mode)
     elif args.command == "tasks":
         run_tasks(
             agent_filters=args.agent,

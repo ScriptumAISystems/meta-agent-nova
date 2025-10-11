@@ -7,6 +7,7 @@ import time
 import grpc
 
 from nova.logging import initialize_logging
+from nova.orchestration.task_queue import TaskQueueDispatcher
 from nova.task_queue import TaskQueueServer, TaskQueueService, TaskRepository, TaskQueueStub
 from nova.task_queue import proto
 
@@ -217,3 +218,15 @@ def test_task_queue_concurrency_stress() -> None:
 
     channel.close()
     server.stop(0)
+
+
+def test_task_queue_dispatcher_local(tmp_path) -> None:
+    dispatcher = TaskQueueDispatcher(repository_path=tmp_path / "queue.db")
+    task = dispatcher.run_task("nova", "execute", {"sample": "payload"})
+    assert task.agent == "nova"
+    pending = dispatcher.list_tasks()
+    assert pending[0].status == "PENDING"
+    dispatcher.acknowledge(task.id, True, "done")
+    completed = dispatcher.list_tasks("COMPLETED")
+    assert completed and completed[0].status == "COMPLETED"
+    dispatcher.close()

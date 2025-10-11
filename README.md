@@ -20,6 +20,10 @@ Nova's mission is to accelerate software delivery while improving reproducibilit
 - **Logging**: Comprehensive logging and optional cloud backup of logs and configuration.
 - **Task Automation**: gRPC-based task queue with persistence, KPI tracking and audit trails for deterministic background work.
 - **Governance & Security**: OPA-powered policy engine, ISO 27001 aligned auditing and compliance registry for operational transparency.
+- **DGX Integration**: Run GPU/port audits (`nova setup --dgx-check`) that produce Markdown and JSONL readiness reports.
+- **Container Orchestration**: Build and deploy Nova's container stack to DGX targets and inspect runtime status via the CLI.
+- **Security & Backups**: Trigger weekly backups, on-demand snapshots and immutable log collection with dedicated CLI actions.
+- **Self-Optimization**: Generate optimizer reports (`nova monitor --optimize`) with actionable performance recommendations.
 
 ## Installation
 
@@ -39,13 +43,13 @@ python -m nova --help
 
 The CLI provides the following subcommands:
 
-- `setup`: prepare the local Nova working directory, simulate package installation and run hardware checks.
+- `setup`: prepare the local Nova working directory, simulate package installation, run hardware checks and optionally trigger a DGX audit with `--dgx-check`.
 - `blueprints`: list and preview the built-in agent blueprints.
-- `monitor`: initialise the logging and alerting pipeline.
-- `containers`: verify Docker/Kubernetes availability and kubeconfig presence.
+- `monitor`: initialise the logging and alerting pipeline and (with `--optimize`) persist self-optimization reports.
+- `containers`: verify Docker/Kubernetes availability, deploy the DGX stack with `--deploy dgx` and inspect runtime status using `--status`.
 - `network`: generate the VPN rollout plan (WireGuard/OpenVPN) and optionally export it as Markdown documentation.
-- `backup`: render the backup & recovery rollout plan (default playbook) and optionally export it as Markdown documentation.
-- `orchestrate`: execute every registered agent sequentially using the blueprint specifications. Provide ``--agents`` to limit the set and use ``NOVA_EXECUTION_MODE=parallel`` (or the programmatic API) for concurrent execution.
+- `backup`: render the backup & recovery rollout plan, execute automated snapshots via `--run` and restore snapshots with `--restore <timestamp>`.
+- `orchestrate`: execute every registered agent sequentially or in parallel via `--mode`; each run queues tasks through the built-in gRPC dispatcher for traceability.
 - `tasks`: inspect agent assignments or render them as a checklist with ``--checklist``.
 - `roadmap`: create a phase-orientated progress report that highlights the remaining steps for each specialist. Pass `--phase foundation observability` to focus on specific phases.
 - `next-steps`: show the wichtigsten To-dos je Agent mit optionaler Begrenzung über `--limit`; kombiniere mit `--phase`, um nur ausgewählte Phasen einzublenden.
@@ -57,13 +61,18 @@ Example workflow:
 
 ```bash
 python -m nova setup --packages docker kubernetes
+python -m nova setup --dgx-check
 python -m nova blueprints
-python -m nova orchestrate
+python -m nova containers --deploy dgx
+python -m nova containers --status
+python -m nova orchestrate --mode parallel
 python -m nova roadmap
 python -m nova step-plan
 python -m nova progress
 python -m nova network --vpn wireguard --export orchestration_journal/vpn/wireguard_plan.md
 python -m nova backup --plan default --export orchestration_journal/backups/default_plan.md
+python -m nova backup --run
+python -m nova monitor --optimize
 ```
 
 ## Task Queue & Microservices

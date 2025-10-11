@@ -2,6 +2,7 @@
 from .audit import AuditEvent, AuditLogger, AuditStore
 from .compliance import ComplianceRegistry, ControlEvidence, ISO_27001_CONTROLS
 from .manager import SecurityContext, SecurityManager
+from .security_audit import SecurityAuditSummary, SecurityCheck, perform_security_audit
 
 __all__ = [
     "AuditEvent",
@@ -12,4 +13,7 @@ __all__ = [
     "ISO_27001_CONTROLS",
     "SecurityContext",
     "SecurityManager",
+    "SecurityAuditSummary",
+    "SecurityCheck",
+    "perform_security_audit",
 ]
