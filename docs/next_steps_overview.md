@@ -28,3 +28,18 @@ Diese Übersicht fasst die priorisierten Folgeaktivitäten für Meta-Agent Nova 
 - [ ] Sprint-Board anlegen, Kick-off organisieren und Minimalziel (Systemchecks + Docker + Logging) starten.
 
 > 📌 Nutze `python -m nova step-plan`, `python -m nova summary` und `python -m nova progress`, um den aktuellen Status je Agentenrolle zu verfolgen.
+
+## Issue-Triage & Bearbeitungsrhythmus
+
+| Zeitpunkt | Aktivität | Verantwortlich | Ziel |
+| --- | --- | --- | --- |
+| **Montag 09:00 UTC** | Gemeinsames Issue-Triage-Meeting (max. 30 Minuten). Neue Issues priorisieren, Blocker erfassen, Verantwortliche zuweisen. | Nova & betroffene Spezialisten | Aktualisiertes Backlog mit klaren Zuständigkeiten für die laufende Woche |
+| **Dienstag–Donnerstag** | Fokus-Arbeitsblöcke je Team (mindestens 2 Stunden pro Tag). Review-Zeitfenster von 16:00–17:00 UTC für PRs und technische Klärungen reservieren. | Zuständige Agentenrollen | Stetiger Fortschritt an priorisierten Issues, Abschluss offener Reviews |
+| **Freitag 14:00 UTC** | Fortschritts-Check-in (15 Minuten). Offene Punkte für die nächste Woche sammeln, Lessons Learned festhalten. | Nova (Moderation) & alle Agentenrollen | Transparente Statusübersicht, Übernahme offener Restarbeiten in nächste Iteration |
+
+### Leitplanken für Issue-Bearbeitung
+
+- **WIP-Limits beachten:** Pro Agentenrolle maximal zwei gleichzeitig aktive Issues; neue Aufgaben erst beginnen, wenn ein Slot frei ist.
+- **Dokumentation erzwingen:** Ergebnisse und Entscheidungen unmittelbar im passenden Dokument (`docs/…` oder `orchestration_journal/…`) oder direkt im Issue protokollieren.
+- **Automatisierte Checks:** Vor jedem Check-in mindestens `python -m nova progress` ausführen und relevante Reports anhängen, damit der Status nachvollziehbar bleibt.
+- **Blocker sofort melden:** Blockierende Issues werden direkt im täglichen Review-Fenster (16:00–17:00 UTC) adressiert oder eskaliert.
