@@ -352,6 +352,7 @@ def run_summary(
     csv_path: Path | None = None,
     *,
     limit_per_agent: int = 1,
+    phases: Iterable[str] | None = None,
 ) -> None:
     """Render a compact roadmap summary across phases and agents."""
 
@@ -365,7 +366,11 @@ def run_summary(
         log_error(f"Task overview file not found: {exc}")
         raise
 
-    summary = build_executive_summary(tasks, limit_per_agent=limit_per_agent)
+    summary = build_executive_summary(
+        tasks,
+        limit_per_agent=limit_per_agent,
+        phase_filters=phases,
+    )
     for line in summary.splitlines():
         log_info(line)
 
@@ -642,6 +647,12 @@ def build_parser() -> argparse.ArgumentParser:
         default=1,
         help="Number of pending tasks to show per agent (use 0 for unlimited).",
     )
+    summary_parser.add_argument(
+        "--phase",
+        nargs="*",
+        metavar="PHASE",
+        help="Limit the summary to the specified phases (e.g. foundation).",
+    )
 
     step_plan_parser = subparsers.add_parser(
         "step-plan",
@@ -735,7 +746,11 @@ def main(argv: list[str] | None = None) -> None:
     elif args.command == "next-steps":
         run_next_steps(csv_path=args.csv, limit_per_agent=args.limit)
     elif args.command == "summary":
-        run_summary(csv_path=args.csv, limit_per_agent=args.limit)
+        run_summary(
+            csv_path=args.csv,
+            limit_per_agent=args.limit,
+            phases=args.phase,
+        )
     elif args.command == "step-plan":
         run_step_plan(csv_path=args.csv, phases=args.phase)
     elif args.command == "progress":
