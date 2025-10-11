@@ -150,6 +150,33 @@ def test_build_next_steps_summary_reports_completion():
     assert summary.strip().endswith("Alle Aufgaben abgeschlossen. ✅")
 
 
+def test_build_next_steps_summary_filters_requested_phases():
+    plan = build_default_plan()
+
+    summary = build_next_steps_summary(
+        _sample_tasks(),
+        plan,
+        phase_filters=["model-operations"],
+    )
+
+    assert "*Gefiltert nach Phasen:* model-operations" in summary
+    assert "## Model-Operations" in summary
+    assert "LLM vorbereiten" in summary
+    assert "System prüfen" not in summary
+
+
+def test_build_next_steps_summary_warns_on_unknown_phase():
+    plan = build_default_plan()
+
+    summary = build_next_steps_summary(
+        _sample_tasks(),
+        plan,
+        phase_filters=["unbekannt"],
+    )
+
+    assert "Keine der angeforderten Phasen" in summary
+
+
 def test_build_global_step_plan_includes_all_statuses():
     plan = build_default_plan()
     tasks = _sample_tasks()

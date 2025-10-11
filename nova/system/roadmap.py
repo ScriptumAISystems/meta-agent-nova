@@ -180,6 +180,7 @@ def build_next_steps_summary(
     plan: ExecutionPlan | None = None,
     *,
     limit_per_agent: int = 1,
+    phase_filters: Iterable[str] | None = None,
 ) -> str:
     """Return a Markdown summary highlighting the next steps per agent."""
 
@@ -189,6 +190,11 @@ def build_next_steps_summary(
 
     effective_plan = plan or build_default_plan()
     limit = None if limit_per_agent <= 0 else limit_per_agent
+
+    filter_names = [name.strip() for name in (phase_filters or []) if name and name.strip()]
+    normalised_filters = {
+        _normalise_phase_name(name) for name in filter_names
+    } or None
 
     total_pending = sum(len(agent_tasks) for agent_tasks in pending.values())
     limit_label = "alle" if limit is None else str(limit)
@@ -201,9 +207,47 @@ def build_next_steps_summary(
         "",
     ]
 
+    if filter_names:
+        lines.append("*Gefiltert nach Phasen:* " + ", ".join(filter_names))
+        lines.append("")
+
+    if not effective_plan.phases:
+        lines.append("Keine Phasen definiert.")
+        return "\n".join(lines).strip()
+
+    if normalised_filters is None:
+        selected_phases = effective_plan.phases
+    else:
+        selected_phases = tuple(
+            phase
+            for phase in effective_plan.phases
+            if _normalise_phase_name(phase.name) in normalised_filters
+        )
+
+    if normalised_filters is not None and not selected_phases:
+        lines.append(
+            "*Hinweis:* Keine der angeforderten Phasen wurden im Ausführungsplan gefunden."
+        )
+        return "\n".join(lines).strip()
+
     seen_agents: set[str] = set()
-    for phase in effective_plan.phases:
-        phase_agents = [agent for agent in phase.agents if agent in pending]
+    selected_phase_agent_ids = {
+        normalise_agent_identifier(agent)
+        for phase in selected_phases
+        for agent in phase.agents
+    }
+    all_plan_agents = {
+        normalise_agent_identifier(agent)
+        for phase in effective_plan.phases
+        for agent in phase.agents
+    }
+
+    for phase in selected_phases:
+        phase_agents: list[str] = []
+        for agent in phase.agents:
+            agent_key = normalise_agent_identifier(agent)
+            if agent_key in pending:
+                phase_agents.append(agent_key)
         if not phase_agents:
             continue
 
@@ -217,7 +261,17 @@ def build_next_steps_summary(
             )
             seen_agents.add(agent_id)
 
-    remaining_agents = [agent for agent in pending if agent not in seen_agents]
+    remaining_agents: list[str] = []
+    for agent_id in pending:
+        if agent_id in seen_agents:
+            continue
+        if (
+            normalised_filters is not None
+            and agent_id in all_plan_agents
+            and agent_id not in selected_phase_agent_ids
+        ):
+            continue
+        remaining_agents.append(agent_id)
     if remaining_agents:
         lines.append("## Ad-Hoc")
         lines.append("Aufgaben ohne Phasenzuordnung im aktuellen Ausführungsplan.")
