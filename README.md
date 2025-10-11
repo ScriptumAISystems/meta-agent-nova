@@ -48,6 +48,7 @@ The CLI provides the following subcommands:
 - `orchestrate`: execute every registered agent sequentially using the blueprint specifications. Provide ``--agents`` to limit the set and use ``NOVA_EXECUTION_MODE=parallel`` (or the programmatic API) for concurrent execution.
 - `tasks`: inspect agent assignments or render them as a checklist with ``--checklist``.
 - `roadmap`: create a phase-orientated progress report that highlights the remaining steps for each specialist. Pass `--phase foundation observability` to focus on specific phases.
+- `next-steps`: show the wichtigsten To-dos je Agent mit optionaler Begrenzung über `--limit`; kombiniere mit `--phase`, um nur ausgewählte Phasen einzublenden.
 - `step-plan`: render an ordered Schritt-für-Schritt-Plan über alle offenen Aufgaben; combine with `--phase` to narrow the focus.
 - `progress`: generate an aggregated Fortschrittsbericht with per-agent snapshots and the next pending steps (optionally cap the previews with `--limit`; by default all open To-dos are shown; focus on specific specialists via `--agent`).
 - `summary`: produce a kompakte Roadmap-Zusammenfassung mit Phasenfortschritt und den wichtigsten nächsten Aufgaben je Agent (limitierbar über `--limit`).

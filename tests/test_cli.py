@@ -299,6 +299,25 @@ def test_cli_next_steps_command(tmp_path, monkeypatch, caplog):
     assert "n8n Workflows" in caplog.text
 
 
+def test_cli_next_steps_with_phase_filter(tmp_path, monkeypatch, caplog):
+    csv_path = tmp_path / "tasks.csv"
+    csv_path.write_text(
+        "Agenten-Name,Aufgabe,Status\n"
+        "Nova (Chef-Agentin),System prüfen,Offen\n"
+        "Aura (Monitoring & Dashboard-Entwicklerin),Grafana installieren,Offen\n",
+        encoding="utf-8",
+    )
+    monkeypatch.setenv("NOVA_TASK_CSV", str(csv_path))
+
+    caplog.set_level("INFO", logger="nova.monitoring")
+    __main__.main(["next-steps", "--phase", "observability"])
+
+    assert "*Gefiltert nach Phasen:* observability" in caplog.text
+    assert "## Observability" in caplog.text
+    assert "Grafana installieren" in caplog.text
+    assert "System prüfen" not in caplog.text
+
+
 def test_cli_step_plan_command(tmp_path, monkeypatch, caplog):
     csv_path = tmp_path / "tasks.csv"
     csv_path.write_text(
