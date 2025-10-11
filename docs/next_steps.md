@@ -8,7 +8,7 @@ Dieses Dokument beantwortet die Frage "Wie machen wir jetzt weiter?" und bietet 
 - [ ] System- und Hardware-Audits abschließen – Führe die in `nova/system` implementierten Prüf-Utilities aus, um CPU, GPU und Netzwerk zu verifizieren.
 - [ ] Container- und Orchestrierungstools installieren – arbeite die Schritt-für-Schritt-Anleitung in `docs/FOUNDATION_CONTAINER_SETUP.md` durch und protokolliere den Status mit `python -m nova containers`.
 - [ ] VPN/Remote-Zugriff konfigurieren – Lege Konfigurationsdateien für WireGuard oder OpenVPN an und integriere sie in das Setup.
-- [ ] Sicherheits- und Backup-Routinen aktivieren – Nutze `nova/security` und `nova/logging`, um Audit-Logging und Backup-Pläne festzuhalten.
+- [ ] Sicherheits- und Backup-Routinen aktivieren – arbeite `docs/FOUNDATION_SECURITY_AUDIT.md` und `docs/FOUNDATION_BACKUP_RECOVERY.md` durch und nutze `nova/security` sowie `nova/logging`, um Audit-Logging und Backup-Pläne festzuhalten.
 
 ## 2. KI-Stack vorbereiten (Orion)
 - [ ] NVIDIA NeMo installieren – Ergänze Installationsanweisungen und Validierungsskripte, sodass die Abhängigkeiten reproduzierbar sind.
