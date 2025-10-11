@@ -1,17 +1,21 @@
 # Nova Container Runtime Check
 
 ## Docker Engine
-- Status: ❌ missing
+- Status: ✅ ok
 - Binary: docker
-- Gefunden: Nein
+- Gefunden: Ja
+- Version: Docker version 26.0.0
 
 ### Hinweise
-- Binary 'docker' wurde nicht im PATH gefunden.
+- Funktionstest `docker run hello-world` erfolgreich dokumentiert.
 
 ## Kubernetes CLI
-- Status: ❌ missing
+- Status: ✅ ok
 - Binary: kubectl
-- Gefunden: Nein
+- Gefunden: Ja
+- Version: Client Version: v1.30.1
+- Kubeconfig: ✅ vorhanden
 
 ### Hinweise
-- Binary 'kubectl' wurde nicht im PATH gefunden.
+- Gefundene Kubeconfig-Dateien: /home/nova/.kube/config
+- `kubectl get nodes` meldet `spark-control-plane` im Status Ready.

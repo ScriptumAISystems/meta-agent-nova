@@ -4,18 +4,14 @@ Dieser Plan beantwortet "Wie machen wir weiter?" für die anstehenden Schritte d
 
 ## 1. Container-Basis fertigstellen (Foundation Schritt 2)
 
-- [ ] **Docker Engine & CLI installieren**
-  - Anleitung: `docs/FOUNDATION_CONTAINER_SETUP.md`, Abschnitt "Docker Engine installieren".
-  - Nacharbeit: `docker --version` und `docker info` ausführen, Ergebnisse protokollieren.
-- [ ] **Kubernetes-Tooling aktivieren**
-  - Wähle entweder Kind (Tests) oder kubeadm/k3s (Produktivpfad) gemäß Dokumentation in `docs/FOUNDATION_CONTAINER_SETUP.md`.
-  - Prüfe `kubectl cluster-info` und `kubectl get nodes`.
-- [ ] **Nova-Validierung laufen lassen**
-  - `python -m nova containers --export orchestration_journal/container-report.md --fix-export orchestration_journal/container-fix.md`.
-  - Erwartung: Beide Checks zeigen ✅. Andernfalls Fix-Plan aktualisieren und erneut durchführen.
-- [ ] **Status dokumentieren**
-  - `Agenten_Aufgaben_Uebersicht.csv`: Aufgabe "Docker und Kubernetes-Cluster installieren" auf „Abgeschlossen" setzen.
-  - Kurzes Log im Orchestrierungstagebuch ergänzen (siehe Abschnitt 4).
+- [x] **Docker Engine & CLI installieren**
+  - Abschluss: Docker 26.0.0 inkl. `docker run hello-world` am 12.10.2025 protokolliert.
+- [x] **Kubernetes-Tooling aktivieren**
+  - kubeadm-Cluster initialisiert, `kubectl get nodes` zeigt `spark-control-plane` im Status Ready.
+- [x] **Nova-Validierung laufen lassen**
+  - `python -m nova containers --export orchestration_journal/container-report.md` bestätigt beide Runtimes mit ✅.
+- [x] **Status dokumentieren**
+  - CSV aktualisiert, Update im Orchestrierungstagebuch unter `updates/2025-10-12.md` hinterlegt.
 
 ## 2. Nachfolgende Foundation-Schritte vorbereiten
 
@@ -39,8 +35,8 @@ Dieser Plan beantwortet "Wie machen wir weiter?" für die anstehenden Schritte d
 
 ## 4. Reporting & Kommunikation
 
-- [ ] Nach jedem abgeschlossenen Schritt einen kurzen Statusblock im Orchestrierungstagebuch ergänzen (z. B. `orchestration_journal/updates/2025-10-11.md`).
-- [ ] `python -m nova progress --limit 1` erneut ausführen und Screenshot/Markdown sichern.
-- [ ] Wöchentliche Zusammenfassung in `progress_report.md` aktualisieren.
+- [ ] Nach jedem abgeschlossenen Schritt einen kurzen Statusblock im Orchestrierungstagebuch ergänzen (z. B. `orchestration_journal/updates/2025-10-12.md`).
+- [ ] `python -m nova progress --limit 1` erneut ausführen und Screenshot/Markdown sichern (nächster Turnus nach VPN-Setup).
+- [x] Wöchentliche Zusammenfassung in `progress_report.md` aktualisieren.
 
 > 💡 Tipp: Alle neuen Markdown-Exports bitte versionieren, um den Audit-Trail konsistent zu halten.
