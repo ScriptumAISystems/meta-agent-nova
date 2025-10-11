@@ -4,18 +4,18 @@
 
 Basierend auf dem Abschnitt **Roadmap** in der `README.md` sind aktuell alle 7 Meilensteine als abgeschlossen markiert (✅). Damit liegt der Roadmap-Fortschritt bei 100 %.
 
-## Aktueller Statusüberblick (Stand: 10.10.2025, 17:03 UTC)
+## Aktueller Statusüberblick (Stand: 11.10.2025, 05:03 UTC)
 
 - Gesamtaufgaben laut `Agenten_Aufgaben_Uebersicht.csv`: **22**
 - Erledigt: **1** Aufgabe (Foundation Schritt 1)
 - Offene Aufgaben: **21**
 - Operativer Fortschritt: **5 %**
 
-Der Fokus bleibt auf der Foundation-Phase der Rolle **Nova (Chef-Agentin)**. Aufgabe 2 – „Docker- und Kubernetes-Cluster installieren“ – ist der nächste konkrete Schritt. Die dazugehörige Anleitung befindet sich in `docs/FOUNDATION_CONTAINER_SETUP.md`.
+Der Fokus bleibt auf der Foundation-Phase der Rolle **Nova (Chef-Agentin)**. Aufgabe 2 – „Docker- und Kubernetes-Cluster installieren“ – ist der nächste konkrete Schritt. Die dazugehörige Anleitung befindet sich in `docs/FOUNDATION_CONTAINER_SETUP.md`. Die aktuelle Zusammenfassung des Roadmap-Status wurde am 11.10.2025 um 05:02 UTC über `python -m nova summary` validiert.
 
 ## Aktueller CLI-Snapshot (`python -m nova progress`)
 
-Der jüngste CLI-Lauf (Stand: 10.10.2025, 17:03 UTC; Befehl `python -m nova progress --limit 1`) bestätigt nach wie vor den ersten erledigten Foundation-Schritt in `Agenten_Aufgaben_Uebersicht.csv`. Damit sind aktuell 21 von 22 Einträgen offen.
+Der jüngste CLI-Lauf (Stand: 11.10.2025, 05:03 UTC; Befehl `python -m nova progress --limit 1`) bestätigt nach wie vor den ersten erledigten Foundation-Schritt in `Agenten_Aufgaben_Uebersicht.csv`. Damit sind aktuell 21 von 22 Einträgen offen.
 
 - Gesamtaufgaben: 22
 - Abgeschlossen: 1
