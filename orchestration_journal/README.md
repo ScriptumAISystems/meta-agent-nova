@@ -9,11 +9,15 @@ einen direkt umsetzbaren Maßnahmenplan.
 - `container-fix.md`: Dokumentiert, dass derzeit kein zusätzlicher Fix-Plan benötigt wird (Container-Basis erfolgreich abgeschlossen).
 
 ## Foundation Follow-up Plan
-- `foundation_followup_plan.md`: Schritt-für-Schritt-Aktionsplan mit allen unmittelbar nächsten Aufgaben (Docker/Kubernetes validieren, VPN planen, Security/Backup vorbereiten) sowie Koordinationshinweisen für die übrigen Agentenrollen.
+- `foundation_followup_plan.md`: Schritt-für-Schritt-Aktionsplan mit allen unmittelbar nächsten Aufgaben (Docker/Kubernetes validieren, VPN planen, Security/Backup vorbereiten) sowie Koordinationshinweisen für die übrigen Agentenrollen. Der VPN-Block ist seit 12.10.2025 als erledigt markiert und verweist auf den exportierten WireGuard-Plan.
+
+## VPN-Rollout (Foundation Schritt 3)
+- `vpn/wireguard_plan.md`: Auszug des CLI-Exports vom 12.10.2025 (`python -m nova network --vpn wireguard --export orchestration_journal/vpn/wireguard_plan.md`). Enthält Voraussetzungen, Installationsschritte, Validierung und Integration in Nova.
 
 ## Laufende Status-Updates
 - `updates/2025-10-11.md`: Zusammenfassung der CLI-Läufe vom 11.10.2025 (Progress-, Summary- und Container-Checks) mit Ableitung der nächsten Aktionen und Hinweisen zu Blockern.
 - `updates/2025-10-12.md`: Dokumentiert den erfolgreichen Container-Check, die aktualisierte Roadmap (`python -m nova summary`) sowie den neuen Fokus auf VPN-, Security- und Backup-Aufgaben.
+- `updates/2025-10-12_0722.md`: Bestätigt den exportierten WireGuard-Plan, das aktualisierte Fortschrittsrating (14 %) sowie die nächsten Schritte Security & Backup.
 
 ## Nutzung & Aktualisierung
 1. Re-run des Checks nach jeder Änderung an der Container-Infrastruktur: `python -m nova containers --fix --export orchestration_journal/container-report.md --fix-export orchestration_journal/container-fix.md`.
