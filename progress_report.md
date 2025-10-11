@@ -7,23 +7,23 @@ Basierend auf dem Abschnitt **Roadmap** in der `README.md` sind aktuell alle 7 M
 ## Aktueller Statusüberblick (Stand: 11.10.2025, 17:16 UTC)
 
 - Gesamtaufgaben laut `Agenten_Aufgaben_Uebersicht.csv`: **22**
-- Erledigt: **4** Aufgaben (Foundation Schritte 1–4)
-- Offene Aufgaben: **18**
-- Operativer Fortschritt: **18 %**
+- Erledigt: **5** Aufgaben (Foundation Schritte 1–5)
+- Offene Aufgaben: **17**
+- Operativer Fortschritt: **23 %**
 
-Der Fokus innerhalb der Foundation-Phase liegt nun auf Aufgabe 5 – „Backup- & Recovery-Systeme aufsetzen“. Schritt 4 („Security & Datenschutz-Checks durchführen“) wurde am 11.10.2025 erfolgreich abgeschlossen; der VPN-Rollout-Plan (`python -m nova network --vpn wireguard --export orchestration_journal/vpn/wireguard_plan.md`) bleibt im Orchestrierungstagebuch referenziert. Die aktualisierte Roadmap-Zusammenfassung basiert auf dem CLI-Lauf `python -m nova summary --limit 1 --phase foundation` aus derselben Runde.
+Der Abschlussbericht für Schritt 5 („Backup- & Recovery-Systeme aufsetzen“) wurde am 11.10.2025 erstellt. Die benutzerdefinierte Sicherungsplanung liegt im Orchestrierungstagebuch (`orchestration_journal/backups/backup_plan_dgx_spark.md`) vor; der generische CLI-Export (`python -m nova backup --plan default --export orchestration_journal/backups/backup_plan_default.md`) dient als Referenz. Schritt 4 („Security & Datenschutz-Checks durchführen“) bleibt mit dem VPN-Rollout-Plan (`python -m nova network --vpn wireguard --export orchestration_journal/vpn/wireguard_plan.md`) verlinkt. Die aktualisierte Roadmap-Zusammenfassung basiert auf dem CLI-Lauf `python -m nova summary --limit 1 --phase foundation` aus derselben Runde.
 
 ## Aktueller CLI-Snapshot (`python -m nova progress`)
 
-Der jüngste CLI-Lauf (Stand: 11.10.2025, 17:16 UTC; Befehl `python -m nova progress --limit 1`) bestätigt vier abgeschlossene Foundation-Schritte. Damit reduziert sich die Zahl der offenen Einträge auf 18.
+Der jüngste CLI-Lauf (Stand: 11.10.2025, 17:26 UTC; Befehl `python -m nova progress --limit 1`) bestätigt fünf abgeschlossene Foundation-Schritte. Damit reduziert sich die Zahl der offenen Einträge auf 17.
 
 - Gesamtaufgaben: 22
-- Abgeschlossen: 4
-- Fortschritt: 18 %
+- Abgeschlossen: 5
+- Fortschritt: 23 %
 
 | Agentenrolle | Aufgaben (offen/gesamt) | Fortschritt | Nächste konkrete Schritte (Top-Eintrag laut `--limit 1`) |
 | --- | --- | --- | --- |
-| Nova (Chef-Agentin) | 1 / 5 | 80 % | Backup- & Recovery-System aufsetzen |
+| Nova (Chef-Agentin) | 0 / 5 | 100 % | Foundation-Phase abgeschlossen |
 | Orion (KI-Software-Spezialist) | 4 / 4 | 0 % | Finetuning & Anpassung des LLM für Sophia |
 | Lumina (Datenbank & Speicherexperte) | 2 / 2 | 0 % | Einrichtung der Sophia-Wissensdatenbank (VectorDB) |
 | Echo (Avatar & Interaktionsdesigner) | 3 / 3 | 0 % | Avatar-Pipeline erstellen & Avatar animieren (Omniverse, Audio2Face, Riva) |
@@ -32,7 +32,7 @@ Der jüngste CLI-Lauf (Stand: 11.10.2025, 17:16 UTC; Befehl `python -m nova pr
 
 ### Offene Schritte je Agent (gekürzt)
 
-- **Nova (Chef-Agentin):** 1 Aufgabe offen – nächste Priorität ist die Backup-Planung.
+- **Nova (Chef-Agentin):** 0 Aufgaben offen – Foundation-Phase abgeschlossen, Übergabe an Orion & Lumina vorbereitet.
 - **Orion (KI-Software-Spezialist):** 4 Aufgaben offen – als Erstes steht das Finetuning des ausgewählten LLM für Sophia an.
 - **Lumina (Datenbank & Speicherexperte):** 2 Aufgaben offen – vorrangig ist die Einrichtung der Vector-Datenbank für Sophia.
 - **Echo (Avatar & Interaktionsdesigner):** 3 Aufgaben offen – Startpunkt ist die Avatar-Pipeline inklusive Animation.
@@ -75,7 +75,7 @@ Um den operativen Fortschritt zu aktivieren, empfiehlt sich die Foundation-Phase
    - Installationsdetails und Validierungsschritte siehe `docs/FOUNDATION_CONTAINER_SETUP.md`.
 3. ✅ VPN/Fernzugriff via WireGuard oder OpenVPN aktivieren – Dokumentiert durch `orchestration_journal/vpn/wireguard_plan.md` (CLI: `python -m nova network --vpn wireguard --export orchestration_journal/vpn/wireguard_plan.md`).
 4. ✅ Security- und Datenschutz-Checks ausführen – Leitfaden `docs/FOUNDATION_SECURITY_AUDIT.md` nutzen.
-5. ⬜ Backup- und Recovery-Systeme aufsetzen – Schritte in `docs/FOUNDATION_BACKUP_RECOVERY.md` beschrieben.
+5. ✅ Backup- und Recovery-Systeme aufsetzen – Schritte in `docs/FOUNDATION_BACKUP_RECOVERY.md` beschrieben (benutzerdefinierter Plan dokumentiert in `orchestration_journal/backups/backup_plan_dgx_spark.md`).
 
 ### Container-Prüfung (Foundation Schritt 2)
 
@@ -85,12 +85,13 @@ Der Container-Check (`python -m nova containers --export orchestration_journal/c
   - 12.10.2025 07:45 UTC: `python -m nova containers --export orchestration_journal/container-report.md` (Status ✅ für Docker & kubectl).
   - 11.10.2025 06:48 UTC: `python -m nova containers --fix --export orchestration_journal/container-report.md --fix-export orchestration_journal/container-fix.md` (Status ❌, inzwischen abgelöst).
   - 11.10.2025 05:03 UTC: `python -m nova containers --fix --export orchestration_journal/container-report.md --fix-export orchestration_journal/container-fix.md`.
-- **Nächster Schritt:** Fokus auf Backup & Recovery gemäß den nachfolgenden Aufgaben.
+- **Nächster Schritt:** Übergang zu den Aufgaben von Orion (LLM-Stack) und Lumina (Datenbanken); Foundation-Phase ist abgeschlossen.
 
 ### Empfohlene Task-Reihenfolge (Fortschreibungsrunde #3)
 
-1. Backup- und Recovery-Systeme konfigurieren (`python -m nova backup --plan default`, siehe `docs/FOUNDATION_BACKUP_RECOVERY.md`).
-2. Optional: Alerts nachziehen und Monitoring-Hooks ergänzen (`python -m nova alerts --dry-run --export orchestration_journal/alerts.md`).
+1. KI-Stack vorbereiten: `python -m nova models --plan finetune --export orchestration_journal/models/finetune_plan.md` (Orion).
+2. Datenbanken & Vector Store einrichten: `python -m nova data --blueprint core --export orchestration_journal/data/core_blueprint.md` (Lumina).
+3. Optional: Alerts nachziehen und Monitoring-Hooks ergänzen (`python -m nova alerts --dry-run --export orchestration_journal/alerts.md`) zur Sicherstellung der Backup-Latenzen.
 
 > ✅ **Ohne DGX Spark umsetzbar:** Die Schritte 2–4 basieren auf Dokumentation, Skript-Vorbereitung und Mock-Validierungen und können vollständig in GitHub bzw. Entwicklungsumgebungen ohne GPU-Hardware vorbereitet werden. Details siehe `docs/DGX_PRE_ARRIVAL_PLAN.md`.
 
