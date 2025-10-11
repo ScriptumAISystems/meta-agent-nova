@@ -74,8 +74,8 @@ Um den operativen Fortschritt zu aktivieren, empfiehlt sich die Foundation-Phase
 2. 🔄 Docker- und Kubernetes-Cluster installieren – aktueller Status siehe Abschnitt „Container-Prüfung“.
    - 🆕 Neue Installationsanleitung: `docs/FOUNDATION_CONTAINER_SETUP.md` beschreibt den vollständigen Ablauf inkl. Validierung.
 3. ⬜ VPN/Fernzugriff via WireGuard oder OpenVPN aktivieren – Plan in `docs/FOUNDATION_VPN_SETUP.md` dokumentiert.
-4. ⬜ Security- und Datenschutz-Checks ausführen.
-5. ⬜ Backup- und Recovery-Systeme aufsetzen.
+4. ⬜ Security- und Datenschutz-Checks ausführen – Leitfaden `docs/FOUNDATION_SECURITY_AUDIT.md` nutzen.
+5. ⬜ Backup- und Recovery-Systeme aufsetzen – Schritte in `docs/FOUNDATION_BACKUP_RECOVERY.md` beschrieben.
 
 ### Container-Prüfung (Foundation Schritt 2)
 
@@ -85,8 +85,8 @@ Die wiederholte Prüfung (`python -m nova containers`) meldet weiterhin ❌ für
 
 1. Docker- und Kubernetes-Cluster installieren (`python -m nova containers --fix` nachziehen, sobald Pakete verfügbar sind).
 2. VPN-/Fernzugriff per WireGuard oder OpenVPN aktivieren (`python -m nova network --vpn wireguard`).
-3. Security- und Datenschutz-Checks ausführen (`python -m nova audit`).
-4. Backup- und Recovery-Systeme konfigurieren (`python -m nova backup --plan default`).
+3. Security- und Datenschutz-Checks ausführen (`python -m nova audit`, siehe `docs/FOUNDATION_SECURITY_AUDIT.md`).
+4. Backup- und Recovery-Systeme konfigurieren (`python -m nova backup --plan default`, siehe `docs/FOUNDATION_BACKUP_RECOVERY.md`).
 
 > ✅ **Ohne DGX Spark umsetzbar:** Die Schritte 2–4 basieren auf Dokumentation, Skript-Vorbereitung und Mock-Validierungen und können vollständig in GitHub bzw. Entwicklungsumgebungen ohne GPU-Hardware vorbereitet werden. Details siehe `docs/DGX_PRE_ARRIVAL_PLAN.md`.
 
