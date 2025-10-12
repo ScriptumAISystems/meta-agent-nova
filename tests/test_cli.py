@@ -210,6 +210,25 @@ def test_cli_models_export(tmp_path, caplog):
     assert "Model-Plan als Markdown exportiert" in caplog.text
 
 
+def test_cli_data_export(tmp_path, caplog):
+    output_path = tmp_path / "data" / "core_blueprint.md"
+
+    caplog.set_level("INFO", logger="nova.monitoring")
+    __main__.main(["data", "--blueprint", "core", "--export", str(output_path)])
+
+    assert output_path.exists()
+    content = output_path.read_text(encoding="utf-8")
+    assert "# Sophia Data Core Blueprint" in content
+    assert "Data-Blueprint als Markdown exportiert" in caplog.text
+
+
+def test_cli_data_list_only(caplog):
+    caplog.set_level("INFO", logger="nova.monitoring")
+    __main__.main(["data", "--list"])
+
+    assert "Verfügbare Data-Blueprints" in caplog.text
+
+
 def test_cli_orchestrate_parallel(tmp_path, monkeypatch):
     monkeypatch.setenv("NOVA_HOME", str(tmp_path))
     monkeypatch.setenv("NOVA_EXECUTION_MODE", "parallel")
