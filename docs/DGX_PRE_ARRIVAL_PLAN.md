@@ -27,7 +27,7 @@ Die operativen Vorarbeiten lassen sich bereits jetzt durchführen, solange sie s
 
 ## 3. Daten- & Wissensbasis vorbereiten
 - [ ] **Datenbank-Deployment Automatisierung** – Docker Compose oder Helm Charts finalisieren, inklusive Health-Checks.
-- [ ] **Vektordatenbank Integration stubben** – Interface in `nova/data` definieren, mit Mock-Implementierung und Unit-Tests.
+- [x] **Vektordatenbank Integration stubben** – Interface in `nova/data` definieren, mit Mock-Implementierung und Unit-Tests. Die neue `nova.data.vector_store`-Bibliothek stellt Pinecone- und FAISS-kompatible Stubs inklusive Unit-Tests bereit.
 - [ ] **Daten-Ingestion Pipelines dokumentieren** – Schritt-für-Schritt Anleitung für erste Datenimporte (Logs, Wissensbasen) erstellen.
 
 ## 4. Orchestrierung & Agenten-Workflows
