@@ -13,6 +13,20 @@ Basierend auf dem Abschnitt **Roadmap** in der `README.md` sind aktuell alle 7 M
 
 Der Abschlussbericht für Schritt 5 („Backup- & Recovery-Systeme aufsetzen“) wurde am 11.10.2025 erstellt. Die benutzerdefinierte Sicherungsplanung liegt im Orchestrierungstagebuch (`orchestration_journal/backups/backup_plan_dgx_spark.md`) vor; der generische CLI-Export (`python -m nova backup --plan default --export orchestration_journal/backups/backup_plan_default.md`) dient als Referenz. Schritt 4 („Security & Datenschutz-Checks durchführen“) bleibt mit dem VPN-Rollout-Plan (`python -m nova network --vpn wireguard --export orchestration_journal/vpn/wireguard_plan.md`) verlinkt. Die aktualisierte Roadmap-Zusammenfassung basiert auf dem CLI-Lauf `python -m nova summary --limit 1 --phase foundation` aus derselben Runde.
 
+### Modell-Operations Kick-off (12.10.2025, 14:13 UTC)
+
+- `python -m nova models --plan finetune --export orchestration_journal/models/finetune_plan.md`
+  - Exportiert das Finetuning-Playbook für Orion mit detaillierten Abschnitten zu Datenaufbereitung, Infrastruktur, Trainingspipeline sowie Risiko- und Übergabestrategien.
+  - Referenz für weitere Ausarbeitungen im Dokument `docs/MODEL_OPERATIONS_KICKOFF.md`.
+- `deploy/automation/n8n/docker-compose.yml`
+  - Docker-Compose-Stack für Chronos bereitgestellt (n8n + PostgreSQL + Redis) inklusive Basic-Auth-Vorgaben und persistenten Volumes.
+- `orchestration_journal/automation/n8n_sample_workflow.json`
+  - Beispiel-Workflow, der den Nova CLI Summary-Endpunkt zyklisch abfragt und Updates an einen Microsoft-Teams-Webhook sendet.
+- `docs/MODEL_OPERATIONS_KICKOFF.md`
+  - Leitfaden, der die nächsten praktischen Aufgaben für Orion und Chronos bündelt (NeMo-Plan prüfen, n8n deployen, LangChain-Bridge vorbereiten).
+
+> ✅ Mit diesen Artefakten ist die Model-Operations-Phase vorbereitet; Umsetzungsdetails können nun iterativ ausgearbeitet und getestet werden.
+
 ## Aktueller CLI-Snapshot (`python -m nova progress`)
 
 Der jüngste CLI-Lauf (Stand: 11.10.2025, 17:26 UTC; Befehl `python -m nova progress --limit 1`) bestätigt fünf abgeschlossene Foundation-Schritte. Damit reduziert sich die Zahl der offenen Einträge auf 17.
