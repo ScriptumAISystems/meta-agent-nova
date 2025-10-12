@@ -66,5 +66,6 @@ verhindern, dass abhängige Services starten, bevor die Datenbanken bereit sind.
 
 - [x] Docker-Compose-Stack modelliert (`deploy/databases/docker-compose.yml`).
 - [x] Healthchecks & Monitoring-Exporter integriert.
+- [x] Vector-Store-Stubs in `nova.data.vector_store` hinterlegt (Pinecone/FAISS inkl. Tests).
 - [ ] Kubernetes-Deployment finalisiert.
 - [ ] Automatisierte Backups im CI hinterlegt.

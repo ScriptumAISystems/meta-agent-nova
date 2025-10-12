@@ -15,7 +15,7 @@ Diese Übersicht fasst die priorisierten Folgeaktivitäten für Meta-Agent Nova 
 
 ## Daten & Wissensbasis (2-4 Wochen)
 - [ ] Automatisiertes Setup für MongoDB/PostgreSQL (lokal & produktiv) implementieren.
-- [ ] Vektordatenbank evaluieren (Pinecone vs. FAISS) und Prototyp zur Wissensabfrage bauen.
+- [x] Vektordatenbank evaluieren (Pinecone vs. FAISS) und Prototyp zur Wissensabfrage bauen – `nova.data.vector_store` stellt getestete Pinecone/FAISS-Stubs bereit.
 
 ## Interaktions- & Automationspfad (4-6 Wochen)
 - [ ] NVIDIA ACE-Komponenten (Audio2Face, Riva, NeMo) testen und Pipeline dokumentieren.
