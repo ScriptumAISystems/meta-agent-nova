@@ -42,6 +42,17 @@ Der Abschlussbericht für Schritt 5 („Backup- & Recovery-Systeme aufsetzen“
 
 > ✅ Orion und Chronos besitzen nun eine ausführbare Vorlage: Konfiguration prüfen (`python scripts/finetune_nemo.py`), Dateninventar pflegen und anschließend Trainings- & Automationspfad starten.
 
+### LangChain ↔︎ n8n Bridge Skeleton (12.10.2025, 15:37 UTC)
+
+- `nova/automation/bridge.py`
+  - FastAPI-Service mit Signaturprüfung, Weiterleitung zu n8n und belastbaren Fehlerantworten.
+- `tests/test_bridge_service.py`
+  - Unit-Tests decken Erfolgspfade, ungültige Signaturen und Downstream-Fehler ab.
+- `deploy/automation/bridge/`
+  - Container-Artefakte (Dockerfile, Compose-Override, Requirements, README) für die Bereitstellung des Bridge-Dienstes.
+
+> ✅ Chronos verfügt jetzt über ein lauffähiges Bridge-Grundgerüst. In n8n können Webhooks `summary-refresh` und `finetune-status` direkt genutzt werden; verbleibende Schritte betreffen Workflow-Erweiterungen und Monitoring-Hooks.
+
 ## Aktueller CLI-Snapshot (`python -m nova progress`)
 
 Der jüngste CLI-Lauf (Stand: 11.10.2025, 17:26 UTC; Befehl `python -m nova progress --limit 1`) bestätigt fünf abgeschlossene Foundation-Schritte. Damit reduziert sich die Zahl der offenen Einträge auf 17.

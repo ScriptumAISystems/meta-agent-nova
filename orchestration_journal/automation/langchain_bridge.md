@@ -53,7 +53,13 @@ Beispiel-Request für Orion:
 ## 4. Schrittplan
 
 1. **Bridge Skeleton** – Repository `deploy/automation/bridge/` anlegen
-   (FastAPI + uvicorn, Dockerfile, Compose Override).
+   (FastAPI + uvicorn, Dockerfile, Compose Override). ✅
+   - FastAPI-App unter `nova/automation/bridge.py` implementiert
+     (Signaturprüfung, Weiterleitung, Fehlerbehandlung).
+   - Container-Artefakte (`Dockerfile`, `docker-compose.override.yml`,
+     `requirements.txt`) bereitgestellt.
+   - Tests in `tests/test_bridge_service.py` decken Signaturen &
+     Fehlerszenarien ab.
 2. **n8n Workflow erweitern** – Webhook `finetune-status` ergänzen, der die Werte
    nach Teams pusht und in PostgreSQL persistiert.
 3. **LangChain Tooling** – Neues Tool `FinetuneStatusTool` in `nova/agents`

@@ -1,0 +1,15 @@
+services:
+  bridge:
+    build:
+      context: ../..
+      dockerfile: deploy/automation/bridge/Dockerfile
+    environment:
+      N8N_WEBHOOK_URL: ${N8N_WEBHOOK_URL:-http://n8n:5678/webhook}
+      N8N_WEBHOOK_USER: ${N8N_WEBHOOK_USER:-admin}
+      N8N_WEBHOOK_PASSWORD: ${N8N_WEBHOOK_PASSWORD:-change_me}
+      NOVA_BRIDGE_TOKEN: ${NOVA_BRIDGE_TOKEN:-nova-dev-secret}
+      NOVA_BRIDGE_TIMEOUT: ${NOVA_BRIDGE_TIMEOUT:-10}
+    ports:
+      - "8080:8080"
+    depends_on:
+      - n8n
