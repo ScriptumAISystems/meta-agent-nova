@@ -1,0 +1,69 @@
+# Baseline LoRA configuration for Orion's Sophia finetuning pipeline.
+# Values capture a reproducible starting point and can be overridden per environment.
+base_model: meta-llama/Llama-3-8B-Instruct
+precision: bf16
+seed: 42
+
+artifacts:
+  output_dir: artifacts/models/sophia/lora
+  checkpoint_interval: 1000
+  keep_last: 5
+
+datasets:
+  train: data/sophia/train.jsonl
+  validation: data/sophia/validation.jsonl
+  eval: data/sophia/eval.jsonl
+
+hyperparameters:
+  learning_rate: 0.0002
+  weight_decay: 0.01
+  warmup_ratio: 0.03
+  max_steps: 3000
+  epochs: 3
+  batch_size: 64
+  gradient_accumulation_steps: 4
+  gradient_checkpointing: true
+  max_sequence_length: 4096
+
+lora:
+  r: 16
+  alpha: 32
+  dropout: 0.1
+  target_modules:
+    - q_proj
+    - k_proj
+    - v_proj
+    - o_proj
+    - gate_proj
+    - up_proj
+    - down_proj
+
+optimizer:
+  type: adamw
+  beta1: 0.9
+  beta2: 0.95
+  epsilon: 1.0e-08
+  scheduler: cosine
+
+evaluation:
+  interval_steps: 500
+  metrics:
+    - bleu
+    - rouge_l
+    - win_rate
+  human_review_batch_size: 50
+
+tracking:
+  service: wandb
+  project: sophia-finetune
+  run_name: sophia-finetune-dev
+  tags:
+    - sophia
+    - finetune
+    - lora
+
+runtime:
+  devices: auto
+  tensor_parallelism: 2
+  pipeline_parallelism: 1
+  precision_policy: amp_bfloat16

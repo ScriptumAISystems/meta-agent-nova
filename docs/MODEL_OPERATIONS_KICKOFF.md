@@ -9,6 +9,8 @@ bereitgestellten Artefakte im Repository.
 - Exportiere das Finetuning-Playbook mit `python -m nova models --plan finetune --export orchestration_journal/models/finetune_plan.md`.
 - Prüfe die Abschnitte zu Datenaufbereitung, Infrastruktur und Trainingspipeline.
 - Ergänze offene Punkte in `orchestration_journal/models/finetune_runbook.md` sobald Implementierungsdetails feststehen.
+- Verwende `python scripts/finetune_nemo.py --plan orchestration_journal/models/finetune_runbook.md`, um die aktuelle Konfiguration
+  (`config/finetune/lora.yaml`) zu validieren und den Runbook-Plan automatisch zu befüllen.
 
 ## 2. n8n Plattform provisionieren (Chronos)
 - Verwende `deploy/automation/n8n/docker-compose.yml`, um lokal eine n8n Instanz mit PostgreSQL und Redis zu starten.

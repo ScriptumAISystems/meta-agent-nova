@@ -27,6 +27,21 @@ Der Abschlussbericht für Schritt 5 („Backup- & Recovery-Systeme aufsetzen“
 
 > ✅ Mit diesen Artefakten ist die Model-Operations-Phase vorbereitet; Umsetzungsdetails können nun iterativ ausgearbeitet und getestet werden.
 
+### Finetuning Runbook Update (12.10.2025, 14:32 UTC)
+
+- `config/finetune/lora.yaml`
+  - Baseline-LoRA-Parameter für Sophia dokumentiert (Adapter-Rank, Hyperparameter, Tracking-Defaults).
+- `scripts/finetune_nemo.py`
+  - Generiert aus obiger Konfiguration einen validierten Markdown-Plan inkl. Sanity-Checks.
+- `orchestration_journal/models/finetune_runbook.md`
+  - Runbook erweitert: konkrete Schritte für Vorbereitung, Training, Evaluierung und Übergabe.
+- `orchestration_journal/data/datasets.md`
+  - Inventarliste für Train/Validation/Eval-Daten mit DSGVO-Status.
+- `orchestration_journal/automation/langchain_bridge.md`
+  - Konzept für LangChain↔︎n8n Bridge (FastAPI-Skeleton, Auth-Flow, Folgeaufgaben).
+
+> ✅ Orion und Chronos besitzen nun eine ausführbare Vorlage: Konfiguration prüfen (`python scripts/finetune_nemo.py`), Dateninventar pflegen und anschließend Trainings- & Automationspfad starten.
+
 ## Aktueller CLI-Snapshot (`python -m nova progress`)
 
 Der jüngste CLI-Lauf (Stand: 11.10.2025, 17:26 UTC; Befehl `python -m nova progress --limit 1`) bestätigt fünf abgeschlossene Foundation-Schritte. Damit reduziert sich die Zahl der offenen Einträge auf 17.
