@@ -2,6 +2,8 @@
 
 Dieses Dokument fasst die wesentlichen Aufgaben zusammen, die in der CSV-Datei `Agenten_Aufgaben_Uebersicht.csv` für jede Agentenrolle des Nova-Systems festgelegt sind.
 
+> **Update (13.10.2025):** Sämtliche Subagenten-Aufgaben sind abgeschlossen. Die Abschlussnotizen und Validierungen sind im Orchestrierungstagebuch unter `orchestration_journal/updates/2025-10-13_subagent_completion.md` dokumentiert. Die folgenden Abschnitte behalten die ursprüngliche Rollengliederung für Referenzzwecke bei.
+
 ## Nova – Chef-Agentin
 
 - Führt OS- und Netzwerktests auf der DGX oder lokaler Hardware durch.

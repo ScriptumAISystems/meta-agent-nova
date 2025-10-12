@@ -4,20 +4,20 @@ Nova (Chef-Agentin),Docker und Kubernetes-Cluster installieren,Abgeschlossen
 Nova (Chef-Agentin),VPN & Fernzugriff (WireGuard/OpenVPN) aktivieren,Abgeschlossen
 Nova (Chef-Agentin),Security & Datenschutz-Checks durchführen,Abgeschlossen
 Nova (Chef-Agentin),Backup- & Recovery-System aufsetzen,Abgeschlossen
-Orion (KI-Software-Spezialist),NVIDIA NeMo Framework installieren,In Arbeit
-Orion (KI-Software-Spezialist),"LLM-Auswahl treffen und installieren (z.B. Llama 3, Mixtral)",In Arbeit
-Orion (KI-Software-Spezialist),Finetuning & Anpassung des LLM für Sophia,In Arbeit
-Orion (KI-Software-Spezialist),LangChain installieren und integrieren,In Arbeit
-Lumina (Datenbank & Speicherexperte),MongoDB & PostgreSQL installieren und konfigurieren,In Arbeit
-Lumina (Datenbank & Speicherexperte),"Einrichtung Sophia-Wissensdatenbank (VectorDB: Pinecone, FAISS)",In Arbeit
-Echo (Avatar & Interaktionsdesigner),"NVIDIA ACE (Riva, Audio2Face, NeMo) installieren",In Arbeit
-Echo (Avatar & Interaktionsdesigner),"Avatar-Pipeline erstellen & Avatar animieren (Omniverse, Audio2Face, Riva)",In Arbeit
-Echo (Avatar & Interaktionsdesigner),Integration Sophia-Avatar mit MS Teams,In Arbeit
-Chronos (Workflow & Automatisierungsspezialist),n8n Workflow Automation installieren und konfigurieren,In Arbeit
-Chronos (Workflow & Automatisierungsspezialist),Entwicklung von Chain-Pipelines & Agentenworkflows (LangChain/n8n),In Arbeit
-Chronos (Workflow & Automatisierungsspezialist),Aktivierung automatischer Selbstverbesserung (Data Flywheel),In Arbeit
-Chronos (Workflow & Automatisierungsspezialist),CI/CD Pipeline mit GitHub Enterprise und Kubernetes einrichten,In Arbeit
-Aura (Monitoring & Dashboard-Entwicklerin),Grafana installieren und initialisieren,In Arbeit
-Aura (Monitoring & Dashboard-Entwicklerin),Sophia-Dashboard (LUX-Dashboard) entwickeln und integrieren,In Arbeit
-Aura (Monitoring & Dashboard-Entwicklerin),Energie- & Ressourceneffizienz-Optimierung aktivieren,In Arbeit
-Aura (Monitoring & Dashboard-Entwicklerin),Emotionales & Stimmungs-Feedback visualisieren,In Arbeit
+Orion (KI-Software-Spezialist),NVIDIA NeMo Framework installieren,Abgeschlossen
+Orion (KI-Software-Spezialist),"LLM-Auswahl treffen und installieren (z.B. Llama 3, Mixtral)",Abgeschlossen
+Orion (KI-Software-Spezialist),Finetuning & Anpassung des LLM für Sophia,Abgeschlossen
+Orion (KI-Software-Spezialist),LangChain installieren und integrieren,Abgeschlossen
+Lumina (Datenbank & Speicherexperte),MongoDB & PostgreSQL installieren und konfigurieren,Abgeschlossen
+Lumina (Datenbank & Speicherexperte),"Einrichtung Sophia-Wissensdatenbank (VectorDB: Pinecone, FAISS)",Abgeschlossen
+Echo (Avatar & Interaktionsdesigner),"NVIDIA ACE (Riva, Audio2Face, NeMo) installieren",Abgeschlossen
+Echo (Avatar & Interaktionsdesigner),"Avatar-Pipeline erstellen & Avatar animieren (Omniverse, Audio2Face, Riva)",Abgeschlossen
+Echo (Avatar & Interaktionsdesigner),Integration Sophia-Avatar mit MS Teams,Abgeschlossen
+Chronos (Workflow & Automatisierungsspezialist),n8n Workflow Automation installieren und konfigurieren,Abgeschlossen
+Chronos (Workflow & Automatisierungsspezialist),Entwicklung von Chain-Pipelines & Agentenworkflows (LangChain/n8n),Abgeschlossen
+Chronos (Workflow & Automatisierungsspezialist),Aktivierung automatischer Selbstverbesserung (Data Flywheel),Abgeschlossen
+Chronos (Workflow & Automatisierungsspezialist),CI/CD Pipeline mit GitHub Enterprise und Kubernetes einrichten,Abgeschlossen
+Aura (Monitoring & Dashboard-Entwicklerin),Grafana installieren und initialisieren,Abgeschlossen
+Aura (Monitoring & Dashboard-Entwicklerin),Sophia-Dashboard (LUX-Dashboard) entwickeln und integrieren,Abgeschlossen
+Aura (Monitoring & Dashboard-Entwicklerin),Energie- & Ressourceneffizienz-Optimierung aktivieren,Abgeschlossen
+Aura (Monitoring & Dashboard-Entwicklerin),Emotionales & Stimmungs-Feedback visualisieren,Abgeschlossen
