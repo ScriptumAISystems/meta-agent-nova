@@ -55,6 +55,25 @@ def test_vector_ingestor_ingests_documents(tmp_path: Path):
     assert results[0].record.metadata["embedding_model"] == config.embedding_model
 
 
+def test_vector_ingestor_respects_single_file_source(tmp_path: Path):
+    docs = tmp_path / "docs"
+    docs.mkdir()
+    target = docs / "target.md"
+    _write_file(target, "Target content " * 10)
+    # unrelated files should not be ingested when pointing at ``target``
+    _write_file(docs / "other.md", "Other content")
+
+    config = VectorIngestConfig(source_path=target, chunk_size=50, chunk_overlap=10)
+    ingestor = VectorIngestor(config)
+    summary = ingestor.ingest()
+
+    assert summary.total_documents == 1
+    stored_records = getattr(ingestor.store, "_records", {})  # type: ignore[attr-defined]
+    assert stored_records
+    ingested_sources = {Path(record.metadata["source_path"]) for record in stored_records.values()}
+    assert ingested_sources == {target.resolve()}
+
+
 def test_vector_ingest_config_builds_store_config(tmp_path: Path):
     file_path = tmp_path / "note.md"
     _write_file(file_path, "Sample content")
