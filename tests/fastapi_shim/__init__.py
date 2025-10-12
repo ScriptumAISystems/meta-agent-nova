@@ -10,7 +10,6 @@ from typing import Any, Callable, Iterable, List, Mapping
 
 from pydantic import BaseModel
 
-
 __all__ = [
     "APIRouter",
     "FastAPI",
@@ -70,16 +69,27 @@ class APIRouter:
         methods: Iterable[str],
         response_model: type[BaseModel] | None = None,
     ) -> None:
-        self.routes.append(_Route(path=path, methods=[m.upper() for m in methods], endpoint=endpoint, response_model=response_model))
+        self.routes.append(
+            _Route(
+                path=path,
+                methods=[m.upper() for m in methods],
+                endpoint=endpoint,
+                response_model=response_model,
+            )
+        )
 
-    def get(self, path: str, response_model: type[BaseModel] | None = None) -> Callable[[Callable[..., Any]], Callable[..., Any]]:
+    def get(
+        self, path: str, response_model: type[BaseModel] | None = None
+    ) -> Callable[[Callable[..., Any]], Callable[..., Any]]:
         def decorator(func: Callable[..., Any]) -> Callable[..., Any]:
             self.add_api_route(path, func, ["GET"], response_model=response_model)
             return func
 
         return decorator
 
-    def post(self, path: str, response_model: type[BaseModel] | None = None) -> Callable[[Callable[..., Any]], Callable[..., Any]]:
+    def post(
+        self, path: str, response_model: type[BaseModel] | None = None
+    ) -> Callable[[Callable[..., Any]], Callable[..., Any]]:
         def decorator(func: Callable[..., Any]) -> Callable[..., Any]:
             self.add_api_route(path, func, ["POST"], response_model=response_model)
             return func
@@ -104,7 +114,14 @@ class FastAPI:
         methods: Iterable[str],
         response_model: type[BaseModel] | None = None,
     ) -> None:
-        self._routes.append(_Route(path=path, methods=[m.upper() for m in methods], endpoint=endpoint, response_model=response_model))
+        self._routes.append(
+            _Route(
+                path=path,
+                methods=[m.upper() for m in methods],
+                endpoint=endpoint,
+                response_model=response_model,
+            )
+        )
 
     def include_router(self, router: APIRouter) -> None:
         self._routes.extend(router.routes)
