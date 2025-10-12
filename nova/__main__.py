@@ -36,6 +36,11 @@ from .models import (
     export_model_plan,
     list_available_model_plans,
 )
+from .data import (
+    build_data_blueprint,
+    export_data_blueprint,
+    list_available_data_blueprints,
+)
 from .monitoring.alerts import (
     DEFAULT_THRESHOLDS_PATH,
     execute_alert_workflow,
@@ -291,6 +296,34 @@ def run_models(
     if export_path:
         destination = export_model_plan(plan, export_path)
         log_info(f"Model-Plan als Markdown exportiert: {destination}")
+
+
+def run_data(
+    blueprint_name: str | None,
+    *,
+    export_path: Path | None = None,
+    list_blueprints: bool = False,
+) -> None:
+    """Render data service blueprints and optionally export them."""
+
+    configure_logger()
+    available = list_available_data_blueprints()
+    if list_blueprints:
+        if available:
+            log_info("Verfügbare Data-Blueprints: " + ", ".join(available))
+        else:
+            log_warning("Keine Data-Blueprints definiert.")
+        if blueprint_name is None:
+            return
+
+    blueprint_key = blueprint_name or "core"
+    blueprint = build_data_blueprint(blueprint_key)
+    for line in blueprint.to_markdown().splitlines():
+        log_info(line)
+
+    if export_path:
+        destination = export_data_blueprint(blueprint, export_path)
+        log_info(f"Data-Blueprint als Markdown exportiert: {destination}")
 
 
 def run_backup(
@@ -743,6 +776,27 @@ def build_parser() -> argparse.ArgumentParser:
         help="List available model plan identifiers and exit.",
     )
 
+    data_parser = subparsers.add_parser(
+        "data",
+        help="Display or export data service blueprints",
+    )
+    data_parser.add_argument(
+        "--blueprint",
+        metavar="NAME",
+        help="Identifier of the data blueprint to render (default: core).",
+    )
+    data_parser.add_argument(
+        "--export",
+        type=Path,
+        metavar="PATH",
+        help="Optional path to export the rendered blueprint as Markdown.",
+    )
+    data_parser.add_argument(
+        "--list",
+        action="store_true",
+        help="List available data blueprint identifiers and exit.",
+    )
+
     orchestrate_parser = subparsers.add_parser(
         "orchestrate", help="Run the registered agents sequentially"
     )
@@ -941,6 +995,12 @@ def main(argv: list[str] | None = None) -> None:
             args.plan,
             export_path=args.export,
             list_plans=args.list,
+        )
+    elif args.command == "data":
+        run_data(
+            args.blueprint,
+            export_path=args.export,
+            list_blueprints=args.list,
         )
     elif args.command == "audit":
         run_audit(
