@@ -1,5 +1,7 @@
 from pathlib import Path
 
+from pathlib import Path
+
 import pytest
 
 from nova.models import plans
@@ -15,6 +17,25 @@ def test_build_model_plan_finetune_sections():
     assert "LoRA/PEFT-Konfiguration" in markdown
     assert "Human-in-the-loop Review-Panel" in markdown
     assert "Runbook für Deployment" in markdown
+
+
+@pytest.mark.parametrize(
+    "identifier, expected_title",
+    [
+        ("nemo-installation", "NVIDIA NeMo Installationsleitfaden"),
+        ("llm-selection", "Sophia LLM Auswahl- und Bereitstellungsplan"),
+        ("langchain-integration", "LangChain Integrationsfahrplan"),
+    ],
+)
+def test_new_model_plans_cover_expected_sections(identifier, expected_title):
+    plan = plans.build_model_plan(identifier)
+    markdown = plan.to_markdown()
+
+    assert plan.identifier == identifier
+    assert expected_title in markdown
+    assert "## Ziele & Erfolgskriterien" in markdown
+    assert "## Infrastruktur & Tooling" in markdown
+    assert "## Übergabe & Automatisierung" in markdown or "## Übergabe & Dokumentation" in markdown
 
 
 def test_build_model_plan_unknown():

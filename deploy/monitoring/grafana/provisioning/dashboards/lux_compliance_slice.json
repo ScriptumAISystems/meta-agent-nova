@@ -1,0 +1,98 @@
+{
+  "data_sources": {
+    "compliance_store": {
+      "name": "nova-compliance-registry",
+      "path": "nova/security/compliance_store.parquet",
+      "refresh_interval": "24h",
+      "type": "parquet"
+    },
+    "policy_registry": {
+      "name": "opa-policy-registry",
+      "path": "nova/policy/cache/decision_log.json",
+      "refresh_interval": "1h",
+      "type": "json"
+    }
+  },
+  "description": "Curated evidence package combining audit trail coverage, policy drift observability and review readiness for Spark migration governance.",
+  "id": "lux-compliance-evidence",
+  "layout": [
+    {
+      "h": 4,
+      "w": 6,
+      "widget": "audit-trail-coverage",
+      "x": 0,
+      "y": 0
+    },
+    {
+      "h": 4,
+      "w": 6,
+      "widget": "policy-drift-trend",
+      "x": 6,
+      "y": 0
+    },
+    {
+      "h": 3,
+      "w": 12,
+      "widget": "review-readiness",
+      "x": 0,
+      "y": 4
+    }
+  ],
+  "title": "Spark Migration Compliance Evidence",
+  "widgets": [
+    {
+      "description": "Share of orchestrated events backed by audit artefacts.",
+      "format": "percent",
+      "id": "audit-trail-coverage",
+      "metric": "audit_trail.coverage",
+      "source": "compliance_store",
+      "thresholds": {
+        "critical": 80,
+        "warning": 90
+      },
+      "title": "Audit Trail Coverage",
+      "type": "gauge"
+    },
+    {
+      "description": "OPA decision drift compared to approved baselines (0 = aligned).",
+      "format": "ratio",
+      "id": "policy-drift-trend",
+      "metric": "opa.policy_drift_score",
+      "source": "policy_registry",
+      "thresholds": {
+        "critical": 0.4,
+        "warning": 0.2
+      },
+      "title": "Policy Drift",
+      "type": "sparkline"
+    },
+    {
+      "description": "Maps compliance KPIs to the integration & security review cadence so Aura can confirm evidence before each gate.",
+      "id": "review-readiness",
+      "items": [
+        {
+          "acceptance_criteria": ">= 95% coverage",
+          "label": "KW 26 \u2013 Foundation Review",
+          "status_metric": "audit_trail.coverage"
+        },
+        {
+          "acceptance_criteria": ">= 95% coverage",
+          "label": "KW 27 \u2013 Intelligence Review",
+          "status_metric": "audit_trail.coverage"
+        },
+        {
+          "acceptance_criteria": ">= 95% coverage",
+          "label": "KW 28 \u2013 Interaction Review",
+          "status_metric": "audit_trail.coverage"
+        },
+        {
+          "acceptance_criteria": ">= 95% coverage",
+          "label": "KW 31 \u2013 Cut-over Review",
+          "status_metric": "audit_trail.coverage"
+        }
+      ],
+      "title": "Review Readiness Checklist",
+      "type": "timeline"
+    }
+  ]
+}

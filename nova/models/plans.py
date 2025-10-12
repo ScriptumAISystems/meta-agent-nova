@@ -119,8 +119,195 @@ def _finetune_plan() -> ModelPlan:
     )
 
 
+def _nemo_installation_plan() -> ModelPlan:
+    summary = (
+        "Installations-Playbook für NVIDIA NeMo inklusive Abhängigkeitsmanagement, "
+        "Validierungsschritten und Übergabe an den Betrieb."
+    )
+
+    objectives = [
+        "GPU- und CPU-kompatible Installationspfade für NeMo bereitstellen (Container & venv).",
+        "Sicherstellen, dass Lizenz- und Compliance-Anforderungen dokumentiert und freigegeben sind.",
+        "Smoke-Tests automatisieren, damit Orion & Chronos die Umgebung reproduzierbar verifizieren können.",
+    ]
+
+    data_preparation = [
+        "Hardware-Voraussetzungen erfassen (GPU Generation, CUDA-Version, Treiberstand).",
+        "Kompatibilitätsmatrix für PyTorch, CUDA, cuDNN und TensorRT pflegen.",
+        "Offline-Mirror (Wheel-Cache oder Container Registry) für air-gapped Deployments vorbereiten.",
+    ]
+
+    infrastructure = [
+        "Container-Image (`nvcr.io/nvidia/nemo:latest`) referenzieren und Pull-Prüfung dokumentieren.",
+        "Alternativ: Python Virtualenv mit `pip install nemo_toolkit[all]` + `onnxruntime-gpu` beschreiben.",
+        "Monitoring Hooks (DCGM Exporter, nvidia-smi Logs) in Betriebskonzept aufnehmen.",
+    ]
+
+    training_pipeline = [
+        "Smoke-Test Notebook (NLP + ASR) unter `notebooks/nemo_smoke_test.ipynb` anlegen.",
+        "CLI-Skript `python -m nova models --plan finetune` als Folgeaufgabe verlinken.",
+        "Resource-Quotas definieren (GPU Memory, Disk) und in `deploy/automation/bridge/.env` spiegeln.",
+    ]
+
+    evaluation = [
+        "`pytest -k nemo` Workflow in CI integrieren (Mock Tests ohne GPU).",
+        "Validierungslog `orchestration_journal/models/nemo_validation.md` führen.",
+        "Kompatibilitätstests für Mehrsprachigkeit & Mixed Precision dokumentieren.",
+    ]
+
+    risk_mitigation = [
+        "Fallback auf CPU-Build dokumentieren (`nemo_toolkit[asr]` + `onnxruntime`).",
+        "Security-Bulletins von NVIDIA beobachten und Hotfix-Pfade festhalten.",
+        "Lizenzbedingungen (NVIDIA AI Enterprise) prüfen und in Governance-Archiv ablegen.",
+    ]
+
+    handover = [
+        "Installationsprotokoll im `orchestration_journal/models/nemo_installation.md` aktualisieren.",
+        "Operations Runbook (`docs/MODEL_OPERATIONS_KICKOFF.md`) mit finalen Parametern ergänzen.",
+        "Ticket in Service-Now/Jira für Go-Live-Abnahme anstoßen.",
+    ]
+
+    return ModelPlan(
+        identifier="nemo-installation",
+        title="NVIDIA NeMo Installationsleitfaden",
+        summary=summary,
+        objectives=objectives,
+        data_preparation=data_preparation,
+        infrastructure=infrastructure,
+        training_pipeline=training_pipeline,
+        evaluation=evaluation,
+        risk_mitigation=risk_mitigation,
+        handover=handover,
+    )
+
+
+def _llm_selection_plan() -> ModelPlan:
+    summary = (
+        "Entscheidungsmatrix und Bereitstellungsplan für Sophias Basismodell inklusive Governance-Checks."
+    )
+
+    objectives = [
+        "Transparente Bewertung von mindestens drei LLM-Kandidaten (Lizenz, Kontextfenster, Kosten).",
+        "Proof-of-Concept-Bereitstellung (HF Inference Endpoint oder TensorRT-LLM) sicherstellen.",
+        "Integration in Monitoring und Sicherheitsrichtlinien vorbereiten (Audit Logging, Access Control).",
+    ]
+
+    data_preparation = [
+        "Eval-Datensätze definieren (Dialoge, Compliance, Eskalationen).",
+        "Prompt-Guidelines und Guardrails (Safety Prompts, Moderation) aufnehmen.",
+        "Legal/Procurement-Review für Lizenzbedingungen dokumentieren.",
+    ]
+
+    infrastructure = [
+        "Deployment-Optionen vergleichen: Managed (Azure OpenAI, AWS Bedrock) vs. Self-Hosted (DGX).",
+        "Helm/Compose-Manifest in `deploy/models/<candidate>/` vorbereiten.",
+        "Observability (latency, token-usage) mit Prometheus/Grafana koppeln.",
+    ]
+
+    training_pipeline = [
+        "Baseline-Benchmarks durchführen (`python -m nova benchmarks --profile llm-core`).",
+        "Red Teaming-Scenarios definieren und in QA-Plan aufnehmen.",
+        "Vorbereitung für Adapter/LoRA-Anbindung dokumentieren (Kompatibilität).",
+    ]
+
+    evaluation = [
+        "Bewertungstabelle `orchestration_journal/models/llm_selection_matrix.md` pflegen.",
+        "KPI-Katalog (Latenz, Win-Rate, Kosten) mit Aura abstimmen.",
+        "Stakeholder-Review (Product, Legal, Security) einholen und protokollieren.",
+    ]
+
+    risk_mitigation = [
+        "Fallback-Modell definieren (z. B. Mixtral 8x7B) mit reduzierten Ressourcen.",
+        "Exit-Strategie bei Lizenzänderungen oder API-Limits beschreiben.",
+        "Datenschutz-Folgenabschätzung (DSFA) dokumentieren, falls Cloud-Anbieter im Spiel sind.",
+    ]
+
+    handover = [
+        "Decision Log in `docs/MODEL_OPERATIONS_KICKOFF.md` ergänzen.",
+        "`Agenten_Aufgaben_Uebersicht.csv` aktualisieren (Status → Abgeschlossen) nach Freigabe.",
+        "Monitoring & Alerts für gewähltes Modell aktivieren (`python -m nova alerts`).",
+    ]
+
+    return ModelPlan(
+        identifier="llm-selection",
+        title="Sophia LLM Auswahl- und Bereitstellungsplan",
+        summary=summary,
+        objectives=objectives,
+        data_preparation=data_preparation,
+        infrastructure=infrastructure,
+        training_pipeline=training_pipeline,
+        evaluation=evaluation,
+        risk_mitigation=risk_mitigation,
+        handover=handover,
+    )
+
+
+def _langchain_integration_plan() -> ModelPlan:
+    summary = (
+        "Integrationsfahrplan, um LangChain in Novas Orchestrierungslandschaft einzubetten und mit n8n zu koppeln."
+    )
+
+    objectives = [
+        "Standardisierte Schnittstelle zwischen LangChain und Nova-Agents etablieren.",
+        "n8n-Workflows triggern, überwachen und rückkoppeln (Data Flywheel).",
+        "Security- und Observability-Guidelines für orchestrierte Agenten festschreiben.",
+    ]
+
+    data_preparation = [
+        "Prompts/Tools katalogisieren (Knowledge Retrieval, Ticketing, Monitoring).",
+        "Secrets-Management für LangChain (API Keys, Webhook Tokens) in Vault dokumentieren.",
+        "Testdaten für Chain-Validierung definieren (Happy Path & Edge Cases).",
+    ]
+
+    infrastructure = [
+        "FastAPI-Bridge (`nova/automation/bridge.py`) erweitern und Deployment in `deploy/automation/bridge/` synchronisieren.",
+        "LangChain Execution Environment (Python Env oder Container) mit Dependencies versehen.",
+        "n8n Webhook-Konfigurationen versionieren (`orchestration_journal/automation/n8n_sample_workflow.json`).",
+    ]
+
+    training_pipeline = [
+        "Test-Suite für Chains definieren (`pytest -k chain` Ziel).",
+        "Observability-Hooks (Structured Logging, Trace IDs) implementieren.",
+        "Fallback-Pfade skizzieren, wenn externe Services (LLM, Vector Store) nicht verfügbar sind.",
+    ]
+
+    evaluation = [
+        "Integrationstest-Szenarien dokumentieren (`orchestration_journal/automation/langchain_bridge.md`).",
+        "Latency- und Erfolgsmetriken erfassen; KPIs im LUX-Dashboard visualisieren.",
+        "Security-Review für Token-Handling und Rate Limiting durchführen.",
+    ]
+
+    risk_mitigation = [
+        "Circuit Breaker & Retry-Strategien beschreiben (Tenacity, Resilienz-Patterns).",
+        "Audit-Logging aktivieren, damit Chronos Änderungen nachvollziehen kann.",
+        "Incident-Playbook für Ausfälle und Fehlkonfigurationen bereitstellen.",
+    ]
+
+    handover = [
+        "Developer-Handbuch `orchestration_journal/automation/langchain_bridge.md` erweitern.",
+        "n8n Admins & DevOps in Knowledge-Transfer-Session schulen.",
+        "Definition-of-Done für LangChain Integration im Governance-Doc abhaken.",
+    ]
+
+    return ModelPlan(
+        identifier="langchain-integration",
+        title="LangChain Integrationsfahrplan",
+        summary=summary,
+        objectives=objectives,
+        data_preparation=data_preparation,
+        infrastructure=infrastructure,
+        training_pipeline=training_pipeline,
+        evaluation=evaluation,
+        risk_mitigation=risk_mitigation,
+        handover=handover,
+    )
+
+
 _PLAN_BUILDERS: dict[str, Callable[[], ModelPlan]] = {
     "finetune": _finetune_plan,
+    "nemo-installation": _nemo_installation_plan,
+    "llm-selection": _llm_selection_plan,
+    "langchain-integration": _langchain_integration_plan,
 }
 
 

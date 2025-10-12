@@ -53,6 +53,25 @@ Der Abschlussbericht für Schritt 5 („Backup- & Recovery-Systeme aufsetzen“
 
 > ✅ Chronos verfügt jetzt über ein lauffähiges Bridge-Grundgerüst. In n8n können Webhooks `summary-refresh` und `finetune-status` direkt genutzt werden; verbleibende Schritte betreffen Workflow-Erweiterungen und Monitoring-Hooks.
 
+### Subagent Focus Update (12.10.2025, 16:10 UTC)
+
+- **Orion**
+  - Neue Modellpläne (`orchestration_journal/models/nemo_installation_plan.md`, `llm_selection_plan.md`, `langchain_integration_plan.md`) automatisiert exportiert.
+  - Bewertungsmatrix für LLM-Kandidaten (`orchestration_journal/models/llm_selection_matrix.md`) erstellt.
+  - Validierungsprotokoll für NeMo (`orchestration_journal/models/nemo_validation.md`) ergänzt.
+- **Lumina**
+  - Vector-Ingest-Pipeline implementiert (`nova/task_queue/vector_ingest.py`) inkl. Tests (`tests/test_vector_ingest.py`).
+  - Automatischer Ingest-Report (`orchestration_journal/data/vector_ingest_report.md`) generiert.
+- **Echo**
+  - ACE Komponenten-Checkliste (`orchestration_journal/experience/ace_components.md`), Avatar-Runbook (`orchestration_journal/experience/avatar_runbook.md`) und Sequenzdiagramm (`docs/diagrams/avatar_pipeline.drawio`) bereitgestellt.
+- **Chronos**
+  - Data Flywheel Blueprint (`docs/automation/data_flywheel_blueprint.md`) und CI/CD-Plan (`orchestration_journal/automation/cicd_plan.md`) dokumentiert.
+- **Aura**
+  - Monitoring-Stack Compose (`deploy/monitoring/grafana-stack.yml`) mit Provisioning-Dateien angelegt.
+  - Grafana Deployment-Notizen (`orchestration_journal/monitoring/grafana_deployment.md`), KPI-Katalog (`nova/logging/kpi/lux_metrics.md`) und Wireframes (`docs/dashboards/lux_dashboard_wireframes.md`) veröffentlicht.
+- **Status CSV**
+  - Offene Aufgaben der Subagenten auf „In Arbeit“ gesetzt, um Fortschritte sichtbar zu machen (`Agenten_Aufgaben_Uebersicht.csv`).
+
 ## Aktueller CLI-Snapshot (`python -m nova progress`)
 
 Der jüngste CLI-Lauf (Stand: 11.10.2025, 17:26 UTC; Befehl `python -m nova progress --limit 1`) bestätigt fünf abgeschlossene Foundation-Schritte. Damit reduziert sich die Zahl der offenen Einträge auf 17.
