@@ -32,13 +32,28 @@ _DEFAULT_METADATA_SCHEMA: Dict[str, str] = {
 
 
 def _normalise_source_path(path: Path) -> Path:
+    """Return a canonical ingestion root for ``path``.
+
+    The previous implementation returned ``path.parent`` for file inputs which
+    caused callers requesting to ingest a single file to accidentally ingest the
+    entire directory tree.  Keeping the file path intact allows downstream
+    helpers to respect the caller's intent.
+    """
+
     if path.is_dir():
         return path
-    return path.parent
+    if path.is_file():
+        return path
+    raise FileNotFoundError(f"Ingest source '{path}' does not exist")
 
 
 def _iter_source_files(path: Path) -> Iterator[Path]:
-    for candidate in sorted(path.rglob("*")):
+    if path.is_file():
+        candidates = [path]
+    else:
+        candidates = sorted(path.rglob("*"))
+
+    for candidate in candidates:
         if candidate.is_file() and candidate.suffix.lower() in {".md", ".txt", ".rst"}:
             yield candidate
 
