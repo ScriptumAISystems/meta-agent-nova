@@ -1,0 +1,115 @@
+{
+  "name": "Nova Roadmap Sync",
+  "nodes": [
+    {
+      "parameters": {
+        "triggerTimes": [
+          {
+            "hour": 7,
+            "minute": 0
+          }
+        ]
+      },
+      "id": "1",
+      "name": "Daily Trigger",
+      "type": "n8n-nodes-base.cron",
+      "typeVersion": 1,
+      "position": [
+        250,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "url": "http://nova-cli:8000/summary",
+        "responseFormat": "json"
+      },
+      "id": "2",
+      "name": "Fetch Summary",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 2,
+      "position": [
+        520,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "values": {
+          "string": [
+            {
+              "name": "message",
+              "value": "{{ $json[\"data\"].summary ?? 'Keine Daten' }}"
+            }
+          ]
+        }
+      },
+      "id": "3",
+      "name": "Format Payload",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 2,
+      "position": [
+        780,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "authentication": "basicAuth",
+        "basicAuth": {
+          "user": "${TEAMS_WEBHOOK_USER}",
+          "password": "${TEAMS_WEBHOOK_PASSWORD}"
+        },
+        "url": "${TEAMS_WEBHOOK_URL}",
+        "jsonParameters": true,
+        "options": {
+          "bodyContentType": "raw"
+        },
+        "body": "{\"text\": \"{{ $json.message }}\"}"
+      },
+      "id": "4",
+      "name": "Send Teams Alert",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 2,
+      "position": [
+        1040,
+        300
+      ]
+    }
+  ],
+  "connections": {
+    "Daily Trigger": {
+      "main": [
+        [
+          {
+            "node": "Fetch Summary",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Summary": {
+      "main": [
+        [
+          {
+            "node": "Format Payload",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format Payload": {
+      "main": [
+        [
+          {
+            "node": "Send Teams Alert",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}
