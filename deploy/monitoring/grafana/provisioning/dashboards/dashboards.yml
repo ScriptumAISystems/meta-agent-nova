@@ -1,0 +1,7 @@
+apiVersion: 1
+disableDeletion: false
+folders:
+  - name: LUX
+    files:
+      - /etc/grafana/provisioning/dashboards/lux_compliance_slice.json
+      - /etc/grafana/provisioning/dashboards/spark_migration_grafana.json
