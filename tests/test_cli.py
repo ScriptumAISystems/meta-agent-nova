@@ -15,6 +15,7 @@ from nova.system import containers as container_utils
         ["summary"],
         ["network", "--vpn", "wireguard"],
         ["backup"],
+        ["models", "--plan", "finetune"],
     ],
 )
 def test_cli_commands(argv):
@@ -195,6 +196,26 @@ def test_cli_backup_export(tmp_path, caplog):
     content = output_path.read_text(encoding="utf-8")
     assert "# Default Backup & Recovery Plan" in content
     assert "Backup-Plan als Markdown exportiert" in caplog.text
+
+
+def test_cli_models_export(tmp_path, caplog):
+    output_path = tmp_path / "journal" / "models" / "finetune.md"
+
+    caplog.set_level("INFO", logger="nova.monitoring")
+    __main__.main(["models", "--plan", "finetune", "--export", str(output_path)])
+
+    assert output_path.exists()
+    content = output_path.read_text(encoding="utf-8")
+    assert "# Finetuning-Plan für Sophia LLM" in content
+    assert "Modellplan als Markdown exportiert" in caplog.text
+
+
+def test_cli_models_list_only(caplog):
+    caplog.set_level("INFO", logger="nova.monitoring")
+
+    __main__.main(["models", "--list"])
+
+    assert "Verfügbare Modellpläne" in caplog.text
 
 
 def test_cli_orchestrate_parallel(tmp_path, monkeypatch):

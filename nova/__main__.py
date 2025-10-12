@@ -30,6 +30,11 @@ from .system.backup import (
     export_backup_plan,
     list_available_backup_plans,
 )
+from .models.plans import (
+    build_model_plan,
+    export_model_plan,
+    list_available_model_plans,
+)
 from .blueprints.generator import create_blueprint, list_available_blueprints
 from .monitoring.alerts import (
     DEFAULT_THRESHOLDS_PATH,
@@ -199,6 +204,34 @@ def run_alerts(
         log_info(f"Alert evaluation generated {len(events)} Ereignis(se).")
     else:
         log_info("Alert evaluation reported no threshold breaches.")
+
+
+def run_models(
+    plan_name: str | None = None,
+    export_path: Path | None = None,
+    *,
+    list_only: bool = False,
+) -> None:
+    """Render the requested model rollout plan or list available options."""
+
+    configure_logger()
+    available = list_available_model_plans()
+    if not available:
+        log_warning("Keine Modellpläne verfügbar.")
+        return
+
+    if list_only or not plan_name:
+        log_info("Verfügbare Modellpläne: " + ", ".join(available))
+        if plan_name is None:
+            return
+
+    plan = build_model_plan(plan_name)
+    for line in plan.to_markdown().splitlines():
+        log_info(line)
+
+    if export_path:
+        destination = export_model_plan(plan, export_path)
+        log_info(f"Modellplan als Markdown exportiert: {destination}")
 
 
 def run_containers(
@@ -587,6 +620,26 @@ def build_parser() -> argparse.ArgumentParser:
         help="Optional path for exporting a Markdown alert summary for the journal.",
     )
 
+    models_parser = subparsers.add_parser(
+        "models", help="Display model fine-tuning and deployment plans"
+    )
+    models_parser.add_argument(
+        "--plan",
+        choices=list_available_model_plans(),
+        help="Identifier of the model plan to render (e.g. finetune).",
+    )
+    models_parser.add_argument(
+        "--list",
+        action="store_true",
+        help="Only list available model plans without rendering one.",
+    )
+    models_parser.add_argument(
+        "--export",
+        type=Path,
+        metavar="PATH",
+        help="Optional path to export the rendered plan as Markdown.",
+    )
+
     containers_parser = subparsers.add_parser(
         "containers", help="Prüfe Docker- und Kubernetes-Laufzeitumgebungen"
     )
@@ -859,6 +912,12 @@ def main(argv: list[str] | None = None) -> None:
             snapshot=args.snapshot,
             dry_run=args.dry_run,
             export=args.export,
+        )
+    elif args.command == "models":
+        run_models(
+            plan_name=args.plan,
+            export_path=args.export,
+            list_only=args.list,
         )
     elif args.command == "containers":
         run_containers(
