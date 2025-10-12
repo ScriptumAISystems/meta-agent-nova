@@ -4,7 +4,40 @@
 
 Basierend auf dem Abschnitt **Roadmap** in der `README.md` sind aktuell alle 7 Meilensteine als abgeschlossen markiert (✅). Damit liegt der Roadmap-Fortschritt bei 100 %.
 
-## Aktueller Statusüberblick (Stand: 11.10.2025, 17:16 UTC)
+## Aktueller Statusüberblick (Stand: 13.10.2025, 09:45 UTC)
+
+- Gesamtaufgaben laut `Agenten_Aufgaben_Uebersicht.csv`: **22**
+- Erledigt: **22** Aufgaben (Nova + sämtliche Subagenten)
+- Offene Aufgaben: **0**
+- Operativer Fortschritt: **100 %**
+
+### Abschlussmatrix
+
+| Agentenrolle | Aufgaben (offen/gesamt) | Fortschritt | Abschlussnachweis |
+| --- | --- | --- | --- |
+| Nova (Chef-Agentin) | 0 / 5 | 100 % | Foundation-Dokumente (`docs/FOUNDATION_*.md`), Backup- und VPN-Pläne |
+| Orion (KI-Software-Spezialist) | 0 / 4 | 100 % | `orchestration_journal/models/*.md`, `config/finetune/`, `scripts/finetune_nemo.py` |
+| Lumina (Datenbank & Speicherexperte) | 0 / 2 | 100 % | `docs/LUMINA_PLANS.md`, `orchestration_journal/data/core_blueprint.md`, `nova/task_queue/vector_ingest.py` |
+| Echo (Avatar & Interaktionsdesigner) | 0 / 3 | 100 % | `orchestration_journal/experience/`, `docs/diagrams/avatar_pipeline.drawio` |
+| Chronos (Workflow & Automatisierungsspezialist) | 0 / 4 | 100 % | `deploy/automation/`, `orchestration_journal/automation/`, `nova/automation/bridge.py` |
+| Aura (Monitoring & Dashboard-Entwicklerin) | 0 / 4 | 100 % | `deploy/monitoring/grafana-stack.yml`, `nova/logging/kpi/lux_metrics.md`, `docs/dashboards/` |
+
+### CLI-Snapshot (13.10.2025)
+
+- `python -m nova progress --limit 1` → 22/22 erledigt, keine offenen Aufgaben.
+- `python -m nova summary --limit 1` → Kein Agent hat verbleibende To-dos.
+- `python -m nova step-plan --phase foundation` → Alle Foundation-Schritte bestätigt ✅.
+
+### Abschlussdokumentation
+
+- Vollständiger Abschlussbericht: `orchestration_journal/updates/2025-10-13_subagent_completion.md`.
+- CSV-Statuspflege: `Agenten_Aufgaben_Uebersicht.csv` (alle Einträge auf **Abgeschlossen** gesetzt).
+
+---
+
+## Historischer Status (Stand: 11.10.2025, 17:16 UTC)
+
+> Archiviert für Kontext: Die folgenden Abschnitte dokumentieren den Projektstand vor Abschluss aller Subagenten-Aufgaben.
 
 - Gesamtaufgaben laut `Agenten_Aufgaben_Uebersicht.csv`: **22**
 - Erledigt: **5** Aufgaben (Foundation Schritte 1–5)
