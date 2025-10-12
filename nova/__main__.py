@@ -31,6 +31,11 @@ from .system.backup import (
     list_available_backup_plans,
 )
 from .blueprints.generator import create_blueprint, list_available_blueprints
+from .models import (
+    build_model_plan,
+    export_model_plan,
+    list_available_model_plans,
+)
 from .monitoring.alerts import (
     DEFAULT_THRESHOLDS_PATH,
     execute_alert_workflow,
@@ -254,6 +259,38 @@ def run_network(vpn_type: str, export_path: Path | None = None) -> None:
     if export_path:
         destination = export_vpn_plan(plan, export_path)
         log_info(f"VPN-Plan als Markdown exportiert: {destination}")
+
+
+def run_models(
+    plan_name: str | None,
+    *,
+    export_path: Path | None = None,
+    list_plans: bool = False,
+) -> None:
+    """Render model operation plans and optionally export them."""
+
+    configure_logger()
+    available = list_available_model_plans()
+    if list_plans:
+        if available:
+            log_info("Verfügbare Model-Pläne: " + ", ".join(available))
+        else:
+            log_warning("Keine Model-Pläne definiert.")
+        if plan_name is None:
+            return
+
+    if plan_name is None:
+        raise ValueError(
+            "--plan muss angegeben werden, es sei denn --list wird alleine verwendet."
+        )
+
+    plan = build_model_plan(plan_name)
+    for line in plan.to_markdown().splitlines():
+        log_info(line)
+
+    if export_path:
+        destination = export_model_plan(plan, export_path)
+        log_info(f"Model-Plan als Markdown exportiert: {destination}")
 
 
 def run_backup(
@@ -685,6 +722,27 @@ def build_parser() -> argparse.ArgumentParser:
         help="Restore a previously created snapshot identified by timestamp.",
     )
 
+    models_parser = subparsers.add_parser(
+        "models",
+        help="Display or export model operations plans",
+    )
+    models_parser.add_argument(
+        "--plan",
+        metavar="NAME",
+        help="Identifier of the model plan to render (e.g. finetune).",
+    )
+    models_parser.add_argument(
+        "--export",
+        type=Path,
+        metavar="PATH",
+        help="Optional path to export the rendered plan as Markdown.",
+    )
+    models_parser.add_argument(
+        "--list",
+        action="store_true",
+        help="List available model plan identifiers and exit.",
+    )
+
     orchestrate_parser = subparsers.add_parser(
         "orchestrate", help="Run the registered agents sequentially"
     )
@@ -877,6 +935,12 @@ def main(argv: list[str] | None = None) -> None:
             export_path=args.export,
             execute=args.run,
             restore_timestamp=args.restore,
+        )
+    elif args.command == "models":
+        run_models(
+            args.plan,
+            export_path=args.export,
+            list_plans=args.list,
         )
     elif args.command == "audit":
         run_audit(
