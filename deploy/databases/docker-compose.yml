@@ -1,0 +1,86 @@
+version: "3.9"
+
+services:
+  postgres:
+    image: postgres:16
+    container_name: sophia-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: sophia
+      POSTGRES_USER: nova_admin
+      POSTGRES_PASSWORD: "${POSTGRES_PASSWORD:-nova-change-me}"
+      PGDATA: /var/lib/postgresql/data/pgdata
+      TZ: UTC
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./postgres/init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -d $$POSTGRES_DB -U $$POSTGRES_USER"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 20s
+    networks:
+      - sophia-data
+
+  postgres_exporter:
+    image: quay.io/prometheuscommunity/postgres-exporter:v0.15.0
+    container_name: sophia-postgres-exporter
+    restart: unless-stopped
+    environment:
+      DATA_SOURCE_URI: "postgres:5432/postgres?sslmode=disable"
+      DATA_SOURCE_USER: nova_admin
+      DATA_SOURCE_PASS: "${POSTGRES_PASSWORD:-nova-change-me}"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    ports:
+      - "9187:9187"
+    networks:
+      - sophia-data
+
+  mongo:
+    image: mongo:7.0
+    container_name: sophia-mongo
+    restart: unless-stopped
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: nova_admin
+      MONGO_INITDB_ROOT_PASSWORD: "${MONGO_INITDB_ROOT_PASSWORD:-nova-change-me}"
+      TZ: UTC
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+      - ./mongo/init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD", "mongo", "--eval", "db.adminCommand('ping')"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 20s
+    networks:
+      - sophia-data
+
+  mongo_exporter:
+    image: bitnami/mongodb-exporter:0.40.0
+    container_name: sophia-mongo-exporter
+    restart: unless-stopped
+    environment:
+      MONGODB_URI: "mongodb://nova_admin:${MONGO_INITDB_ROOT_PASSWORD:-nova-change-me}@mongo:27017/admin"
+    depends_on:
+      mongo:
+        condition: service_healthy
+    ports:
+      - "9216:9216"
+    networks:
+      - sophia-data
+
+networks:
+  sophia-data:
+    driver: bridge
+
+volumes:
+  postgres_data:
+  mongo_data:
