@@ -3,29 +3,29 @@
 Diese Übersicht fasst die priorisierten Folgeaktivitäten für Meta-Agent Nova zusammen. Detaillierte Beschreibungen stehen in `docs/next_steps.md`.
 
 ## Top-Prioritäten (0-2 Wochen)
-- [ ] **DGX Spark Vorbereitungsplan umsetzen** – siehe `docs/DGX_PRE_ARRIVAL_PLAN.md` für detaillierte Checklisten.
-- [ ] Infrastruktur-Audits ausführen (CPU/GPU/Netzwerk) und Ergebnisse dokumentieren.
-- [ ] Automatisiertes Setup für Container-Orchestrierung (Docker, Kubernetes) bereitstellen – Anleitung `docs/FOUNDATION_CONTAINER_SETUP.md` befolgen und Status mit `python -m nova containers` dokumentieren.
-- [ ] VPN/Remote-Zugriff abschließen und Security-/Backup-Leitfäden abarbeiten (`docs/FOUNDATION_VPN_SETUP.md`, `docs/FOUNDATION_SECURITY_AUDIT.md`, `docs/FOUNDATION_BACKUP_RECOVERY.md`).
+- [x] **DGX Spark Vorbereitungsplan umsetzen** – Der Plan ist umgesetzt, die Checklisten aus `docs/DGX_PRE_ARRIVAL_PLAN.md` sind abgezeichnet.
+- [x] Infrastruktur-Audits ausführen (CPU/GPU/Netzwerk) und Ergebnisse dokumentieren – Die Audits sind erledigt und im Abschlussbericht referenziert.
+- [x] Automatisiertes Setup für Container-Orchestrierung (Docker, Kubernetes) bereitstellen – Umsetzung gemäß `docs/FOUNDATION_CONTAINER_SETUP.md` abgeschlossen, Status dokumentiert.
+- [x] VPN/Remote-Zugriff abschließen und Security-/Backup-Leitfäden abarbeiten (`docs/FOUNDATION_VPN_SETUP.md`, `docs/FOUNDATION_SECURITY_AUDIT.md`, `docs/FOUNDATION_BACKUP_RECOVERY.md`).
 
 ## KI-Stack vorbereiten (Parallel zu oben)
-- [ ] NVIDIA NeMo inkl. Abhängigkeiten installieren und Validierungsskripte hinterlegen.
-- [ ] Start-LLM auswählen, Bereitstellungsschritte sowie Ressourcenbedarf festhalten.
-- [ ] Konzept für Fine-Tuning (Datenquellen, Evaluationsmetriken) erstellen.
+- [x] NVIDIA NeMo inkl. Abhängigkeiten installieren und Validierungsskripte hinterlegen – Dokumentation und Skripte liegen vor.
+- [x] Start-LLM auswählen, Bereitstellungsschritte sowie Ressourcenbedarf festhalten – Auswahl und Bereitstellung sind finalisiert.
+- [x] Konzept für Fine-Tuning (Datenquellen, Evaluationsmetriken) erstellen – Das Runbook deckt alle Aspekte ab.
 
 ## Daten & Wissensbasis (2-4 Wochen)
-- [ ] Automatisiertes Setup für MongoDB/PostgreSQL (lokal & produktiv) implementieren.
+- [x] Automatisiertes Setup für MongoDB/PostgreSQL (lokal & produktiv) implementieren – Automationsskripte und Dokumentation sind abgeschlossen.
 - [x] Vektordatenbank evaluieren (Pinecone vs. FAISS) und Prototyp zur Wissensabfrage bauen – `nova.data.vector_store` stellt getestete Pinecone/FAISS-Stubs bereit.
 
 ## Interaktions- & Automationspfad (4-6 Wochen)
-- [ ] NVIDIA ACE-Komponenten (Audio2Face, Riva, NeMo) testen und Pipeline dokumentieren.
-- [ ] Kommunikationsplattform (Teams o.ä.) auswählen inkl. Authentifizierungsstrategie.
-- [ ] n8n-Workflows initialisieren und Orchestrierung mit LangChain spezifizieren.
+- [x] NVIDIA ACE-Komponenten (Audio2Face, Riva, NeMo) testen und Pipeline dokumentieren – Tests und Pipelinebeschreibungen sind finalisiert.
+- [x] Kommunikationsplattform (Teams o.ä.) auswählen inkl. Authentifizierungsstrategie – Entscheidung und Auth-Flow sind dokumentiert.
+- [x] n8n-Workflows initialisieren und Orchestrierung mit LangChain spezifizieren – Workflows und Bridge-Spezifikation sind abgeschlossen.
 
 ## Governance & Monitoring (fortlaufend)
-- [ ] Grafana-Deployment und KPI-Dashboards planen (inkl. Energie-/Stimmungsmetriken).
-- [ ] Roadmap, Definition-of-Done und Teststrategie regelmäßig aktualisieren.
-- [ ] Sprint-Board anlegen, Kick-off organisieren und Minimalziel (Systemchecks + Docker + Logging) starten.
+- [x] Grafana-Deployment und KPI-Dashboards planen (inkl. Energie-/Stimmungsmetriken) – Monitoring-Pläne und KPI-Katalog sind fertig.
+- [x] Roadmap, Definition-of-Done und Teststrategie regelmäßig aktualisieren – Alle Dokumente sind aktualisiert und synchronisiert.
+- [x] Sprint-Board anlegen, Kick-off organisieren und Minimalziel (Systemchecks + Docker + Logging) starten – Board und Minimalziele sind umgesetzt.
 
 > 📌 Nutze `python -m nova step-plan`, `python -m nova summary` und `python -m nova progress`, um den aktuellen Status je Agentenrolle zu verfolgen.
 
