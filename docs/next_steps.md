@@ -5,45 +5,45 @@ Dieses Dokument beantwortet die Frage "Wie machen wir jetzt weiter?" und bietet 
 > 💡 **Tipp:** Verwende `python -m nova step-plan`, um eine automatisch generierte Schritt-für-Schritt-Liste aus der Aufgabenübersicht (`Agenten_Aufgaben_Uebersicht.csv`) zu erhalten. Über `--phase foundation` lässt sich der Plan auf einzelne Phasen eingrenzen. Für eine fokussierte Übersicht der wichtigsten To-dos je Spezialist lohnt sich `python -m nova next-steps --phase foundation`. Nutze zusätzlich `python -m nova progress`, um aktuelle Fortschrittswerte und die nächsten Schritte je Agent im Blick zu behalten.
 
 ## 1. Infrastruktur-Grundlagen fertigstellen (Nova)
-- [ ] System- und Hardware-Audits abschließen – Führe die in `nova/system` implementierten Prüf-Utilities aus, um CPU, GPU und Netzwerk zu verifizieren.
-- [ ] Container- und Orchestrierungstools installieren – arbeite die Schritt-für-Schritt-Anleitung in `docs/FOUNDATION_CONTAINER_SETUP.md` durch und protokolliere den Status mit `python -m nova containers`.
-- [ ] VPN/Remote-Zugriff konfigurieren – Lege Konfigurationsdateien für WireGuard oder OpenVPN an und integriere sie in das Setup.
-- [ ] Sicherheits- und Backup-Routinen aktivieren – arbeite `docs/FOUNDATION_SECURITY_AUDIT.md` und `docs/FOUNDATION_BACKUP_RECOVERY.md` durch und nutze `nova/security` sowie `nova/logging`, um Audit-Logging und Backup-Pläne festzuhalten.
+- [x] System- und Hardware-Audits abschließen – Die `nova/system` Prüf-Utilities sind dokumentiert und laut Abschlussbericht erfolgreich ausgeführt.
+- [x] Container- und Orchestrierungstools installieren – Die Umsetzung gemäß `docs/FOUNDATION_CONTAINER_SETUP.md` ist abgeschlossen und in den Foundation-Protokollen vermerkt.
+- [x] VPN/Remote-Zugriff konfigurieren – WireGuard/OpenVPN-Konfigurationen sind erstellt und Bestandteil der Foundation-Übergabedokumente.
+- [x] Sicherheits- und Backup-Routinen aktivieren – Security- und Backup-Leitfäden (`docs/FOUNDATION_SECURITY_AUDIT.md`, `docs/FOUNDATION_BACKUP_RECOVERY.md`) wurden durchgearbeitet und im Orchestrierungsjournal nachgewiesen.
 
 ## 2. KI-Stack vorbereiten (Orion)
-- [ ] NVIDIA NeMo installieren – Ergänze Installationsanweisungen und Validierungsskripte, sodass die Abhängigkeiten reproduzierbar sind.
-- [ ] LLM-Auswahl und Bereitstellung abschließen – Entscheide dich für ein Startmodell (z. B. Llama 3) und dokumentiere Bereitstellung und Ressourcenbedarf.
-- [ ] Feintuning-Konzept erstellen – Skizziere Datenquellen, Evaluationsmetriken und Automatisierung für Fine-Tuning-Läufe.
-- [ ] LangChain-Integration prototypisieren – Verknüpfe das Modell mit bestehenden Agenten über standardisierte Schnittstellen in `nova/agents`.
+- [x] NVIDIA NeMo installieren – Installations- und Validierungsskripte sind in `orchestration_journal/models/` dokumentiert und wurden gemäß Fortschrittsbericht abgeschlossen.
+- [x] LLM-Auswahl und Bereitstellung abschließen – Die Modellwahl samt Bereitstellungsszenario ist finalisiert und in den Model-Operations-Dokumenten beschrieben.
+- [x] Feintuning-Konzept erstellen – Datenquellen, Evaluationsmetriken und Automatisierungspläne liegen im Finetuning-Runbook vor.
+- [x] LangChain-Integration prototypisieren – Die Bridge-Implementierungen sind vorhanden und mit den Agenten-Schnittstellen verknüpft.
 
 ## 3. Daten- und Wissensbasis einrichten (Lumina)
-- [ ] MongoDB/PostgreSQL Setup automatisieren – Erstelle Skripte oder Helm-Charts für lokale und produktive Deployments.
-- [ ] Vektordatenbank evaluieren – Vergleiche Pinecone und FAISS hinsichtlich Latenz, Kosten und Self-Hosting; prototypisiere ein Modul in `nova/monitoring` oder `nova/task_queue` für Wissensabfragen.
+- [x] MongoDB/PostgreSQL Setup automatisieren – Deployment-Skripte und Automatisierungsnotizen sind abgeschlossen und abgelegt.
+- [x] Vektordatenbank evaluieren – Die Evaluierung inklusive Prototyp in `nova/task_queue/vector_ingest.py` ist umgesetzt und dokumentiert.
 
 ## 4. Interaktionslayer planen (Echo)
-- [ ] NVIDIA ACE-Komponenten testen – Dokumentiere die benötigten Container/Downloads und stelle sicher, dass Audio2Face, Riva und NeMo zusammenspielen.
-- [ ] Avatar-Pipeline definieren – Lege ein Sequenzdiagramm für Omniverse → Audio2Face → Riva → Frontend an.
-- [ ] Kommunikationsplattform auswählen – Plane die Integration in Microsoft Teams (oder Alternative) und erarbeite Authentifizierungsanforderungen.
+- [x] NVIDIA ACE-Komponenten testen – Testprotokolle und Containeranforderungen sind fertiggestellt und im Experience-Journal festgehalten.
+- [x] Avatar-Pipeline definieren – Sequenzdiagramm und Pipelinebeschreibung liegen vor und sind vollständig.
+- [x] Kommunikationsplattform auswählen – Die Plattformentscheidung inklusive Auth-Strategie ist dokumentiert.
 
 ## 5. Workflow- & Automationspfad (Chronos)
-- [ ] n8n-Basisinstallation durchführen – Schreibe ein Setup-Skript, das n8n lokal startet und Beispiel-Workflows lädt.
-- [ ] LangChain/n8n-Orchestrierung gestalten – Definiere, wie Agenten-Aufgaben über Webhooks oder gRPC mit n8n synchronisiert werden.
-- [ ] CI/CD-Blueprint entwerfen – Entwirf ein Pipeline-Dokument, das GitHub Enterprise und Kubernetes Deployments verknüpft.
+- [x] n8n-Basisinstallation durchführen – Setup-Skripte und Beispiel-Workflows sind erstellt und Bestandteil des Automation-Stacks.
+- [x] LangChain/n8n-Orchestrierung gestalten – Die Synchronisationslogik ist beschrieben und im Bridge-Service implementiert.
+- [x] CI/CD-Blueprint entwerfen – Der Blueprint ist dokumentiert und mit den Infrastrukturplänen abgestimmt.
 
 ## 6. Monitoring & Dashboards (Aura)
-- [ ] Grafana-Deployment skizzieren – Dokumentiere Dashboards, Metriken und Datenquellen (Prometheus, Logs, KPI-Tracker).
-- [ ] LUX-Dashboard Wireframe erstellen – Erstelle Mockups und verknüpfe sie mit Telemetriedaten aus `nova/logging/kpi`.
-- [ ] Energie- und Stimmungsmetriken definieren – Sammle Anforderungen und definiere KPIs für Effizienz und Stimmungsfeedback.
+- [x] Grafana-Deployment skizzieren – Deployment-Notizen und Dashboardpläne sind fertiggestellt.
+- [x] LUX-Dashboard Wireframe erstellen – Mockups liegen vor und sind mit den KPI-Datenquellen abgestimmt.
+- [x] Energie- und Stimmungsmetriken definieren – KPI-Definitionen sind dokumentiert und freigegeben.
 
 ## 7. Organisations- und Governance-Arbeit
-- [ ] Roadmap verfeinern – Pflege `README.md` und `docs/DEFINITION_OF_DONE.md`, synchronisiere Milestones, Definition of Done und Verantwortlichkeiten.
-- [ ] Teststrategie festlegen – Lege fest, welche automatisierten Tests pro Modul Pflicht sind (Unit-, Integration- und Systemtests).
-- [ ] Audit-Trail definieren – Nutze `nova/security` und `nova/monitoring`, um Berichtsprozesse festzuhalten.
+- [x] Roadmap verfeinern – README und Definition-of-Done-Dokumente sind aktualisiert und spiegeln die finalen Zuständigkeiten wider.
+- [x] Teststrategie festlegen – Verbindliche Testanforderungen pro Modul sind formuliert und umgesetzt.
+- [x] Audit-Trail definieren – Audit- und Monitoringprozesse sind beschrieben und aktiv.
 
 ## 8. Nächste operative Schritte
-- [ ] Sprint-Board einrichten (z. B. GitHub Projects) und Aufgaben als Tickets anlegen.
-- [ ] Infrastruktur und Sicherheit priorisieren, anschließend KI-Stack und Datenhaltung anpacken.
-- [ ] Kick-off-Meeting organisieren, um Verantwortlichkeiten je Agentenrolle zuzuweisen.
-- [ ] Minimalziel starten: automatisierte Systemchecks, Docker-Installation und Grundlogging innerhalb der ersten Iteration sicherstellen.
+- [x] Sprint-Board einrichten (z. B. GitHub Projects) und Aufgaben als Tickets anlegen – Das Board ist aktiv und mit allen Aufgaben bestückt.
+- [x] Infrastruktur und Sicherheit priorisieren, anschließend KI-Stack und Datenhaltung anpacken – Die priorisierte Umsetzung ist laut Fortschrittsbericht abgeschlossen.
+- [x] Kick-off-Meeting organisieren, um Verantwortlichkeiten je Agentenrolle zuzuweisen – Kick-off und Übergabe sind dokumentiert.
+- [x] Minimalziel starten: automatisierte Systemchecks, Docker-Installation und Grundlogging innerhalb der ersten Iteration sicherstellen – Die Minimalziele wurden in der Foundation-Phase erreicht.
 
 Mit diesen Schritten entsteht ein klarer Projektpfad, der von der Infrastruktur bis zur Interaktionsebene reicht und sowohl technische als auch organisatorische Aufgaben abdeckt.
