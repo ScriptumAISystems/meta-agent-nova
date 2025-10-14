@@ -24,3 +24,4 @@ einen direkt umsetzbaren Maßnahmenplan.
 2. Den Follow-up Plan nach jeder Runde abhaken und bei Bedarf erweitern (z. B. neue Unterordner `orchestration_journal/vpn/`, `.../security/`, `.../backups/`).
 3. Neue Reports unter Versionskontrolle bringen, damit die Historie der Validierungen nachvollziehbar bleibt.
 4. Bei erfolgreichen Installationen den Status in `Agenten_Aufgaben_Uebersicht.csv` anpassen und den Fortschritt via `python -m nova progress` dokumentieren.
+5. Für Schritt-für-Schritt-Updates können Roadmap- und Fortschrittsansichten direkt exportiert werden, z. B. `python -m nova step-plan --export orchestration_journal/roadmap/full_plan.md`.
