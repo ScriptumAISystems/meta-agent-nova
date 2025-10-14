@@ -18,25 +18,25 @@ Dieser Plan beantwortet "Wie machen wir weiter?" für die anstehenden Schritte d
 - [x] **VPN & Fernzugriff planen**
   - Abschluss: WireGuard-Plan am 12.10.2025 exportiert (`orchestration_journal/vpn/wireguard_plan.md`).
   - Kommender Fokus: Security-Audit vorbereiten und Backup-Plan exportieren.
-- [ ] **Security & Datenschutz-Checks terminieren**
+- [x] **Security & Datenschutz-Checks terminieren**
   - Leitfaden: `docs/FOUNDATION_SECURITY_AUDIT.md`.
-  - Vorbereitend `python -m nova audit --export orchestration_journal/security/initial_audit.md` (Exportfunktion steht jetzt direkt in der CLI bereit).
-- [ ] **Backup- & Recovery-Plan finalisieren**
+  - Audit vom 12.10.2025 in `orchestration_journal/security/audit_2025-10-12.md` abgelegt; CLI-Export dokumentiert Abnahme ohne offene Findings.
+- [x] **Backup- & Recovery-Plan finalisieren**
   - Anleitung: `docs/FOUNDATION_BACKUP_RECOVERY.md`.
-  - CLI: `python -m nova backup --plan default --export orchestration_journal/backups/default_plan.md`.
+  - Backup-Plan aktualisiert (`orchestration_journal/backups/backup_plan_dgx_spark.md`) und Restore-Drill `drills/2025-10-12.md` hinterlegt.
 
 ## 3. Koordination mit anderen Agenten (Ausblick)
 
-- [ ] **Orion**: Aufgaben laut `docs/next_steps.md` (Abschnitt „KI-Stack vorbereiten“) und `docs/OPERATIVE_ARBEITSPAKETE.md` (Kapitel „Orion – KI & Modellbetrieb“) reviewen, damit Installations- und Finetuning-Workflows vorbereitet sind, sobald Container & Netzwerk bereitstehen.
-- [ ] **Lumina**: Infrastruktur-Abhängigkeit prüfen; Orientierung bietet `docs/next_steps.md` (Abschnitt „Daten- und Wissensbasis einrichten“) sowie `docs/OPERATIVE_ARBEITSPAKETE.md` (Kapitel „Lumina – Daten & Storage“).
-- [ ] **Echo**: Asset-Pipeline-Blueprints aus `docs/next_steps.md` (Abschnitt „Interaktionslayer planen“) und `docs/OPERATIVE_ARBEITSPAKETE.md` (Kapitel „Echo – Avatar & Experience“) konsolidieren.
-- [ ] **Chronos**: n8n- und LangChain-Deployments anhand von `docs/next_steps.md` (Abschnitt „Workflow- & Automationspfad“) sowie den Definition-of-Done-Kriterien in `docs/DEFINITION_OF_DONE.md` vorbereiten.
-- [ ] **Aura**: Monitoring-Stack und LUX-Dashboard Planung gemäß `docs/next_steps.md` (Abschnitt „Monitoring & Dashboards“) und `docs/DEFINITION_OF_DONE.md` (Kapitel „Aura – Monitoring & Dashboards“) priorisieren.
+- [x] **Orion**: Aufgaben laut `docs/next_steps.md` (Abschnitt „KI-Stack vorbereiten“) und `docs/OPERATIVE_ARBEITSPAKETE.md` (Kapitel „Orion – KI & Modellbetrieb“) reviewen, damit Installations- und Finetuning-Workflows vorbereitet sind, sobald Container & Netzwerk bereitstehen.
+- [x] **Lumina**: Infrastruktur-Abhängigkeit prüfen; Orientierung bietet `docs/next_steps.md` (Abschnitt „Daten- und Wissensbasis einrichten“) sowie `docs/OPERATIVE_ARBEITSPAKETE.md` (Kapitel „Lumina – Daten & Storage“).
+- [x] **Echo**: Asset-Pipeline-Blueprints aus `docs/next_steps.md` (Abschnitt „Interaktionslayer planen“) und `docs/OPERATIVE_ARBEITSPAKETE.md` (Kapitel „Echo – Avatar & Experience“) konsolidieren.
+- [x] **Chronos**: n8n- und LangChain-Deployments anhand von `docs/next_steps.md` (Abschnitt „Workflow- & Automationspfad“) sowie den Definition-of-Done-Kriterien in `docs/DEFINITION_OF_DONE.md` vorbereiten.
+- [x] **Aura**: Monitoring-Stack und LUX-Dashboard Planung gemäß `docs/next_steps.md` (Abschnitt „Monitoring & Dashboards“) und `docs/DEFINITION_OF_DONE.md` (Kapitel „Aura – Monitoring & Dashboards“) priorisieren.
 
 ## 4. Reporting & Kommunikation
 
-- [ ] Nach jedem abgeschlossenen Schritt einen kurzen Statusblock im Orchestrierungstagebuch ergänzen (z. B. `orchestration_journal/updates/2025-10-12.md`, `updates/2025-10-12_0722.md`).
-- [ ] `python -m nova progress --limit 1` erneut ausführen und Screenshot/Markdown sichern (nächster Turnus nach VPN-Setup).
+- [x] Nach jedem abgeschlossenen Schritt einen kurzen Statusblock im Orchestrierungstagebuch ergänzen (z. B. `orchestration_journal/updates/2025-10-12.md`, `updates/2025-10-12_0722.md`).
+- [x] `python -m nova progress --limit 1` erneut ausführen und Screenshot/Markdown sichern (nächster Turnus nach VPN-Setup).
 - [x] Wöchentliche Zusammenfassung in `progress_report.md` aktualisieren.
 
 > 💡 Tipp: Alle neuen Markdown-Exports bitte versionieren, um den Audit-Trail konsistent zu halten.

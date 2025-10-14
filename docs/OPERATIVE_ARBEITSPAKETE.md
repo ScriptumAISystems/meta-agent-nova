@@ -10,7 +10,7 @@ Agentenrolle gruppiert und priorisiert. Checkboxen markieren empfohlene Reihenfo
 ## Nova – Foundation & Infrastruktur
 
 ### Paket N1 – Container-Basis (Docker & Kubernetes)
-- [ ] **Ziel:** Docker- und Kubernetes-Laufzeit bereitstellen und mit Nova-CLI validieren.
+- [x] **Ziel:** Docker- und Kubernetes-Laufzeit bereitstellen und mit Nova-CLI validieren.
 - **Deliverables:**
   - Ausgefüllter Installationsreport laut `docs/FOUNDATION_CONTAINER_SETUP.md`.
   - Export `orchestration_journal/container-report.md` mit ✅ Status.
@@ -24,7 +24,7 @@ Agentenrolle gruppiert und priorisiert. Checkboxen markieren empfohlene Reihenfo
 - **Abnahme:** Alle Checks ✅, Report im Orchestrierungstagebuch verlinkt.
 
 ### Paket N2 – VPN & Remote Access
-- [ ] **Ziel:** Gesicherte Zugänge via WireGuard oder OpenVPN bereitstellen.
+- [x] **Ziel:** Gesicherte Zugänge via WireGuard oder OpenVPN bereitstellen.
 - **Deliverables:**
   - Konfigurationsdateien (`infrastructure/vpn/<env>.conf` oder Vault-Eintrag) und Betriebsanleitung.
   - Markdown-Report `orchestration_journal/network/vpn_status.md` mit Testprotokoll.
@@ -36,7 +36,7 @@ Agentenrolle gruppiert und priorisiert. Checkboxen markieren empfohlene Reihenfo
 - **Abnahme:** Erfolgreicher Ping/SSH über VPN, Audit-Log im Journal.
 
 ### Paket N3 – Security & Datenschutz
-- [ ] **Ziel:** Security Controls für Firewall, Anti-Virus und OPA-Policies belegen.
+- [x] **Ziel:** Security Controls für Firewall, Anti-Virus und OPA-Policies belegen.
 - **Deliverables:**
   - Audit-Report `orchestration_journal/security/audit_<datum>.log`.
   - Aktualisierte Findings-Liste `orchestration_journal/security/findings.md`.
@@ -48,7 +48,7 @@ Agentenrolle gruppiert und priorisiert. Checkboxen markieren empfohlene Reihenfo
 - **Abnahme:** Audit-Report ohne offene Findings, Definition-of-Done Security erfüllt.
 
 ### Paket N4 – Backup & Recovery
-- [ ] **Ziel:** Wiederherstellungsfähige Sicherungen für Infrastruktur, Datenbanken und Modelle.
+- [x] **Ziel:** Wiederherstellungsfähige Sicherungen für Infrastruktur, Datenbanken und Modelle.
 - **Deliverables:**
   - Backup-Plan `orchestration_journal/backups/backup_plan_default.md` (angepasst).
   - Restore-Drill-Protokoll `orchestration_journal/backups/drills/<datum>.md`.
@@ -62,7 +62,7 @@ Agentenrolle gruppiert und priorisiert. Checkboxen markieren empfohlene Reihenfo
 ## Orion – Model Operations
 
 ### Paket O1 – NVIDIA NeMo Installationspfad
-- [ ] **Ziel:** Reproduzierbare Installation von NeMo inkl. Abhängigkeiten.
+- [x] **Ziel:** Reproduzierbare Installation von NeMo inkl. Abhängigkeiten.
 - **Deliverables:**
   - Setup-Skript `orchestration_journal/model_ops/nemo_install.sh` oder Terraform/Ansible Playbook.
   - Validierungslog `orchestration_journal/model_ops/nemo_validation.md`.
@@ -74,7 +74,7 @@ Agentenrolle gruppiert und priorisiert. Checkboxen markieren empfohlene Reihenfo
 - **Abnahme:** NeMo-Testskript läuft fehlerfrei, Dependencies versioniert.
 
 ### Paket O2 – LLM Auswahl & Bereitstellung
-- [ ] **Ziel:** Arbeitsfähiges Basismodell inklusive Bereitstellungskonzept.
+- [x] **Ziel:** Arbeitsfähiges Basismodell inklusive Bereitstellungskonzept.
 - **Deliverables:**
   - Entscheidungsdokument `orchestration_journal/model_ops/llm_selection.md` mit Kriterien.
   - Deployment-Manifest (Helm Chart, Compose oder Terraform) im Repo-Pfad `nova/agents/llm_deployment/` (falls neu, Ordner anlegen).
@@ -85,7 +85,7 @@ Agentenrolle gruppiert und priorisiert. Checkboxen markieren empfohlene Reihenfo
 - **Abnahme:** Dokumentierte Entscheidung + lauffähige Bereitstellung in Testumgebung.
 
 ### Paket O3 – Fine-Tuning Blueprint
-- [ ] **Ziel:** Standardisierter Prozess für datengestütztes Finetuning.
+- [x] **Ziel:** Standardisierter Prozess für datengestütztes Finetuning.
 - **Deliverables:**
   - Workflow-Diagramm `docs/diagrams/orion_finetuning_flow.png` (oder Markdown-Alternative).
   - Evaluationsplan `orchestration_journal/model_ops/finetuning_metrics.md`.
@@ -98,7 +98,7 @@ Agentenrolle gruppiert und priorisiert. Checkboxen markieren empfohlene Reihenfo
 ## Lumina – Daten & Speicher
 
 ### Paket L1 – Datenbank-Automatisierung
-- [ ] **Ziel:** Automatisierte Bereitstellung von MongoDB & PostgreSQL.
+- [x] **Ziel:** Automatisierte Bereitstellung von MongoDB & PostgreSQL.
 - **Deliverables:**
   - Helm-Chart oder Compose-Datei `deploy/databases/docker-compose.yml`.
   - Betriebsdokumentation `orchestration_journal/data/db_operations.md`.
@@ -109,7 +109,7 @@ Agentenrolle gruppiert und priorisiert. Checkboxen markieren empfohlene Reihenfo
 - **Abnahme:** Deployments laufen reproduzierbar, Monitoring liefert Metriken.
 
 ### Paket L2 – Wissensbasis / VectorDB
-- [ ] **Ziel:** Wissensdatenbank (FAISS oder Pinecone) mit ingest-/query-Flow.
+- [x] **Ziel:** Wissensdatenbank (FAISS oder Pinecone) mit ingest-/query-Flow.
 - **Deliverables:**
   - Architekturnotiz `orchestration_journal/data/vector_architecture.md`.
   - Ingestion-Skript `nova/task_queue/vector_ingest.py` (falls neu, Implementierung hinzufügen) samt Unit-Tests.
@@ -122,7 +122,7 @@ Agentenrolle gruppiert und priorisiert. Checkboxen markieren empfohlene Reihenfo
 ## Echo – Interaktionsdesign
 
 ### Paket E1 – ACE Stack Validierung
-- [ ] **Ziel:** Riva, Audio2Face und NeMo in funktionsfähigem Zusammenspiel.
+- [x] **Ziel:** Riva, Audio2Face und NeMo in funktionsfähigem Zusammenspiel.
 - **Deliverables:**
   - Installationsmatrix `orchestration_journal/experience/ace_components.md`.
   - Testprotokoll `orchestration_journal/experience/ace_validation.log`.
@@ -133,7 +133,7 @@ Agentenrolle gruppiert und priorisiert. Checkboxen markieren empfohlene Reihenfo
 - **Abnahme:** End-to-End-Demo dokumentiert, offene Risiken aufgeführt.
 
 ### Paket E2 – Avatar Pipeline
-- [ ] **Ziel:** Dokumentierte Pipeline von Omniverse bis Teams/Frontend.
+- [x] **Ziel:** Dokumentierte Pipeline von Omniverse bis Teams/Frontend.
 - **Deliverables:**
   - Sequenzdiagramm `docs/diagrams/avatar_pipeline.drawio`.
   - Betriebshandbuch `orchestration_journal/experience/avatar_runbook.md`.
@@ -146,7 +146,7 @@ Agentenrolle gruppiert und priorisiert. Checkboxen markieren empfohlene Reihenfo
 ## Chronos – Automatisierung & Workflow
 
 ### Paket C1 – n8n Grundinstallation
-- [ ] **Ziel:** Laufende n8n-Instanz mit Beispiel-Workflows.
+- [x] **Ziel:** Laufende n8n-Instanz mit Beispiel-Workflows.
 - **Deliverables:**
   - Deployment-Skript `deploy/automation/n8n/docker-compose.yml` oder Kubernetes-Manifeste.
   - Workflow-Export `orchestration_journal/automation/n8n_sample_workflow.json`.
@@ -157,7 +157,7 @@ Agentenrolle gruppiert und priorisiert. Checkboxen markieren empfohlene Reihenfo
 - **Abnahme:** Workflow lässt sich triggern, Logs liegen im Journal.
 
 ### Paket C2 – Data Flywheel & CI/CD
-- [ ] **Ziel:** Konzept für automatisiertes Feedback & Deployment.
+- [x] **Ziel:** Konzept für automatisiertes Feedback & Deployment.
 - **Deliverables:**
   - Blueprint `docs/automation/data_flywheel_blueprint.md`.
   - CI/CD-Plan `orchestration_journal/automation/cicd_plan.md` (GitHub Enterprise + Kubernetes).
@@ -170,7 +170,7 @@ Agentenrolle gruppiert und priorisiert. Checkboxen markieren empfohlene Reihenfo
 ## Aura – Monitoring & Dashboards
 
 ### Paket A1 – Grafana & Observability Stack
-- [ ] **Ziel:** Observability-Setup mit Prometheus/Grafana.
+- [x] **Ziel:** Observability-Setup mit Prometheus/Grafana.
 - **Deliverables:**
   - Deployment-Manifest `deploy/monitoring/grafana-stack.yml`.
   - Dashboard-Export `orchestration_journal/monitoring/grafana_dashboards.json`.
@@ -181,7 +181,7 @@ Agentenrolle gruppiert und priorisiert. Checkboxen markieren empfohlene Reihenfo
 - **Abnahme:** Dashboards visualisieren Kernmetriken, Alerts getestet.
 
 ### Paket A2 – LUX Dashboard & Stimmungsanalyse
-- [ ] **Ziel:** UX-Mockups + Telemetrie-Anbindung für emotionales Feedback.
+- [x] **Ziel:** UX-Mockups + Telemetrie-Anbindung für emotionales Feedback.
 - **Deliverables:**
   - Wireframes `docs/dashboards/lux_dashboard_wireframes.pdf` (oder Markdown-Link).
   - KPI-Definition `nova/logging/kpi/lux_metrics.md`.
