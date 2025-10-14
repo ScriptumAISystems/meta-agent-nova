@@ -102,6 +102,16 @@ def _nova_home() -> Path:
     return Path.cwd() / ".nova"
 
 
+def _export_markdown(content: str, destination: Path) -> Path:
+    """Persist ``content`` as Markdown at ``destination``."""
+
+    destination.parent.mkdir(parents=True, exist_ok=True)
+    if not content.endswith("\n"):
+        content = content + "\n"
+    destination.write_text(content, encoding="utf-8")
+    return destination
+
+
 def run_setup(packages: Iterable[str] | None = None, *, dgx_check: bool = False) -> None:
     """Perform system setup and installation tasks.
 
@@ -467,7 +477,12 @@ def run_tasks(
         log_info(line)
 
 
-def run_roadmap(csv_path: Path | None = None, phases: Iterable[str] | None = None) -> None:
+def run_roadmap(
+    csv_path: Path | None = None,
+    phases: Iterable[str] | None = None,
+    *,
+    export_path: Path | None = None,
+) -> None:
     """Render the execution roadmap with step-by-step guidance."""
 
     configure_logger()
@@ -484,12 +499,17 @@ def run_roadmap(csv_path: Path | None = None, phases: Iterable[str] | None = Non
     for line in roadmap.splitlines():
         log_info(line)
 
+    if export_path is not None:
+        destination = _export_markdown(roadmap, export_path)
+        log_info(f"Roadmap als Markdown exportiert: {destination}")
+
 
 def run_next_steps(
     csv_path: Path | None = None,
     *,
     limit_per_agent: int = 1,
     phases: Iterable[str] | None = None,
+    export_path: Path | None = None,
 ) -> None:
     """Render the next-step summary derived from pending tasks."""
 
@@ -511,12 +531,17 @@ def run_next_steps(
     for line in summary.splitlines():
         log_info(line)
 
+    if export_path is not None:
+        destination = _export_markdown(summary, export_path)
+        log_info(f"Nächste-Schritte-Übersicht als Markdown exportiert: {destination}")
+
 
 def run_summary(
     csv_path: Path | None = None,
     *,
     limit_per_agent: int = 1,
     phases: Iterable[str] | None = None,
+    export_path: Path | None = None,
 ) -> None:
     """Render a compact roadmap summary across phases and agents."""
 
@@ -538,10 +563,16 @@ def run_summary(
     for line in summary.splitlines():
         log_info(line)
 
+    if export_path is not None:
+        destination = _export_markdown(summary, export_path)
+        log_info(f"Roadmap-Zusammenfassung als Markdown exportiert: {destination}")
+
 
 def run_step_plan(
     csv_path: Path | None = None,
     phases: Iterable[str] | None = None,
+    *,
+    export_path: Path | None = None,
 ) -> None:
     """Render the complete step-by-step plan across phases."""
 
@@ -559,12 +590,17 @@ def run_step_plan(
     for line in plan.splitlines():
         log_info(line)
 
+    if export_path is not None:
+        destination = _export_markdown(plan, export_path)
+        log_info(f"Schrittplan als Markdown exportiert: {destination}")
+
 
 def run_progress(
     csv_path: Path | None = None,
     agent_filters: Iterable[str] | None = None,
     *,
     pending_limit: int | None = None,
+    export_path: Path | None = None,
 ) -> None:
     """Render the aggregated progress snapshot."""
 
@@ -591,6 +627,10 @@ def run_progress(
     report = build_progress_report(filtered_tasks, pending_limit=pending_limit)
     for line in report.splitlines():
         log_info(line)
+
+    if export_path is not None:
+        destination = _export_markdown(report, export_path)
+        log_info(f"Fortschrittsbericht als Markdown exportiert: {destination}")
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -858,6 +898,12 @@ def build_parser() -> argparse.ArgumentParser:
         metavar="PHASE",
         help="Limit the roadmap to the specified phases (e.g. foundation).",
     )
+    roadmap_parser.add_argument(
+        "--export",
+        type=Path,
+        metavar="PATH",
+        help="Export the roadmap as Markdown to the provided path.",
+    )
 
     next_steps_parser = subparsers.add_parser(
         "next-steps",
@@ -881,6 +927,12 @@ def build_parser() -> argparse.ArgumentParser:
         nargs="*",
         metavar="PHASE",
         help="Limit the next-step overview to the specified phases (e.g. foundation).",
+    )
+    next_steps_parser.add_argument(
+        "--export",
+        type=Path,
+        metavar="PATH",
+        help="Export the next-step overview as Markdown to the provided path.",
     )
 
     summary_parser = subparsers.add_parser(
@@ -906,6 +958,12 @@ def build_parser() -> argparse.ArgumentParser:
         metavar="PHASE",
         help="Limit the summary to the specified phases (e.g. foundation).",
     )
+    summary_parser.add_argument(
+        "--export",
+        type=Path,
+        metavar="PATH",
+        help="Export the roadmap summary as Markdown to the provided path.",
+    )
 
     step_plan_parser = subparsers.add_parser(
         "step-plan",
@@ -922,6 +980,12 @@ def build_parser() -> argparse.ArgumentParser:
         nargs="*",
         metavar="PHASE",
         help="Limit the plan to the specified phases (e.g. observability).",
+    )
+    step_plan_parser.add_argument(
+        "--export",
+        type=Path,
+        metavar="PATH",
+        help="Export the step-by-step plan as Markdown to the provided path.",
     )
 
     progress_parser = subparsers.add_parser(
@@ -948,6 +1012,12 @@ def build_parser() -> argparse.ArgumentParser:
         help=(
             "Number of pending tasks to show per agent (omit or 0 for unlimited)."
         ),
+    )
+    progress_parser.add_argument(
+        "--export",
+        type=Path,
+        metavar="PATH",
+        help="Export the progress snapshot as Markdown to the provided path.",
     )
 
     return parser
@@ -1019,26 +1089,29 @@ def main(argv: list[str] | None = None) -> None:
             as_checklist=args.checklist,
         )
     elif args.command == "roadmap":
-        run_roadmap(csv_path=args.csv, phases=args.phase)
+        run_roadmap(csv_path=args.csv, phases=args.phase, export_path=args.export)
     elif args.command == "next-steps":
         run_next_steps(
             csv_path=args.csv,
             limit_per_agent=args.limit,
             phases=args.phase,
+            export_path=args.export,
         )
     elif args.command == "summary":
         run_summary(
             csv_path=args.csv,
             limit_per_agent=args.limit,
             phases=args.phase,
+            export_path=args.export,
         )
     elif args.command == "step-plan":
-        run_step_plan(csv_path=args.csv, phases=args.phase)
+        run_step_plan(csv_path=args.csv, phases=args.phase, export_path=args.export)
     elif args.command == "progress":
         run_progress(
             csv_path=args.csv,
             agent_filters=args.agent,
             pending_limit=args.limit,
+            export_path=args.export,
         )
     else:  # pragma: no cover - defensive default
         parser.error(f"Unknown command: {args.command}")

@@ -198,6 +198,66 @@ def test_cli_backup_export(tmp_path, caplog):
     assert "Backup-Plan als Markdown exportiert" in caplog.text
 
 
+def test_cli_roadmap_export(tmp_path, caplog):
+    output_path = tmp_path / "roadmap.md"
+
+    caplog.set_level("INFO", logger="nova.monitoring")
+    __main__.main(["roadmap", "--export", str(output_path)])
+
+    assert output_path.exists()
+    content = output_path.read_text(encoding="utf-8")
+    assert "# Nova Phasen-Roadmap" in content
+    assert "Roadmap als Markdown exportiert" in caplog.text
+
+
+def test_cli_next_steps_export(tmp_path, caplog):
+    output_path = tmp_path / "next_steps.md"
+
+    caplog.set_level("INFO", logger="nova.monitoring")
+    __main__.main(["next-steps", "--export", str(output_path)])
+
+    assert output_path.exists()
+    content = output_path.read_text(encoding="utf-8")
+    assert "# Nova Nächste Schritte" in content
+    assert "Nächste-Schritte-Übersicht als Markdown exportiert" in caplog.text
+
+
+def test_cli_summary_export(tmp_path, caplog):
+    output_path = tmp_path / "summary.md"
+
+    caplog.set_level("INFO", logger="nova.monitoring")
+    __main__.main(["summary", "--export", str(output_path)])
+
+    assert output_path.exists()
+    content = output_path.read_text(encoding="utf-8")
+    assert "# Nova Roadmap Snapshot" in content
+    assert "Roadmap-Zusammenfassung als Markdown exportiert" in caplog.text
+
+
+def test_cli_step_plan_export(tmp_path, caplog):
+    output_path = tmp_path / "step_plan.md"
+
+    caplog.set_level("INFO", logger="nova.monitoring")
+    __main__.main(["step-plan", "--export", str(output_path)])
+
+    assert output_path.exists()
+    content = output_path.read_text(encoding="utf-8")
+    assert "# Nova Schritt-für-Schritt Plan" in content
+    assert "Schrittplan als Markdown exportiert" in caplog.text
+
+
+def test_cli_progress_export(tmp_path, caplog):
+    output_path = tmp_path / "progress.md"
+
+    caplog.set_level("INFO", logger="nova.monitoring")
+    __main__.main(["progress", "--limit", "1", "--export", str(output_path)])
+
+    assert output_path.exists()
+    content = output_path.read_text(encoding="utf-8")
+    assert "# Nova Fortschrittsbericht" in content
+    assert "Fortschrittsbericht als Markdown exportiert" in caplog.text
+
+
 def test_cli_models_export(tmp_path, caplog):
     output_path = tmp_path / "models" / "finetune_plan.md"
 

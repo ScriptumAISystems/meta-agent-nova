@@ -68,6 +68,11 @@ python -m nova containers --status
 python -m nova orchestrate --mode parallel
 python -m nova roadmap
 python -m nova step-plan
+python -m nova roadmap --export orchestration_journal/roadmap/snapshot.md
+python -m nova step-plan --export orchestration_journal/roadmap/full_plan.md
+python -m nova summary --export orchestration_journal/roadmap/summary.md
+python -m nova next-steps --export orchestration_journal/roadmap/next_steps.md
+python -m nova progress --export orchestration_journal/roadmap/progress.md
 python -m nova progress
 python -m nova network --vpn wireguard --export orchestration_journal/vpn/wireguard_plan.md
 python -m nova backup --plan default --export orchestration_journal/backups/default_plan.md
