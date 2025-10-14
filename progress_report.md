@@ -33,6 +33,12 @@ Basierend auf dem Abschnitt **Roadmap** in der `README.md` sind aktuell alle 7 M
 - Vollständiger Abschlussbericht: `orchestration_journal/updates/2025-10-13_subagent_completion.md`.
 - CSV-Statuspflege: `Agenten_Aufgaben_Uebersicht.csv` (alle Einträge auf **Abgeschlossen** gesetzt).
 
+### Empfohlene nächste Schritte
+
+- Validierung der Definition-of-Done-Checklisten je Agent und formale Freigabe laut [`docs/NEXT_STEPS_OPERATIONS.md`](docs/NEXT_STEPS_OPERATIONS.md).
+- Go-Live-Governance (Lenkungsausschuss, Security-Reviews) abschließen und Übergabeprozesse dokumentieren.
+- Frühe Betriebsüberwachung mit täglichen Health-Checks und etabliertem Feedback-Loop sicherstellen.
+
 ---
 
 ## Historischer Status (Stand: 11.10.2025, 17:16 UTC)
