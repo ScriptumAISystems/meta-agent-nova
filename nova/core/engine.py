@@ -7,11 +7,12 @@ import logging
 import time
 import uuid
 from dataclasses import dataclass, field
+from pathlib import Path
 from typing import Any, Dict, List, Mapping, Protocol, Sequence
 
 from ..builder.builder_agent import BuilderAgent
 from ..explainability import ExplainabilityLogger, SophiaMemoryClient
-from ..governance import GovernanceAuditor, GovernanceClient
+from ..governance import GovernanceAuditor, GovernanceClient, GovernanceDecision
 
 try:  # pragma: no cover - optional dependency
     from ..self_optimization import PipelineOptimizer
@@ -204,6 +205,8 @@ class NovaCore:
         governance: GovernanceClient | None = None,
         auditor: GovernanceAuditor | None = None,
         memory_client: SophiaMemoryClient | None = None,
+        shared_memory_refresh_interval: float = 300.0,
+        shared_memory_query: str | None = "nova.orchestration",
     ) -> None:
         if not planner:
             raise ValueError("NovaCore requires a planner instance.")
@@ -219,6 +222,11 @@ class NovaCore:
         self.auditor = auditor or GovernanceAuditor()
         self.memory_client = memory_client
         self._history: Dict[str, Dict[str, Any]] = {}
+        self._governance_log: List[Dict[str, Any]] = []
+        self._memory_cache: List[Dict[str, Any]] = []
+        self.refresh_interval = max(shared_memory_refresh_interval, 0.0)
+        self._default_refresh_query = shared_memory_query
+        self._last_refresh: float = 0.0
         optimizer = None
         if PipelineOptimizer is not None:
             try:
@@ -247,8 +255,32 @@ class NovaCore:
         plan = TaskPlan(request=request, tasks=tasks)
         for task in plan.tasks:
             task.metadata.setdefault("plan_id", plan.identifier)
-        self._history[plan.identifier] = {"plan": plan, "results": [], "evaluation": None}
+        phase_progress: Dict[str, Dict[str, Any]] = {}
+        for task in plan.tasks:
+            phase_name = str(task.metadata.get("phase", "unspecified")).strip() or "unspecified"
+            key = phase_name.lower()
+            entry = phase_progress.setdefault(
+                key,
+                {"phase": phase_name, "total": 0, "completed": 0},
+            )
+            entry["total"] += 1
+        self._history[plan.identifier] = {
+            "plan": plan,
+            "results": [],
+            "evaluation": None,
+            "phase_progress": phase_progress,
+            "resume_points": {},
+            "_completed_tasks": set(),
+        }
         self.event_bus.publish("plan.created", plan.to_dict())
+        try:
+            graph_path = self.export_orchestration_graph(plan)
+            self.event_bus.publish(
+                "plan.graph",
+                {"plan_id": plan.identifier, "path": str(graph_path)},
+            )
+        except Exception as exc:  # pragma: no cover - defensive
+            LOGGER.warning("Failed to export orchestration graph: %s", exc)
         self.explainability.log_decision(
             "planning",
             reason="Generated execution plan",
@@ -256,6 +288,7 @@ class NovaCore:
             impact="task-breakdown",
             metadata={"goal": request.goal},
         )
+        self.memory_checkpoint(plan.identifier, metadata={"event": "plan_created"})
         LOGGER.info("Plan created for goal '%s' with %d tasks.", request.goal, len(tasks))
         return plan
 
@@ -272,6 +305,8 @@ class NovaCore:
         results: List[TaskExecutionResult] = []
         for task in tasks:
             self._check_governance("execute", task.to_dict())
+            if self.memory_client is not None and self.refresh_interval:
+                self.refresh()
             agent = self.agents.get(task.agent.lower())
             if agent is None:
                 raise KeyError(f"No agent registered for type '{task.agent}'.")
@@ -286,6 +321,24 @@ class NovaCore:
                 impact="agent-feedback",
                 metadata={"agent": task.agent},
             )
+            if plan is not None:
+                history = self._history.get(plan.identifier)
+                if history is not None:
+                    phase_name = str(task.metadata.get("phase", "unspecified")).strip() or "unspecified"
+                    key = phase_name.lower()
+                    phase_progress = history.setdefault("phase_progress", {})
+                    entry = phase_progress.setdefault(
+                        key,
+                        {"phase": phase_name, "total": 0, "completed": 0},
+                    )
+                    if entry["total"] == 0:
+                        entry["total"] = 1
+                    if result.success:
+                        completed_ids = history.setdefault("_completed_tasks", set())
+                        if task.identifier not in completed_ids:
+                            entry["completed"] = entry.get("completed", 0) + 1
+                            completed_ids.add(task.identifier)
+                    history["last_phase"] = phase_name
         if plan is not None:
             history = self._history.get(plan.identifier)
             if history:
@@ -337,6 +390,9 @@ class NovaCore:
             plan_id = results[0].task.metadata.get("plan_id") if isinstance(results[0].task.metadata, dict) else None
             if plan_id and plan_id in self._history:
                 self._history[plan_id]["evaluation"] = report
+                phase_progress = self._history[plan_id].get("phase_progress")
+                if phase_progress:
+                    self._history[plan_id]["phase_progress"] = phase_progress
         return report
 
     # ------------------------------------------------------------------
@@ -357,6 +413,215 @@ class NovaCore:
         return record.to_dict()
 
     # ------------------------------------------------------------------
+    def memory_checkpoint(
+        self,
+        plan_id: str | None = None,
+        *,
+        metadata: Mapping[str, Any] | None = None,
+    ) -> Dict[str, Any]:
+        """Persist a structured snapshot of the current orchestration state."""
+
+        plans: Dict[str, Any] = {}
+        if plan_id and plan_id not in self._history:
+            raise KeyError(f"Unknown plan id '{plan_id}'.")
+        selected_items = (
+            {plan_id: self._history[plan_id]}
+            if plan_id and plan_id in self._history
+            else self._history
+        )
+        for identifier, history in selected_items.items():
+            plan: TaskPlan = history["plan"]
+            results: List[TaskExecutionResult] = history.get("results", [])
+            evaluation: EvaluationReport | None = history.get("evaluation")
+            phase_progress = history.get("phase_progress", {})
+            resume_points = history.get("resume_points", {})
+            plans[identifier] = {
+                "plan": plan.to_dict(),
+                "results": [result.to_dict() for result in results],
+                "evaluation": evaluation.to_dict() if evaluation else None,
+                "phase_progress": {
+                    key: {
+                        "phase": value.get("phase"),
+                        "total": value.get("total", 0),
+                        "completed": value.get("completed", 0),
+                    }
+                    for key, value in phase_progress.items()
+                },
+                "resume_points": {k: dict(v) for k, v in resume_points.items()},
+            }
+        snapshot = {
+            "timestamp": time.time(),
+            "plans": plans,
+            "governance": list(self._governance_log),
+            "memory_cache": list(self._memory_cache),
+            "metadata": dict(metadata or {}),
+        }
+        payload = {"type": "checkpoint", "snapshot": snapshot}
+        if self.memory_client is not None:
+            try:
+                self.memory_client.store_context(payload)
+            except Exception as exc:  # pragma: no cover - defensive logging
+                LOGGER.warning("Failed to persist memory checkpoint: %s", exc)
+        self.event_bus.publish("memory.checkpoint", payload)
+        self.explainability.log_decision(
+            "memory",
+            reason="Persisted orchestration checkpoint.",
+            evidence={"plan_ids": list(plans.keys())},
+            impact="state-checkpoint",
+        )
+        if plan_id and plan_id in self._history:
+            self._history[plan_id]["last_checkpoint"] = snapshot["timestamp"]
+        return snapshot
+
+    # ------------------------------------------------------------------
+    def export_orchestration_graph(
+        self, plan: TaskPlan, path: str | Path = "orchestration_graph.json"
+    ) -> Path:
+        """Serialise the execution plan into a graph JSON file."""
+
+        path_obj = Path(path)
+        if not path_obj.parent.exists():
+            path_obj.parent.mkdir(parents=True, exist_ok=True)
+        nodes: List[Dict[str, Any]] = []
+        edges: List[Dict[str, str]] = []
+        for task in plan.tasks:
+            nodes.append(
+                {
+                    "id": task.identifier,
+                    "label": task.description,
+                    "agent": task.agent,
+                    "phase": task.metadata.get("phase"),
+                    "metadata": dict(task.metadata),
+                }
+            )
+            for dependency in task.dependencies:
+                edges.append({"from": dependency, "to": task.identifier})
+        graph = {
+            "plan_id": plan.identifier,
+            "goal": plan.request.goal,
+            "created_at": plan.created_at,
+            "nodes": nodes,
+            "edges": edges,
+        }
+        with path_obj.open("w", encoding="utf-8") as handle:
+            json.dump(graph, handle, indent=2, sort_keys=True, default=str)
+        self.explainability.log_decision(
+            "planning",
+            reason="Exported orchestration graph",
+            evidence={"plan_id": plan.identifier, "nodes": len(nodes), "edges": len(edges)},
+            impact="graph-export",
+        )
+        return path_obj
+
+    # ------------------------------------------------------------------
+    def refresh(
+        self,
+        *,
+        force: bool = False,
+        query: str | None = None,
+        limit: int = 20,
+    ) -> List[Dict[str, Any]]:
+        """Fetch the latest insights from Sophia's shared memory service."""
+
+        if self.memory_client is None:
+            return []
+        now = time.time()
+        if not force and self.refresh_interval:
+            if now - self._last_refresh < self.refresh_interval:
+                return list(self._memory_cache)
+        effective_query = query or self._default_refresh_query or "nova"
+        try:
+            results = self.memory_client.search(effective_query, limit=limit)
+        except Exception as exc:  # pragma: no cover - defensive logging
+            LOGGER.warning("Shared memory refresh failed: %s", exc)
+            return list(self._memory_cache)
+        entries: List[Dict[str, Any]] = [
+            {
+                "id": result.identifier,
+                "content": dict(result.content),
+                "score": result.score,
+            }
+            for result in results
+        ]
+        self._memory_cache = entries
+        self._last_refresh = now
+        self.event_bus.publish(
+            "memory.refresh",
+            {"query": effective_query, "entries": entries},
+        )
+        self.explainability.log_decision(
+            "memory",
+            reason="Refreshed insights from shared memory.",
+            evidence={"query": effective_query, "entries": entries[:3]},
+            impact="memory-refresh",
+        )
+        return list(entries)
+
+    # ------------------------------------------------------------------
+    def phase_resume(self, plan_id: str, phase_name: str) -> Dict[str, Any]:
+        """Rebuild execution context for a partially completed phase."""
+
+        history = self._history.get(plan_id)
+        if history is None:
+            raise KeyError(f"Unknown plan id '{plan_id}'.")
+        plan: TaskPlan = history["plan"]
+        target = phase_name.lower()
+        completed_ids = {
+            result.task.identifier
+            for result in history.get("results", [])
+            if result.success
+        }
+        pending_tasks = [
+            task.to_dict()
+            for task in plan.tasks
+            if str(task.metadata.get("phase", "unspecified")).strip().lower() == target
+            and task.identifier not in completed_ids
+        ]
+        summary = {
+            "plan_id": plan_id,
+            "phase": phase_name,
+            "pending": pending_tasks,
+            "completed": len(
+                [
+                    identifier
+                    for identifier in completed_ids
+                    if str(
+                        next(
+                            (
+                                task.metadata.get("phase", "unspecified")
+                                for task in plan.tasks
+                                if task.identifier == identifier
+                            ),
+                            "unspecified",
+                        )
+                    )
+                    .strip()
+                    .lower()
+                    == target
+                ]
+            ),
+            "total": sum(
+                1
+                for task in plan.tasks
+                if str(task.metadata.get("phase", "unspecified")).strip().lower() == target
+            ),
+        }
+        history.setdefault("resume_points", {})[target] = summary
+        self.event_bus.publish("phase.resume", summary)
+        if self.memory_client is not None:
+            try:
+                self.memory_client.store_context({"type": "phase-resume", **summary})
+            except Exception as exc:  # pragma: no cover - defensive logging
+                LOGGER.warning("Failed to persist phase resume data: %s", exc)
+        self.explainability.log_decision(
+            "execution",
+            reason=f"Resuming phase '{phase_name}'.",
+            evidence={"pending": [task["id"] for task in pending_tasks]},
+            impact="phase-resume",
+        )
+        return summary
+
+    # ------------------------------------------------------------------
     def get_status(self, plan_id: str) -> Dict[str, Any]:
         history = self._history.get(plan_id)
         if not history:
@@ -368,6 +633,17 @@ class NovaCore:
             "plan": plan.to_dict(),
             "results": [result.to_dict() for result in results],
             "evaluation": evaluation.to_dict() if evaluation else None,
+            "phase_progress": {
+                key: {
+                    "phase": value.get("phase"),
+                    "total": value.get("total", 0),
+                    "completed": value.get("completed", 0),
+                }
+                for key, value in history.get("phase_progress", {}).items()
+            },
+            "resume_points": {
+                key: dict(value) for key, value in history.get("resume_points", {}).items()
+            },
         }
 
     # ------------------------------------------------------------------
@@ -375,22 +651,64 @@ class NovaCore:
         if self.governance is None:
             return
         decision = self.governance.evaluate_action(action, payload)
+        impact = "approved"
         if decision.is_blocking:
             self.auditor.record(action, decision.verdict, payload, decision.rationale)
-            self.explainability.log_decision(
-                "governance",
-                reason=f"Action '{action}' blocked.",
-                evidence={"payload": dict(payload), "decision": decision.verdict},
-                impact="blocked",
-            )
+            impact = "blocked"
+        elif decision.is_warning:
+            self.auditor.record(action, decision.verdict, payload, decision.rationale)
+            impact = "warning"
+        self._register_governance_feedback(action, decision, payload, impact)
+        if decision.is_blocking:
             raise PermissionError(f"Governance blocked action '{action}': {decision.rationale}")
-        if decision.is_warning:
-            self.explainability.log_decision(
-                "governance",
-                reason=f"Action '{action}' warning.",
-                evidence={"payload": dict(payload), "decision": decision.verdict},
-                impact="warning",
-            )
+
+    # ------------------------------------------------------------------
+    def _register_governance_feedback(
+        self,
+        action: str,
+        decision: GovernanceDecision | Any,
+        payload: Mapping[str, Any],
+        impact: str,
+    ) -> None:
+        verdict = getattr(decision, "verdict", "UNKNOWN")
+        rationale = getattr(decision, "rationale", "")
+        details = getattr(decision, "details", {})
+        payload_dict = dict(payload)
+        record = {
+            "timestamp": time.time(),
+            "action": action,
+            "verdict": verdict,
+            "rationale": rationale,
+            "details": dict(details) if isinstance(details, Mapping) else {},
+            "payload": payload_dict,
+        }
+        self._governance_log.append(record)
+        try:
+            self.event_bus.publish("governance.decision", record)
+        except Exception:  # pragma: no cover - defensive publish
+            LOGGER.debug("Failed to publish governance decision.", exc_info=True)
+        if self.memory_client is not None:
+            try:
+                self.memory_client.store_decision(record)
+            except Exception as exc:  # pragma: no cover - defensive logging
+                LOGGER.warning("Failed to persist governance decision: %s", exc)
+        self.explainability.log_decision(
+            "governance",
+            reason=f"Action '{action}' governance verdict: {verdict}",
+            evidence={"payload": payload_dict, "decision": record},
+            impact=impact,
+        )
+        plan_id = None
+        if isinstance(payload_dict, Mapping):
+            plan_id = payload_dict.get("plan_id")
+            if plan_id is None:
+                task_payload = payload_dict.get("task")
+                if isinstance(task_payload, Mapping):
+                    metadata = task_payload.get("metadata")
+                    if isinstance(metadata, Mapping):
+                        plan_id = metadata.get("plan_id")
+        if plan_id and plan_id in self._history:
+            self._history[plan_id].setdefault("governance", []).append(record)
 
 
 __all__ = [
