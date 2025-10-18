@@ -566,45 +566,23 @@ class NovaCore:
             raise KeyError(f"Unknown plan id '{plan_id}'.")
         plan: TaskPlan = history["plan"]
         target = phase_name.lower()
-        completed_ids = {
-            result.task.identifier
-            for result in history.get("results", [])
-            if result.success
-        }
-        pending_tasks = [
-            task.to_dict()
+        completed_ids = set(history.get("_completed_tasks", set()))
+        phase_tasks = [
+            task
             for task in plan.tasks
             if str(task.metadata.get("phase", "unspecified")).strip().lower() == target
-            and task.identifier not in completed_ids
+        ]
+        pending_tasks = [
+            task.to_dict()
+            for task in phase_tasks
+            if task.identifier not in completed_ids
         ]
         summary = {
             "plan_id": plan_id,
             "phase": phase_name,
             "pending": pending_tasks,
-            "completed": len(
-                [
-                    identifier
-                    for identifier in completed_ids
-                    if str(
-                        next(
-                            (
-                                task.metadata.get("phase", "unspecified")
-                                for task in plan.tasks
-                                if task.identifier == identifier
-                            ),
-                            "unspecified",
-                        )
-                    )
-                    .strip()
-                    .lower()
-                    == target
-                ]
-            ),
-            "total": sum(
-                1
-                for task in plan.tasks
-                if str(task.metadata.get("phase", "unspecified")).strip().lower() == target
-            ),
+            "completed": sum(1 for task in phase_tasks if task.identifier in completed_ids),
+            "total": len(phase_tasks),
         }
         history.setdefault("resume_points", {})[target] = summary
         self.event_bus.publish("phase.resume", summary)
