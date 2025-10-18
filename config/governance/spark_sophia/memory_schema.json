@@ -1,0 +1,21 @@
+{
+  "contract_version": "2025.10",
+  "tables": [
+    {
+      "name": "governance_events",
+      "columns": [
+        {"name": "event_id", "type": "uuid", "description": "Unique identifier"},
+        {"name": "policy_version", "type": "text", "description": "Policy revision applied"},
+        {"name": "verdict", "type": "text", "description": "Decision outcome"}
+      ]
+    },
+    {
+      "name": "risk_assessments",
+      "columns": [
+        {"name": "assessment_id", "type": "uuid", "description": "Risk review id"},
+        {"name": "risk_id", "type": "text", "description": "Risk reference"},
+        {"name": "residual_score", "type": "integer", "description": "Residual risk score"}
+      ]
+    }
+  ]
+}

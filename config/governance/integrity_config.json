@@ -1,0 +1,6 @@
+{
+  "policy_resource": "config/governance/spark_sophia/policy_version.json",
+  "risk_resource": "config/governance/spark_sophia/risk_register.json",
+  "memory_schema_resource": "config/governance/spark_sophia/memory_schema.json",
+  "ethics_resource": "config/governance/aurora/ethics.json"
+}

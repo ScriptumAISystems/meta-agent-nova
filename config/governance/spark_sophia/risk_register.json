@@ -1,0 +1,26 @@
+{
+  "generated_at": "2025-10-17T00:00:00Z",
+  "risks": [
+    {
+      "id": "R-001",
+      "category": "Ethics",
+      "severity": "HIGH",
+      "status": "OPEN",
+      "description": "Bias detected in recommendation dataset",
+      "controls": [
+        "Deploy fairness audit",
+        "Retrain with debiased corpus"
+      ]
+    },
+    {
+      "id": "R-002",
+      "category": "Safety",
+      "severity": "MEDIUM",
+      "status": "MITIGATED",
+      "description": "Outdated incident response runbook",
+      "controls": [
+        "Publish v2 response playbook"
+      ]
+    }
+  ]
+}
