@@ -4,7 +4,14 @@ from __future__ import annotations
 
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from dataclasses import dataclass
-from typing import Iterable, List
+from typing import Any, Dict, Iterable, List
+
+import sys
+
+try:  # pragma: no cover - optional on some platforms
+    import resource
+except Exception:  # pragma: no cover - optional dependency missing
+    resource = None  # type: ignore[assignment]
 
 from ..agents.base import AgentRunReport
 from ..agents.registry import get_agent_class, list_agent_types
@@ -24,6 +31,9 @@ class OrchestrationReport:
     communication_log: List[AgentMessage]
     execution_mode: str = "sequential"
     execution_plan: ExecutionPlan | None = None
+    phase_metrics: Dict[str, Dict[str, int]] | None = None
+    memory_usage: Dict[str, Any] | None = None
+    governance_verdicts: List[Dict[str, Any]] | None = None
 
     @property
     def success(self) -> bool:
@@ -38,6 +48,11 @@ class OrchestrationReport:
             "execution_plan": self.execution_plan.to_dict()
             if self.execution_plan
             else None,
+            "phase_metrics": self.phase_metrics,
+            "memory_usage": dict(self.memory_usage) if self.memory_usage is not None else None,
+            "governance_verdicts": list(self.governance_verdicts)
+            if self.governance_verdicts
+            else [],
         }
 
     def to_markdown(self) -> str:
@@ -56,6 +71,57 @@ class OrchestrationReport:
                 lines.append(f"- **{phase.name}**: {phase.goal}")
                 lines.append("  - Agents: " + ", ".join(phase.agents))
             lines.append("")
+        metrics = self.phase_metrics or {}
+        if not metrics and self.execution_plan and self.execution_plan.phases:
+            metrics = {}
+            for phase in self.execution_plan.phases:
+                agents = {agent for agent in phase.agents}
+                total = 0
+                completed = 0
+                for report in self.agent_reports:
+                    if report.agent_type in agents:
+                        total += len(report.task_reports)
+                        completed += sum(
+                            1 for task in report.task_reports if task.status == "completed"
+                        )
+                metrics[phase.name] = {"completed": completed, "total": total}
+        lines.append("## Phase Metrics")
+        if metrics:
+            for name, data in metrics.items():
+                completed = data.get("completed") or data.get("completed_tasks") or 0
+                total = data.get("total") or data.get("total_tasks") or 0
+                percent = int(round((completed / total) * 100)) if total else 0
+                lines.append(f"- **{name}**: {completed}/{total} completed ({percent}%)")
+        else:
+            lines.append("- No phase metrics available.")
+        lines.append("")
+        lines.append("## Memory Usage")
+        memory_usage = self.memory_usage or {}
+        if memory_usage:
+            for key, value in memory_usage.items():
+                lines.append(f"- {key}: {value}")
+        else:
+            lines.append("- Memory usage data unavailable.")
+        lines.append("")
+        lines.append("## Governance Verdicts")
+        decisions = self.governance_verdicts or []
+        if decisions:
+            for decision in decisions:
+                action = decision.get("action", "unknown") if isinstance(decision, dict) else "unknown"
+                verdict = decision.get("verdict", "UNKNOWN") if isinstance(decision, dict) else str(decision)
+                rationale = ""
+                details = ""
+                if isinstance(decision, dict):
+                    rationale = decision.get("rationale") or ""
+                    extra = decision.get("details")
+                    if isinstance(extra, dict) and extra:
+                        details = ", ".join(f"{k}={v}" for k, v in extra.items())
+                rationale_text = f" ({rationale})" if rationale else ""
+                details_text = f" – details: {details}" if details else ""
+                lines.append(f"- **{action}** → {verdict}{rationale_text}{details_text}")
+        else:
+            lines.append("- No governance decisions recorded.")
+        lines.append("")
         lines.append("## Agent Runs")
         lines.append("")
         for report in self.agent_reports:
@@ -234,11 +300,58 @@ class Orchestrator:
             else:
                 reports.extend(self._sequential_execution(phase.agents))
 
+        phase_metrics: Dict[str, Dict[str, int]] = {}
+        if plan_for_report and plan_for_report.phases:
+            for phase in plan_for_report.phases:
+                agents = {agent for agent in phase.agents}
+                total_tasks = 0
+                completed_tasks = 0
+                for agent_report in reports:
+                    if agent_report.agent_type in agents:
+                        total_tasks += len(agent_report.task_reports)
+                        completed_tasks += sum(
+                            1
+                            for task_report in agent_report.task_reports
+                            if task_report.status == "completed"
+                        )
+                phase_metrics[phase.name] = {
+                    "completed": completed_tasks,
+                    "total": total_tasks,
+                }
+        memory_stats: Dict[str, Any] = {}
+        if resource is not None:
+            usage = resource.getrusage(resource.RUSAGE_SELF)
+            peak_rss = getattr(usage, "ru_maxrss", 0)
+            if peak_rss:
+                if sys.platform == "darwin":
+                    rss_mb = round(peak_rss / (1024 * 1024), 2)
+                else:
+                    rss_mb = round(peak_rss / 1024, 2)
+                memory_stats["peak_rss_mb"] = rss_mb
+        if reports:
+            memory_stats.setdefault("agent_reports", len(reports))
+        governance_records: List[Dict[str, Any]] = []
+        for message in self.communication_hub.messages:
+            metadata = message.metadata or {}
+            if not isinstance(metadata, dict):
+                continue
+            if message.subject.startswith("governance"):
+                governance_records.append(
+                    {
+                        "action": metadata.get("action", message.subject),
+                        "verdict": metadata.get("verdict", metadata.get("decision", "UNKNOWN")),
+                        "rationale": metadata.get("rationale", ""),
+                        "details": metadata.get("details", {}),
+                    }
+                )
         orchestration_report = OrchestrationReport(
             agent_reports=reports,
             communication_log=list(self.communication_hub.messages),
             execution_mode=mode,
             execution_plan=plan_for_report,
+            phase_metrics=phase_metrics or None,
+            memory_usage=memory_stats or None,
+            governance_verdicts=governance_records,
         )
         if orchestration_report.success:
             notify_info("All agents completed successfully.")
