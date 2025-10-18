@@ -9,8 +9,14 @@ import uuid
 from dataclasses import dataclass, field
 from typing import Any, Dict, List, Mapping, Protocol, Sequence
 
+from ..builder.builder_agent import BuilderAgent
 from ..explainability import ExplainabilityLogger, SophiaMemoryClient
 from ..governance import GovernanceAuditor, GovernanceClient
+
+try:  # pragma: no cover - optional dependency
+    from ..self_optimization import PipelineOptimizer
+except Exception:  # pragma: no cover - optional dependency missing
+    PipelineOptimizer = None  # type: ignore[assignment]
 
 LOGGER = logging.getLogger("nova.core")
 
@@ -100,6 +106,7 @@ class EvaluationReport:
     summary: str
     issues: List[str] = field(default_factory=list)
     quality_score: float | None = None
+    reward: float | None = None
 
     def to_dict(self) -> Dict[str, Any]:
         return {
@@ -107,6 +114,7 @@ class EvaluationReport:
             "summary": self.summary,
             "issues": list(self.issues),
             "quality_score": self.quality_score,
+            "reward": self.reward,
         }
 
 
@@ -211,6 +219,17 @@ class NovaCore:
         self.auditor = auditor or GovernanceAuditor()
         self.memory_client = memory_client
         self._history: Dict[str, Dict[str, Any]] = {}
+        optimizer = None
+        if PipelineOptimizer is not None:
+            try:
+                optimizer = PipelineOptimizer(logger=self.explainability)
+            except Exception:  # pragma: no cover - defensive
+                optimizer = None
+        self.builder = BuilderAgent(
+            explainability=self.explainability,
+            governance=self.governance,
+            optimizer=optimizer,
+        )
 
     # ------------------------------------------------------------------
     def plan_task(self, request: TaskRequest) -> TaskPlan:
@@ -283,7 +302,13 @@ class NovaCore:
             success = all(result.success for result in results)
             summary = "All tasks completed successfully." if success else "Issues detected during execution."
             failing = [result.task.identifier for result in results if not result.success]
-            report = EvaluationReport(success=success, summary=summary, issues=failing)
+            report = EvaluationReport(
+                success=success,
+                summary=summary,
+                issues=failing,
+                quality_score=100.0 if success else 0.0,
+                reward=100.0 if success else 0.0,
+            )
         self.event_bus.publish("evaluation.completed", report.to_dict())
         self.explainability.log_decision(
             "evaluation",
@@ -300,6 +325,14 @@ class NovaCore:
                 evidence={"feedback": ops_feedback},
                 impact="pipeline-updated",
             )
+        reward_value = report.reward if hasattr(report, "reward") else None
+        if reward_value is None and report.quality_score is not None:
+            reward_value = report.quality_score
+        if isinstance(reward_value, (int, float)) and reward_value < 50:
+            try:
+                self.builder.sync_ci_workflows()
+            except Exception as exc:  # pragma: no cover - defensive
+                LOGGER.warning("Builder CI sync attempt failed: %s", exc)
         if results:
             plan_id = results[0].task.metadata.get("plan_id") if isinstance(results[0].task.metadata, dict) else None
             if plan_id and plan_id in self._history:
