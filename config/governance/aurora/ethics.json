@@ -1,0 +1,11 @@
+{
+  "contract_version": "2025.10",
+  "policy_reference": {
+    "policy_version": "2025-10-17",
+    "source": "spark-sophia"
+  },
+  "controls": [
+    "pre-deployment ethics checklist",
+    "continuous fairness monitoring"
+  ]
+}

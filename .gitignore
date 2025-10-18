@@ -17,7 +17,8 @@ ENV/
 
 # Project-specific runtime directories
 .nova/
-reports/
+reports/*
+!reports/.gitkeep
 
 # OS/editor
 .DS_Store
